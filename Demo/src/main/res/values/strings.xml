@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Downloader</string>
+
+    <string name="state_start">开始</string>
+    <string name="state_wait">等待</string>
+    <string name="state_continue">继续</string>
+    <string name="state_pause">暂停</string>
+    <string name="state_error">错误</string>
+    <string name="state_delete">删除</string>
+    <string name="state_success">完成</string>
+</resources>
