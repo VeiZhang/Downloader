@@ -72,11 +72,14 @@ public class SingleThreadActivity extends DownloadActivity
 		public void convert(ViewHolder viewHolder, NetroidTask item, int position)
 		{
 			viewHolder.setText(R.id.task_textview, item.getFileName());
-			viewHolder.setOnClickListener(R.id.start_btn, new TaskClick(item));
-			viewHolder.setOnClickListener(R.id.delete_btn, new TaskClick(item));
-			item.setStartBtn((Button) viewHolder.getView(R.id.start_btn));
-			item.setDeleteBtn((Button) viewHolder.getView(R.id.delete_btn));
-			item.setProgressBar((ProgressBar) viewHolder.getView(R.id.task_progressbar));
+			Button startBtn = viewHolder.getView(R.id.start_btn);
+			Button deleteBtn = viewHolder.getView(R.id.delete_btn);
+			ProgressBar progressBar = viewHolder.getView(R.id.task_progressbar);
+			startBtn.setOnClickListener(new TaskClick(item));
+			deleteBtn.setOnClickListener(new TaskClick(item));
+			item.setStartBtn(startBtn);
+			item.setDeleteBtn(deleteBtn);
+			item.setProgressBar(progressBar);
 			item.invalidateTask();
 		}
 
@@ -101,8 +104,8 @@ public class SingleThreadActivity extends DownloadActivity
 					DownloadController controller = mNetroidTask.getDownloadController();
 					if (controller == null)
 					{
-						// 未建立下载任务
-						startTask();
+						// 建立下载任务
+						buildTask();
 					}
 					else
 					{
@@ -135,7 +138,7 @@ public class SingleThreadActivity extends DownloadActivity
 				mNetroidTask.invalidateTask();
 			}
 
-			private void startTask()
+			private void buildTask()
 			{
 				File storeFile = new File(DOWNLOAD_PATH, mNetroidTask.getFileName());
 				mNetroidTask.setDownloadController(Netroid.getFileDownloader().add(storeFile, mNetroidTask.getFileUrl(), new Listener<Void>()

@@ -22,7 +22,6 @@ public class DownloadThread extends Thread
 	private DBHelper mDBhelper = null;
 	private FileDownloader mFileDownloader = null;
 	private String mDownloadUrl = null;
-	private int mBlock = 0;
 	private int mThreadId = 0;
 	private int mFileLength = 0;
 	private int mStartPosition = 0;
@@ -31,14 +30,12 @@ public class DownloadThread extends Thread
 	private String mFileName = null;
 	private boolean isFinished = false;
 	private RandomAccessFile mAccessFile = null;
-	private Context mContext = null;
 
 	public DownloadThread(Context context, FileDownloader fileDownloader, String downloadUrl, File saveFile, int block, int threadId, int fileLength)
 	{
 		mDBhelper = DBHelper.getInstance(context);
 		mFileDownloader = fileDownloader;
 		mDownloadUrl = downloadUrl;
-		mBlock = block;
 		mThreadId = threadId;
 		mFileLength = fileLength;
 		mStartPosition = threadId * block;

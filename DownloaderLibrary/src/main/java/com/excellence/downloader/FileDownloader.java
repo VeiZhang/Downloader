@@ -241,13 +241,7 @@ public class FileDownloader
 
 	public String getDownloaderName()
 	{
-
 		return mFileName;
-	}
-
-	public interface CompleteListener
-	{
-		void isComplete(int size);
 	}
 
 }
