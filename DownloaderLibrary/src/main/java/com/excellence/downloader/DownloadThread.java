@@ -4,10 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import android.content.Context;
 import android.util.Log;
@@ -84,16 +82,13 @@ public class DownloadThread extends Thread
 				}
 				else
 				{
-					HttpPost request = new HttpPost(mDownloadUrl);
+					URL url = new URL(mDownloadUrl);
+					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					int tmpStartPosition = mStartPosition + mDownloadLength;
-					request.setHeader("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
-
-					HttpResponse response = new DefaultHttpClient().execute(request);
-
-					int resultCode = response.getStatusLine().getStatusCode();
-					if (resultCode == 206)
+					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
+					if (connection.getResponseCode() == 206)
 					{
-						InputStream inputStream = response.getEntity().getContent();
+						InputStream inputStream = connection.getInputStream();
 						byte[] buffer = new byte[1024 * 4];
 						int len = 0;
 						while (!mFileDownloader.isStop() && (len = inputStream.read(buffer)) != -1)
@@ -108,6 +103,7 @@ public class DownloadThread extends Thread
 
 						}
 						inputStream.close();
+						connection.disconnect();
 						if ((mEndPosition + 1) == (mStartPosition + mDownloadLength) || mEndPosition == (mStartPosition + mDownloadLength))
 						{
 							isFinished = true;

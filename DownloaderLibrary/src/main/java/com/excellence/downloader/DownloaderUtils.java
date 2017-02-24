@@ -13,6 +13,14 @@ import java.util.concurrent.Executors;
  * Created by ZhangWei on 2017/2/15.
  */
 
+/**
+ * 下载器工具
+ * 权限
+ *     {@link android.Manifest.permission.INTERNET}
+ *     {@link android.Manifest.permission.WRITE_EXTERNAL_STORAGE}
+ *     {@link android.Manifest.permission.READ_EXTERNAL_STORAGE}
+ *
+ */
 public class DownloaderUtils
 {
 	private static final String TAG = DownloaderUtils.class.getSimpleName();

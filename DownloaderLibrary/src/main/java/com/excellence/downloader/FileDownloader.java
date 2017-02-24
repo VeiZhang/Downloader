@@ -6,12 +6,9 @@ package com.excellence.downloader;
 
 import java.io.File;
 import java.io.RandomAccessFile;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.List;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.params.CoreConnectionPNames;
 
 import android.content.Context;
 import android.util.Log;
@@ -71,18 +68,19 @@ public class FileDownloader
 
 				if (mFileUrl != null && mFileUrl.trim().length() > 0)
 				{
-					HttpPost downloadRequest = new HttpPost(mFileUrl);
-					DefaultHttpClient client = new DefaultHttpClient();
-					client.getParams().setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, CONNECT_TIME_OUT);
-					client.getParams().setParameter(CoreConnectionPNames.SO_TIMEOUT, SO_TIME_OUT);
-					HttpResponse downloadResponse = client.execute(downloadRequest);
+					URL url = new URL(mFileUrl);
+					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					connection.setConnectTimeout(CONNECT_TIME_OUT);
+					connection.setReadTimeout(SO_TIME_OUT);
+					connection.setRequestMethod("POST");
 
 					if (isStop)
 						return;
 
-					if (downloadResponse.getStatusLine().getStatusCode() == 200)
+					if (connection.getResponseCode() == 200)
 					{
-						int fileLength = (int) downloadResponse.getEntity().getContentLength();
+						int fileLength = connection.getContentLength();
+						connection.disconnect();
 
 						if (!mStoreFile.exists())
 							mStoreFile.createNewFile();
