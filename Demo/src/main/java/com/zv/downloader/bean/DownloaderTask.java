@@ -4,6 +4,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 
 import com.excellence.downloader.FileDownloader;
+import com.zv.downloader.R;
 
 /**
  * Created by ZhangWei on 2017/2/17.
@@ -105,5 +106,39 @@ public class DownloaderTask
 	public void setProgressBar(ProgressBar progressBar)
 	{
 		mProgressBar = progressBar;
+	}
+
+	public void invalidateTask()
+	{
+		if (mFileDownloader != null)
+		{
+			switch (mFileDownloader.getState())
+			{
+			case FileDownloader.STATE_DOWNLOADING:
+				mProgressBar.setProgress((int) mDownloadLength);
+				mProgressBar.setMax((int) mFileSize);
+				mStartBtn.setText(R.string.state_pause);
+				break;
+
+			case FileDownloader.STATE_PAUSE:
+				mStartBtn.setText(R.string.state_continue);
+				break;
+
+			case FileDownloader.STATE_DISCARD:
+				mProgressBar.setProgress(0);
+				mStartBtn.setText(R.string.state_start);
+				break;
+
+			case FileDownloader.STATE_SUCCESS:
+				mStartBtn.setText(R.string.state_success);
+				break;
+
+			}
+		}
+		else
+		{
+			mProgressBar.setProgress(0);
+			mStartBtn.setText(R.string.state_start);
+		}
 	}
 }

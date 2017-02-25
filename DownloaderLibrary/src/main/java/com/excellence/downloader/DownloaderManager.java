@@ -21,15 +21,15 @@ import java.util.concurrent.Executors;
  *     {@link android.Manifest.permission.READ_EXTERNAL_STORAGE}
  *
  */
-public class DownloaderUtils
+public class DownloaderManager
 {
-	private static final String TAG = DownloaderUtils.class.getSimpleName();
+	private static final String TAG = DownloaderManager.class.getSimpleName();
 
-	private static DownloaderUtils mInstance = null;
+	private static DownloaderManager mInstance = null;
 	private List<FileDownloader> mDownloaderList = null;
 	private ExecutorService mExecutorService = null;
 
-	private DownloaderUtils()
+	private DownloaderManager()
 	{
 
 	}
@@ -43,7 +43,7 @@ public class DownloaderUtils
 			if (parallelTaskCount == 0)
 				parallelTaskCount = 1;
 		}
-		mInstance = new DownloaderUtils();
+		mInstance = new DownloaderManager();
 		mInstance.mDownloaderList = new ArrayList<>();
 		mInstance.mExecutorService = Executors.newFixedThreadPool(parallelTaskCount);
 	}
@@ -52,7 +52,7 @@ public class DownloaderUtils
 	{
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
-			task.setPause(true);
+			task.setPause();
 		}
 	}
 
@@ -67,6 +67,7 @@ public class DownloaderUtils
 	public static FileDownloader addTask(Context context, File storeFile, String url, DownloaderListener listener)
 	{
 		final FileDownloader fileDownloader = new FileDownloader(context, storeFile, url, listener);
+		mInstance.mDownloaderList.add(fileDownloader);
 		mInstance.mExecutorService.execute(new Runnable()
 		{
 			@Override

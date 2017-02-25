@@ -8,22 +8,28 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
 
 import android.content.Context;
 import android.util.Log;
 
 /***
- * 入口 url，文件存储的地址 出口：下载进度，下载状态
+ * 文件下载器
  */
 public class FileDownloader
 {
 	private static final String TAG = FileDownloader.class.getSimpleName();
+
 	private static final int THREAD_COUNT = 3;
 	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 15 * 1000;
+	private static final int REFRESH_TRAVEL_TIME = 100;
+
+	public static final int STATE_DOWNLOADING = 0;
+	public static final int STATE_PAUSE = 1;
+	public static final int STATE_SUCCESS = 2;
+	public static final int STATE_DISCARD = 3;
+
 	private Context mContext;
-	private List<FileDownloader> mFileDownloaderList = null;
 	private DownloadThread[] mDownloadThreads = null;
 	private DBHelper mDBHelper = null;
 	private boolean isStop = false;
@@ -34,6 +40,7 @@ public class FileDownloader
 	private String mFileName;
 	private DownloaderListener mDownloaderListener = null;
 	private String mDownload_Path;
+	private int mState;
 
 	public FileDownloader(Context context, File storeFile, String url, DownloaderListener listener)
 	{
@@ -43,7 +50,6 @@ public class FileDownloader
 		mFileName = storeFile.getName();
 		mDownload_Path = storeFile.getParent();
 		mDownloaderListener = listener;
-		mFileDownloaderList = DownloaderUtils.getDownloaderList();
 		mDBHelper = DBHelper.getInstance(context);
 		mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	}
@@ -56,34 +62,36 @@ public class FileDownloader
 
 	public void deploy()
 	{
-		if (isStop)
-			return;
-
+		mState = STATE_DOWNLOADING;
 		if (!mFileUrl.isEmpty())
 		{
 			try
 			{
-
 				Log.e(TAG, " download url:" + mFileUrl);
-
 				if (mFileUrl != null && mFileUrl.trim().length() > 0)
 				{
 					URL url = new URL(mFileUrl);
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setConnectTimeout(CONNECT_TIME_OUT);
 					connection.setReadTimeout(SO_TIME_OUT);
-					connection.setRequestMethod("POST");
-
-					if (isStop)
-						return;
-
-					if (connection.getResponseCode() == 200)
+					// default request : GET
+					connection.setRequestMethod("GET");
+					int responseCode = connection.getResponseCode();
+					Log.e(TAG, "response code : " + responseCode);
+					if (responseCode == 200)
 					{
 						int fileLength = connection.getContentLength();
 						connection.disconnect();
-
 						if (!mStoreFile.exists())
 							mStoreFile.createNewFile();
+
+						/*
+						if (mDBHelper.queryFlag(mFileName) == null)
+							mDBHelper.insertFlag(mFileName, 0, fileLength);
+						else
+							mDBHelper.updateFlag(mFileName, 0);
+						*/
+
 						RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 						accessFile.setLength(fileLength);
 						accessFile.close();
@@ -104,12 +112,14 @@ public class FileDownloader
 								isFinished = true;
 								try
 								{
-									Thread.sleep(100);
+									Thread.sleep(REFRESH_TRAVEL_TIME);
 								}
 								catch (InterruptedException e)
 								{
 									e.printStackTrace();
 								}
+								if (isStop)
+									break;
 								for (int i = 0; i < THREAD_COUNT; i++)
 								{
 									if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
@@ -117,22 +127,15 @@ public class FileDownloader
 										isFinished = false;
 									}
 								}
-								if (isStop)
-									break;
 								mDownloaderListener.onDownloadingListener(mFileName, mDownloadLength);
 							}
 
 							if (isFinished)
 							{
+								if (fileLength == mDownloadLength)
+									mState = STATE_SUCCESS;
 								mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
-								for (FileDownloader fileDownloader : mFileDownloaderList)
-								{
-									if (fileDownloader.getDownloaderName().equals(mFileName))
-									{
-										mFileDownloaderList.remove(fileDownloader);
-										break;
-									}
-								}
+								DownloaderManager.getDownloaderList().remove(this);
 								mDownloaderListener.onDownloadFinishListener(mFileName);
 
 								for (int i = 0; i < THREAD_COUNT; i++)
@@ -166,70 +169,57 @@ public class FileDownloader
 				Log.e(TAG, "download exception");
 				sendErrorMsg();
 			}
-		}else
+		}
+		else
 		{
-			//url is empty
+			// url is empty
+			Log.e(TAG, "download url is empty");
+			sendErrorMsg();
 		}
 	}
 
 	public void sendErrorMsg()
 	{
-		if (isStop)
-			return;
-		for (FileDownloader fileDownloader : mFileDownloaderList)
-		{
-			if (fileDownloader.getDownloaderName().equals(mFileName))
-			{
-				mFileDownloaderList.remove(fileDownloader);
-				break;
-			}
-		}
-		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
-		isStop = true;
-		//mDownloaderListener.onDownloadFailListener(mFileName, BAD_RESPONECODE);
-		// send error service
-		//mDownloaderListener.onDownloadFailListener(mFileName, DownloadConstant.FLAG_ERROR);
+		sendErrorMsg(DownloadConstant.FLAG_ERROR);
 	}
 
+	// 一个下载线程停止，其他线程也停止
 	public void sendErrorMsg(int flag)
 	{
 		if (isStop)
 			return;
-		for (FileDownloader fileDownloader : mFileDownloaderList)
-		{
-			if (fileDownloader.getDownloaderName().equals(mFileName))
-			{
-				mFileDownloaderList.remove(fileDownloader);
-				break;
-			}
-		}
+		mState = STATE_PAUSE;
+		DownloaderManager.getDownloaderList().remove(this);
 		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
 		isStop = true;
-		//mDownloaderListener.onDownloadFailListener(mFileName, BAD_RESPONECODE);
 		mDownloaderListener.onDownloadFailListener(mFileName, flag);
 	}
 
-	public boolean isStop()
+	// 继续任务
+	public void schedule()
 	{
-		return isStop;
+		DownloaderManager.addTask(mContext, mStoreFile, mFileUrl, mDownloaderListener);
 	}
 
-	public void setPause(boolean isStop)
+	// 暂停任务
+	public void setPause()
 	{
-		this.isStop = isStop;
-		if (isStop)
+		mState = STATE_PAUSE;
+		isStop = true;
+		DownloaderManager.getDownloaderList().remove(this);
+		for (int i = 0; i < THREAD_COUNT; i++)
 		{
-			for (int i = 0; i < THREAD_COUNT; i++)
-			{
-				if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
-					mDownloadThreads[i].setPause();
-			}
+			if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
+				mDownloadThreads[i].setPause();
 		}
 	}
 
+	// 删除任务
 	public void setStop()
 	{
+		mState = STATE_DISCARD;
 		isStop = true;
+		DownloaderManager.getDownloaderList().remove(this);
 		for (int i = 0; i < THREAD_COUNT; i++)
 		{
 			if (mDownloadThreads[i] != null)
@@ -237,9 +227,23 @@ public class FileDownloader
 		}
 	}
 
+	public int getState()
+	{
+		return mState;
+	}
+
+	public boolean isStop()
+	{
+		return isStop;
+	}
+
 	public String getDownloaderName()
 	{
 		return mFileName;
 	}
 
+	public File getStoreFile()
+	{
+		return mStoreFile;
+	}
 }

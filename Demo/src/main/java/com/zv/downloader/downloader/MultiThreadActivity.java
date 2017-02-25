@@ -2,6 +2,7 @@ package com.zv.downloader.downloader;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.Button;
@@ -9,8 +10,10 @@ import android.widget.ProgressBar;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
+import com.excellence.basetoolslibrary.utils.FileUtils;
 import com.excellence.downloader.DownloaderListener;
-import com.excellence.downloader.DownloaderUtils;
+import com.excellence.downloader.DownloaderManager;
+import com.excellence.downloader.FileDownloader;
 import com.zv.downloader.DownloadActivity;
 import com.zv.downloader.R;
 import com.zv.downloader.bean.DownloaderTask;
@@ -36,19 +39,19 @@ public class MultiThreadActivity extends DownloadActivity
 	@Override
 	protected void initDownloader()
 	{
-		DownloaderUtils.init(Runtime.getRuntime().availableProcessors() - 1);
+		DownloaderManager.init(Runtime.getRuntime().availableProcessors() - 1);
 	}
 
 	@Override
 	protected void destroyDownloader()
 	{
-		DownloaderUtils.destroy();
+		DownloaderManager.destroy();
 	}
 
 	private void init()
 	{
 		mDownloaderTasks = new ArrayList<>();
-		mDownloaderTasks.add(new DownloaderTask("app.apk", APPMARKET_URL));
+		mDownloaderTasks.add(new DownloaderTask("AngryBirds.apk", APPMARKET_URL));
 		mDownloadListView.setAdapter(new DownloaderAdapter(this, mDownloaderTasks, R.layout.download_item));
 	}
 
@@ -71,6 +74,7 @@ public class MultiThreadActivity extends DownloadActivity
 			item.setStartBtn(startBtn);
 			item.setDeleteBtn(deleteBtn);
 			item.setProgressBar(progressBar);
+			item.invalidateTask();
 		}
 
 		private class TaskClick implements View.OnClickListener
@@ -88,34 +92,53 @@ public class MultiThreadActivity extends DownloadActivity
 				if (mDownloaderTask == null)
 					return;
 
+				FileDownloader fileDownloader = mDownloaderTask.getFileDownloader();
 				switch (v.getId())
 				{
 				case R.id.start_btn:
-					if (mDownloaderTask.getFileDownloader() == null)
+					if (fileDownloader == null)
 					{
 						// 建立下载任务
 						buildTask();
 					}
 					else
 					{
+						switch (fileDownloader.getState())
+						{
+						case FileDownloader.STATE_DOWNLOADING:
+							fileDownloader.setPause();
+							break;
 
+						case FileDownloader.STATE_PAUSE:
+							buildTask();
+//							fileDownloader.schedule();
+							break;
+						}
 					}
 					break;
 
 				case R.id.delete_btn:
+					if (fileDownloader != null)
+						fileDownloader.setStop();
+
+					FileUtils.deleteFile(new File(DOWNLOAD_PATH, mDownloaderTask.getFileName()));
+					mDownloaderTask.setFileDownloader(null);
 					break;
 				}
+				updateUI();
 			}
 
 			private void buildTask()
 			{
 				File file = new File(DOWNLOAD_PATH, mDownloaderTask.getFileName());
-				DownloaderUtils.addTask(MultiThreadActivity.this, file, APPMARKET_URL, new DownloaderListener()
+				mDownloaderTask.setFileDownloader(DownloaderManager.addTask(MultiThreadActivity.this, file, mDownloaderTask.getFileUrl(), new DownloaderListener()
 				{
 					@Override
 					public void onDownloadStartListener(String filename, int fileLength)
 					{
 						super.onDownloadStartListener(filename, fileLength);
+						mDownloaderTask.setFileSize(fileLength);
+						updateUI();
 						System.out.println("start: " + filename + " : " + fileLength);
 					}
 
@@ -123,6 +146,8 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onDownloadingListener(String filename, long downloadedLength)
 					{
 						super.onDownloadingListener(filename, downloadedLength);
+						mDownloaderTask.setDownloadLength(downloadedLength);
+						updateUI();
 						System.out.println("downloading: " + filename + " : " + downloadedLength);
 					}
 
@@ -130,6 +155,7 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onDownloadFinishListener(String filename)
 					{
 						super.onDownloadFinishListener(filename);
+						updateUI();
 						System.out.println("finish: " + filename);
 					}
 
@@ -137,7 +163,20 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onDownloadFailListener(String filename, int result)
 					{
 						super.onDownloadFailListener(filename, result);
+						updateUI();
 						System.out.println("failed: " + filename + " : " + result);
+					}
+				}));
+			}
+
+			private void updateUI()
+			{
+				runOnUiThread(new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						mDownloaderTask.invalidateTask();
 					}
 				});
 			}
