@@ -16,6 +16,8 @@ public class DownloadThread extends Thread
 {
 	private static final String TAG = DownloadThread.class.getSimpleName();
 
+	private static final int STREAM_LENGTH = 6 * 1024;
+
 	private DBHelper mDBHelper = null;
 	private FileDownloader mFileDownloader = null;
 	private String mDownloadUrl = null;
@@ -88,7 +90,7 @@ public class DownloadThread extends Thread
 					if (connection.getResponseCode() == 206)
 					{
 						InputStream inputStream = connection.getInputStream();
-						byte[] buffer = new byte[1024 * 4];
+						byte[] buffer = new byte[STREAM_LENGTH];
 						int len = 0;
 						while (!mFileDownloader.isStop() && (len = inputStream.read(buffer)) != -1)
 						{

@@ -109,8 +109,7 @@ public class MultiThreadActivity extends DownloadActivity
 							break;
 
 						case FileDownloader.STATE_PAUSE:
-							buildTask();
-//							fileDownloader.schedule();
+							fileDownloader.schedule();
 							break;
 						}
 					}
@@ -147,6 +146,7 @@ public class MultiThreadActivity extends DownloadActivity
 						super.onDownloadingListener(filename, downloadedLength);
 						mDownloaderTask.setDownloadLength(downloadedLength);
 						mDownloaderTask.invalidateTask();
+						System.out.println("start: " + filename + " : " + downloadedLength);
 					}
 
 					@Override

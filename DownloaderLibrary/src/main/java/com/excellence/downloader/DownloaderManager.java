@@ -78,8 +78,17 @@ public class DownloaderManager
 
 	public static FileDownloader addTask(Context context, File storeFile, String url, DownloaderListener listener)
 	{
+		return addTask(new FileDownloader(context, storeFile, url, listener, mInstance.mResponsePoster));
+	}
+
+	public static FileDownloader addTask(Context context, String storeFilePath, String url, DownloaderListener listener)
+	{
+		return addTask(context, new File(storeFilePath), url, listener);
+	}
+
+	public static FileDownloader addTask(final FileDownloader fileDownloader)
+	{
 		throwIfNotOnMainThread();
-		final FileDownloader fileDownloader = new FileDownloader(context, storeFile, url, listener, mInstance.mResponsePoster);
 		mInstance.mDownloaderList.add(fileDownloader);
 		mInstance.mExecutorService.execute(new Runnable()
 		{
@@ -90,11 +99,6 @@ public class DownloaderManager
 			}
 		});
 		return fileDownloader;
-	}
-
-	public static FileDownloader addTask(Context context, String storeFilePath, String url, DownloaderListener listener)
-	{
-		return addTask(context, new File(storeFilePath), url, listener);
 	}
 
 	private static void throwIfNotOnMainThread()

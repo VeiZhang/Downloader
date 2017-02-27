@@ -108,12 +108,6 @@ public class FileDownloader implements IDownloaderListener
 								mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
 								DownloaderManager.getDownloaderList().remove(this);
 								onDownloadFinishListener(mFileName);
-
-								for (int i = 0; i < THREAD_COUNT; i++)
-								{
-									if (mDownloadThreads[i] != null)
-										mDownloadThreads[i].setStop();
-								}
 							}
 						}
 						else
@@ -258,8 +252,8 @@ public class FileDownloader implements IDownloaderListener
 	// 继续任务
 	public void schedule()
 	{
-		// DownloaderManager.addTask(mContext, mStoreFile, mFileUrl,
-		// mDownloaderListener);
+		isStop = false;
+		 DownloaderManager.addTask(this);
 	}
 
 	/**
