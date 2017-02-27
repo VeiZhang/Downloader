@@ -23,7 +23,6 @@ public class FileDownloader implements IDownloaderListener
 	private static final int THREAD_COUNT = 3;
 	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 15 * 1000;
-	private static final int REFRESH_TRAVEL_TIME = 100;
 
 	public static final int STATE_DOWNLOADING = 0;
 	public static final int STATE_PAUSE = 1;
@@ -58,6 +57,7 @@ public class FileDownloader implements IDownloaderListener
 	{
 		mDownloadLength += size;
 		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadLength);
+		onDownloadingListener(mFileName, mDownloadLength);
 	}
 
 	public void deploy()
@@ -108,14 +108,6 @@ public class FileDownloader implements IDownloaderListener
 							while (!isStop && !isFinished)
 							{
 								isFinished = true;
-								try
-								{
-									Thread.sleep(REFRESH_TRAVEL_TIME);
-								}
-								catch (InterruptedException e)
-								{
-									e.printStackTrace();
-								}
 								for (int i = 0; i < THREAD_COUNT; i++)
 								{
 									if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
@@ -123,7 +115,6 @@ public class FileDownloader implements IDownloaderListener
 										isFinished = false;
 									}
 								}
-								onDownloadingListener(mFileName, mDownloadLength);
 							}
 
 							if (isFinished)
