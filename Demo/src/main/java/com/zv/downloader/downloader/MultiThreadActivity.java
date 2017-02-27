@@ -147,7 +147,6 @@ public class MultiThreadActivity extends DownloadActivity
 						super.onDownloadingListener(filename, downloadedLength);
 						mDownloaderTask.setDownloadLength(downloadedLength);
 						mDownloaderTask.invalidateTask();
-						System.out.println("downloading: " + filename + " : " + downloadedLength);
 					}
 
 					@Override

@@ -85,12 +85,10 @@ public class FileDownloader implements IDownloaderListener
 						if (!mStoreFile.exists())
 							mStoreFile.createNewFile();
 
-						/*
 						if (mDBHelper.queryFlag(mFileName) == null)
 							mDBHelper.insertFlag(mFileName, 0, fileLength);
 						else
 							mDBHelper.updateFlag(mFileName, 0);
-						*/
 
 						RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 						accessFile.setLength(fileLength);
@@ -118,8 +116,6 @@ public class FileDownloader implements IDownloaderListener
 								{
 									e.printStackTrace();
 								}
-								if (isStop)
-									break;
 								for (int i = 0; i < THREAD_COUNT; i++)
 								{
 									if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())

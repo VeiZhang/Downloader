@@ -124,7 +124,7 @@ public class DBHelper extends SQLiteOpenHelper
 		mDatabase.execSQL("delete from " + tableName + " where name = ?", new Object[] { name });
 	}
 
-	public void close()
+	public void closeDB()
 	{
 		if (mDatabase != null)
 		{

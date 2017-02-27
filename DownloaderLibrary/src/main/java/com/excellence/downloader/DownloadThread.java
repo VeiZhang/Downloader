@@ -142,7 +142,7 @@ public class DownloadThread extends Thread
 	{
 		synchronized (DBHelper.lock)
 		{
-			Log.d(TAG, "pause mDownloadLength" + mDownloadLength + "::" + mThreadId);
+			Log.d(TAG, "pause mDownloadLength : " + mDownloadLength + "::" + mThreadId);
 			mDBhelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
 			mDBhelper.updateFlag(mFileName, DownloadConstant.FLAG_PAUSE);
 		}
