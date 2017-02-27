@@ -2,7 +2,6 @@ package com.zv.downloader.downloader;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.Button;
@@ -125,7 +124,7 @@ public class MultiThreadActivity extends DownloadActivity
 					mDownloaderTask.setFileDownloader(null);
 					break;
 				}
-				updateUI();
+				mDownloaderTask.invalidateTask();
 			}
 
 			private void buildTask()
@@ -138,7 +137,7 @@ public class MultiThreadActivity extends DownloadActivity
 					{
 						super.onDownloadStartListener(filename, fileLength);
 						mDownloaderTask.setFileSize(fileLength);
-						updateUI();
+						mDownloaderTask.invalidateTask();
 						System.out.println("start: " + filename + " : " + fileLength);
 					}
 
@@ -147,7 +146,7 @@ public class MultiThreadActivity extends DownloadActivity
 					{
 						super.onDownloadingListener(filename, downloadedLength);
 						mDownloaderTask.setDownloadLength(downloadedLength);
-						updateUI();
+						mDownloaderTask.invalidateTask();
 						System.out.println("downloading: " + filename + " : " + downloadedLength);
 					}
 
@@ -155,7 +154,7 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onDownloadFinishListener(String filename)
 					{
 						super.onDownloadFinishListener(filename);
-						updateUI();
+						mDownloaderTask.invalidateTask();
 						System.out.println("finish: " + filename);
 					}
 
@@ -163,23 +162,12 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onDownloadFailListener(String filename, int result)
 					{
 						super.onDownloadFailListener(filename, result);
-						updateUI();
+						mDownloaderTask.invalidateTask();
 						System.out.println("failed: " + filename + " : " + result);
 					}
 				}));
 			}
 
-			private void updateUI()
-			{
-				runOnUiThread(new Runnable()
-				{
-					@Override
-					public void run()
-					{
-						mDownloaderTask.invalidateTask();
-					}
-				});
-			}
 		}
 	}
 }

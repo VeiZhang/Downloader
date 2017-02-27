@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.concurrent.Executor;
 
 import android.content.Context;
 import android.util.Log;
@@ -15,7 +16,7 @@ import android.util.Log;
 /***
  * 文件下载器
  */
-public class FileDownloader
+public class FileDownloader implements IDownloaderListener
 {
 	private static final String TAG = FileDownloader.class.getSimpleName();
 
@@ -30,28 +31,27 @@ public class FileDownloader
 	public static final int STATE_DISCARD = 3;
 
 	private Context mContext;
-	private DownloadThread[] mDownloadThreads = null;
+	private File mStoreFile = null;
+	private String mFileUrl;
+	private DownloaderListener mDownloaderListener = null;
+	private Executor mResponsePoster = null;
+	private DownloadThread[] mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	private DBHelper mDBHelper = null;
 	private boolean isStop = false;
 	private boolean isFinished = false;
 	private long mDownloadLength = 0;
-	private File mStoreFile = null;
-	private String mFileUrl;
 	private String mFileName;
-	private DownloaderListener mDownloaderListener = null;
-	private String mDownload_Path;
 	private int mState;
 
-	public FileDownloader(Context context, File storeFile, String url, DownloaderListener listener)
+	public FileDownloader(Context context, File storeFile, String url, DownloaderListener listener, Executor executor)
 	{
 		mContext = context;
 		mStoreFile = storeFile;
 		mFileUrl = url;
 		mFileName = storeFile.getName();
-		mDownload_Path = storeFile.getParent();
 		mDownloaderListener = listener;
+		mResponsePoster = executor;
 		mDBHelper = DBHelper.getInstance(context);
-		mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	}
 
 	protected synchronized void append(long size)
@@ -95,10 +95,10 @@ public class FileDownloader
 						RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 						accessFile.setLength(fileLength);
 						accessFile.close();
-						if (MemorySpaceCheck.hasSDEnoughMemory(mDownload_Path, fileLength))
+						if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), fileLength))
 						{
 							mDownloadLength = mDBHelper.queryDownloadedLength(mFileName);
-							mDownloaderListener.onDownloadStartListener(mFileName, fileLength);
+							onDownloadStartListener(mFileName, fileLength);
 
 							int block = fileLength % THREAD_COUNT == 0 ? fileLength / THREAD_COUNT : fileLength / THREAD_COUNT + 1;
 							for (int i = 0; i < THREAD_COUNT; i++)
@@ -127,7 +127,7 @@ public class FileDownloader
 										isFinished = false;
 									}
 								}
-								mDownloaderListener.onDownloadingListener(mFileName, mDownloadLength);
+								onDownloadingListener(mFileName, mDownloadLength);
 							}
 
 							if (isFinished)
@@ -136,7 +136,7 @@ public class FileDownloader
 									mState = STATE_SUCCESS;
 								mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
 								DownloaderManager.getDownloaderList().remove(this);
-								mDownloaderListener.onDownloadFinishListener(mFileName);
+								onDownloadFinishListener(mFileName);
 
 								for (int i = 0; i < THREAD_COUNT; i++)
 								{
@@ -192,13 +192,13 @@ public class FileDownloader
 		DownloaderManager.getDownloaderList().remove(this);
 		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
 		isStop = true;
-		mDownloaderListener.onDownloadFailListener(mFileName, flag);
+		onDownloadFailListener(mFileName, flag);
 	}
 
 	// 继续任务
 	public void schedule()
 	{
-		DownloaderManager.addTask(mContext, mStoreFile, mFileUrl, mDownloaderListener);
+//		DownloaderManager.addTask(mContext, mStoreFile, mFileUrl, mDownloaderListener);
 	}
 
 	// 暂停任务
@@ -245,5 +245,61 @@ public class FileDownloader
 	public File getStoreFile()
 	{
 		return mStoreFile;
+	}
+
+	@Override
+	public void onDownloadStartListener(final String filename, final int fileLength)
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onDownloadStartListener(filename, fileLength);
+			}
+		});
+	}
+
+	@Override
+	public void onDownloadingListener(final String filename, final long downloadedLength)
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onDownloadingListener(filename, downloadedLength);
+			}
+		});
+	}
+
+	@Override
+	public void onDownloadFinishListener(final String filename)
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onDownloadFinishListener(filename);
+			}
+		});
+	}
+
+	@Override
+	public void onDownloadFailListener(final String filename, final int result)
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onDownloadFailListener(filename, result);
+			}
+		});
 	}
 }
