@@ -22,8 +22,8 @@ public class DBHelper extends SQLiteOpenHelper
 	public static final String TBL_ID = "threadid";
 	public static final String TBL_LENGTH = "downloadlength";
 	public static final String lock = "Visit";
-	private static final int VERSION = 2;
-	private static final String DB_NAME = "Appmarket.db";
+	private static final int VERSION = 1;
+	private static final String DB_NAME = "download.db";
 	private static final String CREATE_DOWNLOAD_TBL = "create table DownloadInfo(name VARCHAR(1024), threadid INTEGER, downloadlength INTEGER, PRIMARY KEY(name,threadid))";
 	private static final String CREATE_FLAG_TBL = "create table FlagInfo(name VARCHAR(1024), flag INTEGER, downloadlength INTEGER, PRIMARY KEY(name))";
 	private static DBHelper mInstance = null;

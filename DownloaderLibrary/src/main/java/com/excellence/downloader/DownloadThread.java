@@ -1,7 +1,6 @@
 package com.excellence.downloader;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
@@ -17,7 +16,7 @@ public class DownloadThread extends Thread
 {
 	private static final String TAG = DownloadThread.class.getSimpleName();
 
-	private DBHelper mDBhelper = null;
+	private DBHelper mDBHelper = null;
 	private FileDownloader mFileDownloader = null;
 	private String mDownloadUrl = null;
 	private int mThreadId = 0;
@@ -31,7 +30,7 @@ public class DownloadThread extends Thread
 
 	public DownloadThread(Context context, FileDownloader fileDownloader, String downloadUrl, File saveFile, int block, int threadId, int fileLength)
 	{
-		mDBhelper = DBHelper.getInstance(context);
+		mDBHelper = DBHelper.getInstance(context);
 		mFileDownloader = fileDownloader;
 		mDownloadUrl = downloadUrl;
 		mThreadId = threadId;
@@ -43,10 +42,10 @@ public class DownloadThread extends Thread
 		try
 		{
 			if (!saveFile.exists())
-				saveFile.createNewFile();
+				throw new IllegalStateException("Storage file is not exist.");
 			mAccessFile = new RandomAccessFile(saveFile, "rwd");
 		}
-		catch (IOException e)
+		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
@@ -60,7 +59,7 @@ public class DownloadThread extends Thread
 		{
 			try
 			{
-				HistoryFileInfo historyFileInfo = mDBhelper.queryDownload(mFileName, mThreadId);
+				HistoryFileInfo historyFileInfo = mDBHelper.queryDownload(mFileName, mThreadId);
 				if (historyFileInfo != null)
 				{
 					mDownloadLength = historyFileInfo.getDownloadLength();
@@ -70,7 +69,7 @@ public class DownloadThread extends Thread
 					// create once
 					synchronized (DBHelper.lock)
 					{
-						mDBhelper.insertDownload(mFileName, mThreadId, mDownloadLength);
+						mDBHelper.insertDownload(mFileName, mThreadId, mDownloadLength);
 					}
 				}
 				mAccessFile.seek(mStartPosition + mDownloadLength);
@@ -98,7 +97,7 @@ public class DownloadThread extends Thread
 							mDownloadLength += len;
 							synchronized (DBHelper.lock)
 							{
-								mDBhelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
+								mDBHelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
 							}
 
 						}
@@ -118,7 +117,7 @@ public class DownloadThread extends Thread
 				if (requestCount == 0)
 				{
 					e.printStackTrace();
-					Log.e(TAG, requestCount + "download exception ----- download tasks:" + mFileName + "threadid:" + mThreadId);
+					Log.e(TAG, requestCount + "download exception ----- download tasks:" + mFileName + "threadId:" + mThreadId);
 					mFileDownloader.sendErrorMsg();
 				}
 			}
@@ -134,7 +133,7 @@ public class DownloadThread extends Thread
 	{
 		synchronized (DBHelper.lock)
 		{
-			mDBhelper.delete(mFileName, DBHelper.DOWNLOAD_TBL_NAME);
+			mDBHelper.delete(mFileName, DBHelper.DOWNLOAD_TBL_NAME);
 		}
 	}
 
@@ -143,8 +142,8 @@ public class DownloadThread extends Thread
 		synchronized (DBHelper.lock)
 		{
 			Log.d(TAG, "pause mDownloadLength : " + mDownloadLength + "::" + mThreadId);
-			mDBhelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
-			mDBhelper.updateFlag(mFileName, DownloadConstant.FLAG_PAUSE);
+			mDBHelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
+			mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_PAUSE);
 		}
 	}
 }

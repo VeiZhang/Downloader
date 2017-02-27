@@ -53,13 +53,6 @@ public class FileDownloader implements IDownloaderListener
 		mDBHelper = DBHelper.getInstance(context);
 	}
 
-	protected synchronized void append(long size)
-	{
-		mDownloadLength += size;
-		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadLength);
-		onDownloadingListener(mFileName, mDownloadLength);
-	}
-
 	public void deploy()
 	{
 		mState = STATE_DOWNLOADING;
@@ -80,28 +73,18 @@ public class FileDownloader implements IDownloaderListener
 					Log.e(TAG, "response code : " + responseCode);
 					if (responseCode == 200)
 					{
-						int fileLength = connection.getContentLength();
+						int fileSize = connection.getContentLength();
 						connection.disconnect();
-						if (!mStoreFile.exists())
-							mStoreFile.createNewFile();
-
-						if (mDBHelper.queryFlag(mFileName) == null)
-							mDBHelper.insertFlag(mFileName, 0, fileLength);
-						else
-							mDBHelper.updateFlag(mFileName, 0);
-
-						RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
-						accessFile.setLength(fileLength);
-						accessFile.close();
-						if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), fileLength))
+						checkLocalFile(fileSize);
+						if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), fileSize))
 						{
 							mDownloadLength = mDBHelper.queryDownloadedLength(mFileName);
-							onDownloadStartListener(mFileName, fileLength);
+							onDownloadStartListener(mFileName, fileSize);
 
-							int block = fileLength % THREAD_COUNT == 0 ? fileLength / THREAD_COUNT : fileLength / THREAD_COUNT + 1;
+							int block = fileSize % THREAD_COUNT == 0 ? fileSize / THREAD_COUNT : fileSize / THREAD_COUNT + 1;
 							for (int i = 0; i < THREAD_COUNT; i++)
 							{
-								mDownloadThreads[i] = new DownloadThread(mContext, this, mFileUrl, mStoreFile, block, i, fileLength);
+								mDownloadThreads[i] = new DownloadThread(mContext, this, mFileUrl, mStoreFile, block, i, fileSize);
 								mDownloadThreads[i].start();
 							}
 
@@ -119,8 +102,9 @@ public class FileDownloader implements IDownloaderListener
 
 							if (isFinished)
 							{
-								if (fileLength == mDownloadLength)
-									mState = STATE_SUCCESS;
+								if (!mStoreFile.exists())
+									throw new IllegalStateException("Download failed, Storage file is not exist.");
+								mState = STATE_SUCCESS;
 								mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
 								DownloaderManager.getDownloaderList().remove(this);
 								onDownloadFinishListener(mFileName);
@@ -165,6 +149,26 @@ public class FileDownloader implements IDownloaderListener
 		}
 	}
 
+	private void checkLocalFile(int fileSize) throws Exception
+	{
+		if (!mStoreFile.exists())
+		{
+			mDBHelper.delete(mFileName, DBHelper.FLAG_TBL_NAME);
+			mDBHelper.delete(mFileName, DBHelper.DOWNLOAD_TBL_NAME);
+			if (!mStoreFile.createNewFile())
+				throw new IllegalStateException("Failed to create storage file.");
+		}
+
+		if (mDBHelper.queryFlag(mFileName) == null)
+			mDBHelper.insertFlag(mFileName, 0, fileSize);
+		else
+			mDBHelper.updateFlag(mFileName, 0);
+
+		RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
+		accessFile.setLength(fileSize);
+		accessFile.close();
+	}
+
 	public void sendErrorMsg()
 	{
 		sendErrorMsg(DownloadConstant.FLAG_ERROR);
@@ -182,56 +186,17 @@ public class FileDownloader implements IDownloaderListener
 		onDownloadFailListener(mFileName, flag);
 	}
 
-	// 继续任务
-	public void schedule()
+	/**
+	 * 同步总下载长度
+	 * 
+	 * @param size
+	 *            一次文件流的长度
+	 */
+	protected synchronized void append(long size)
 	{
-//		DownloaderManager.addTask(mContext, mStoreFile, mFileUrl, mDownloaderListener);
-	}
-
-	// 暂停任务
-	public void setPause()
-	{
-		mState = STATE_PAUSE;
-		isStop = true;
-		DownloaderManager.getDownloaderList().remove(this);
-		for (int i = 0; i < THREAD_COUNT; i++)
-		{
-			if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
-				mDownloadThreads[i].setPause();
-		}
-	}
-
-	// 删除任务
-	public void setStop()
-	{
-		mState = STATE_DISCARD;
-		isStop = true;
-		DownloaderManager.getDownloaderList().remove(this);
-		for (int i = 0; i < THREAD_COUNT; i++)
-		{
-			if (mDownloadThreads[i] != null)
-				mDownloadThreads[i].setStop();
-		}
-	}
-
-	public int getState()
-	{
-		return mState;
-	}
-
-	public boolean isStop()
-	{
-		return isStop;
-	}
-
-	public String getDownloaderName()
-	{
-		return mFileName;
-	}
-
-	public File getStoreFile()
-	{
-		return mStoreFile;
+		mDownloadLength += size;
+		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadLength);
+		onDownloadingListener(mFileName, mDownloadLength);
 	}
 
 	@Override
@@ -289,4 +254,62 @@ public class FileDownloader implements IDownloaderListener
 			}
 		});
 	}
+
+	// 继续任务
+	public void schedule()
+	{
+		// DownloaderManager.addTask(mContext, mStoreFile, mFileUrl,
+		// mDownloaderListener);
+	}
+
+	/**
+	 * 暂停任务
+	 */
+	public void setPause()
+	{
+		mState = STATE_PAUSE;
+		isStop = true;
+		DownloaderManager.getDownloaderList().remove(this);
+		for (int i = 0; i < THREAD_COUNT; i++)
+		{
+			if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
+				mDownloadThreads[i].setPause();
+		}
+	}
+
+	/**
+	 * 删除任务
+	 */
+	public void setStop()
+	{
+		mState = STATE_DISCARD;
+		isStop = true;
+		DownloaderManager.getDownloaderList().remove(this);
+		for (int i = 0; i < THREAD_COUNT; i++)
+		{
+			if (mDownloadThreads[i] != null)
+				mDownloadThreads[i].setStop();
+		}
+	}
+
+	public int getState()
+	{
+		return mState;
+	}
+
+	public boolean isStop()
+	{
+		return isStop;
+	}
+
+	public String getDownloaderName()
+	{
+		return mFileName;
+	}
+
+	public File getStoreFile()
+	{
+		return mStoreFile;
+	}
+
 }
