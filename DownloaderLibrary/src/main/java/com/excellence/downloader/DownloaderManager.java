@@ -64,7 +64,7 @@ public class DownloaderManager
 	{
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
-			task.setPause();
+			task.pause();
 		}
 	}
 

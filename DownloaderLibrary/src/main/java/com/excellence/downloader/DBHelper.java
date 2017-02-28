@@ -17,8 +17,8 @@ public class DBHelper extends SQLiteOpenHelper
 {
 	private static final String DB_NAME = "download.db";
 	private static final int VERSION = 1;
-	public static final String DOWNLOAD_TBL_NAME = "DownloadInfo";
-	public static final String FLAG_TBL_NAME = "FlagInfo";
+	private static final String DOWNLOAD_TBL_NAME = "DownloadInfo";
+	private static final String FLAG_TBL_NAME = "FlagInfo";
 	private static final String KEY_NAME = "name";
 	private static final String KEY_ID = "threadid";
 	private static final String KEY_FLAG = "flag";
@@ -122,7 +122,17 @@ public class DBHelper extends SQLiteOpenHelper
 		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ?", FLAG_TBL_NAME, KEY_LENGTH, KEY_NAME), new Object[] { downloadLength, name });
 	}
 
-	public void delete(String name, String tableName)
+	public void deleteDownloadInfo(String name)
+	{
+		delete(DOWNLOAD_TBL_NAME, name);
+	}
+
+	public void deleteFlagInfo(String name)
+	{
+		delete(FLAG_TBL_NAME, name);
+	}
+
+	public void delete(String tableName, String name)
 	{
 		mDatabase.execSQL(String.format("delete from %1$s where %2$s = ?", tableName, KEY_NAME), new Object[] { name });
 	}

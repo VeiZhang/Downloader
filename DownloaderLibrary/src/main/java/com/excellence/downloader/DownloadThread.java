@@ -101,7 +101,6 @@ public class DownloadThread extends Thread
 							{
 								mDBHelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
 							}
-
 						}
 						inputStream.close();
 						connection.disconnect();
@@ -131,21 +130,4 @@ public class DownloadThread extends Thread
 		return isFinished;
 	}
 
-	public void setStop()
-	{
-		synchronized (DBHelper.lock)
-		{
-			mDBHelper.delete(mFileName, DBHelper.DOWNLOAD_TBL_NAME);
-		}
-	}
-
-	public void setPause()
-	{
-		synchronized (DBHelper.lock)
-		{
-			Log.d(TAG, "pause mDownloadLength : " + mDownloadLength + "::" + mThreadId);
-			mDBHelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
-			mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_PAUSE);
-		}
-	}
 }

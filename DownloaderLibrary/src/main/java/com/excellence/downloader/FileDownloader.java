@@ -147,8 +147,8 @@ public class FileDownloader implements IDownloaderListener
 	{
 		if (!mStoreFile.exists())
 		{
-			mDBHelper.delete(mFileName, DBHelper.FLAG_TBL_NAME);
-			mDBHelper.delete(mFileName, DBHelper.DOWNLOAD_TBL_NAME);
+			mDBHelper.deleteDownloadInfo(mFileName);
+			mDBHelper.deleteFlagInfo(mFileName);
 			if (!mStoreFile.createNewFile())
 				throw new IllegalStateException("Failed to create storage file.");
 		}
@@ -183,8 +183,7 @@ public class FileDownloader implements IDownloaderListener
 	/**
 	 * 同步总下载长度
 	 * 
-	 * @param size
-	 *            一次文件流的长度
+	 * @param size 一次文件流的长度
 	 */
 	protected synchronized void append(long size)
 	{
@@ -249,41 +248,37 @@ public class FileDownloader implements IDownloaderListener
 		});
 	}
 
-	// 继续任务
-	public void schedule()
+	/**
+	 * 恢复任务
+	 */
+	public void resume()
 	{
+		mState = STATE_DOWNLOADING;
 		isStop = false;
-		 DownloaderManager.addTask(this);
+		DownloaderManager.addTask(this);
 	}
 
 	/**
 	 * 暂停任务
 	 */
-	public void setPause()
+	public void pause()
 	{
 		mState = STATE_PAUSE;
 		isStop = true;
 		DownloaderManager.getDownloaderList().remove(this);
-		for (int i = 0; i < THREAD_COUNT; i++)
-		{
-			if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
-				mDownloadThreads[i].setPause();
-		}
 	}
 
 	/**
 	 * 删除任务
 	 */
-	public void setStop()
+	public void discard()
 	{
 		mState = STATE_DISCARD;
 		isStop = true;
+		mDBHelper.deleteDownloadInfo(mFileName);
+		mDBHelper.deleteFlagInfo(mFileName);
+		mStoreFile.delete();
 		DownloaderManager.getDownloaderList().remove(this);
-		for (int i = 0; i < THREAD_COUNT; i++)
-		{
-			if (mDownloadThreads[i] != null)
-				mDownloadThreads[i].setStop();
-		}
 	}
 
 	public int getState()

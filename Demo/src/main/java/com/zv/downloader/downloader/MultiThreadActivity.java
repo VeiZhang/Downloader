@@ -38,7 +38,7 @@ public class MultiThreadActivity extends DownloadActivity
 	@Override
 	protected void initDownloader()
 	{
-		DownloaderManager.init(Runtime.getRuntime().availableProcessors() - 1);
+		DownloaderManager.init(2);
 	}
 
 	@Override
@@ -51,6 +51,9 @@ public class MultiThreadActivity extends DownloadActivity
 	{
 		mDownloaderTasks = new ArrayList<>();
 		mDownloaderTasks.add(new DownloaderTask("AngryBirds.apk", APPMARKET_URL));
+		mDownloaderTasks.add(new DownloaderTask("QQ.apk", QQ_URL));
+		mDownloaderTasks.add(new DownloaderTask("RomUpdate.bin", ROMUPDATE_URL));
+		mDownloaderTasks.add(new DownloaderTask("Filmon.apk", FILMON_URL));
 		mDownloadListView.setAdapter(new DownloaderAdapter(this, mDownloaderTasks, R.layout.download_item));
 	}
 
@@ -105,11 +108,11 @@ public class MultiThreadActivity extends DownloadActivity
 						switch (fileDownloader.getState())
 						{
 						case FileDownloader.STATE_DOWNLOADING:
-							fileDownloader.setPause();
+							fileDownloader.pause();
 							break;
 
 						case FileDownloader.STATE_PAUSE:
-							fileDownloader.schedule();
+							fileDownloader.resume();
 							break;
 						}
 					}
@@ -117,9 +120,8 @@ public class MultiThreadActivity extends DownloadActivity
 
 				case R.id.delete_btn:
 					if (fileDownloader != null)
-						fileDownloader.setStop();
+						fileDownloader.discard();
 
-					FileUtils.deleteFile(new File(DOWNLOAD_PATH, mDownloaderTask.getFileName()));
 					mDownloaderTask.setFileDownloader(null);
 					break;
 				}
@@ -146,7 +148,6 @@ public class MultiThreadActivity extends DownloadActivity
 						super.onDownloadingListener(filename, downloadedLength);
 						mDownloaderTask.setDownloadLength(downloadedLength);
 						mDownloaderTask.invalidateTask();
-						System.out.println("start: " + filename + " : " + downloadedLength);
 					}
 
 					@Override
