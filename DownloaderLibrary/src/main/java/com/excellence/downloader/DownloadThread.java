@@ -96,14 +96,14 @@ public class DownloadThread extends Thread
 						{
 							mAccessFile.write(buffer, 0, len);
 							mDownloadLength += len;
-							mFileDownloader.append(mThreadId, mDownloadLength, len);
+							mFileDownloader.append(len);
 						}
+						mFileDownloader.updateDatabase(mThreadId, mDownloadLength);
 						inputStream.close();
 						connection.disconnect();
 						if ((mEndPosition + 1) == (mStartPosition + mDownloadLength) || mEndPosition == (mStartPosition + mDownloadLength))
 						{
 							isFinished = true;
-
 						}
 					}
 				}
@@ -114,6 +114,8 @@ public class DownloadThread extends Thread
 				if (requestCount == 0)
 				{
 					e.printStackTrace();
+					if (mDownloadLength != 0)
+						mFileDownloader.updateDatabase(mThreadId, mDownloadLength);
 					Log.e(TAG, requestCount + "download exception ----- download tasks:" + mFileName + "threadId:" + mThreadId);
 					mFileDownloader.sendErrorMsg();
 				}
