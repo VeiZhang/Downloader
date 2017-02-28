@@ -44,7 +44,7 @@ public class MultiThreadActivity extends DownloadActivity
 	@Override
 	protected void destroyDownloader()
 	{
-		DownloaderManager.destroy();
+		DownloaderManager.destroy(this);
 	}
 
 	private void init()

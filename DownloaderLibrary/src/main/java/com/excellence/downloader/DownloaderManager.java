@@ -60,12 +60,13 @@ public class DownloaderManager
 		};
 	}
 
-	public static void destroy()
+	public static void destroy(Context context)
 	{
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
 			task.pause();
 		}
+		DBHelper.getInstance(context).closeDB();
 	}
 
 	public static List<FileDownloader> getDownloaderList()
