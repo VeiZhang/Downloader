@@ -98,10 +98,10 @@ public class SingleThreadActivity extends DownloadActivity
 				if (mNetroidTask == null)
 					return;
 
+				DownloadController controller = mNetroidTask.getDownloadController();
 				switch (v.getId())
 				{
 				case R.id.start_btn:
-					DownloadController controller = mNetroidTask.getDownloadController();
 					if (controller == null)
 					{
 						// 建立下载任务
@@ -125,8 +125,8 @@ public class SingleThreadActivity extends DownloadActivity
 					break;
 
 				case R.id.delete_btn:
-					if (mNetroidTask.getDownloadController() != null)
-						mNetroidTask.getDownloadController().discard();
+					if (controller != null)
+						controller.discard();
 
 					// 重新初始化下载任务
 					mNetroidTask.setDownloadController(null);

@@ -1,11 +1,14 @@
 package com.excellence.downloader;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,15 +24,16 @@ import java.util.concurrent.Executors;
  *     {@link android.Manifest.permission.READ_EXTERNAL_STORAGE}
  *
  */
-public class DownloaderUtils
+public class DownloaderManager
 {
-	private static final String TAG = DownloaderUtils.class.getSimpleName();
+	private static final String TAG = DownloaderManager.class.getSimpleName();
 
-	private static DownloaderUtils mInstance = null;
+	private static DownloaderManager mInstance = null;
 	private List<FileDownloader> mDownloaderList = null;
 	private ExecutorService mExecutorService = null;
+	private Executor mResponsePoster = null;
 
-	private DownloaderUtils()
+	private DownloaderManager()
 	{
 
 	}
@@ -43,17 +47,26 @@ public class DownloaderUtils
 			if (parallelTaskCount == 0)
 				parallelTaskCount = 1;
 		}
-		mInstance = new DownloaderUtils();
+		mInstance = new DownloaderManager();
 		mInstance.mDownloaderList = new ArrayList<>();
 		mInstance.mExecutorService = Executors.newFixedThreadPool(parallelTaskCount);
+		mInstance.mResponsePoster = new Executor()
+		{
+			@Override
+			public void execute(Runnable command)
+			{
+				new Handler(Looper.getMainLooper()).post(command);
+			}
+		};
 	}
 
-	public static void destroy()
+	public static void destroy(Context context)
 	{
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
-			task.setPause(true);
+			task.pause();
 		}
+		DBHelper.getInstance(context).closeDB();
 	}
 
 	public static List<FileDownloader> getDownloaderList()
@@ -66,7 +79,18 @@ public class DownloaderUtils
 
 	public static FileDownloader addTask(Context context, File storeFile, String url, DownloaderListener listener)
 	{
-		final FileDownloader fileDownloader = new FileDownloader(context, storeFile, url, listener);
+		return addTask(new FileDownloader(context, storeFile, url, listener, mInstance.mResponsePoster));
+	}
+
+	public static FileDownloader addTask(Context context, String storeFilePath, String url, DownloaderListener listener)
+	{
+		return addTask(context, new File(storeFilePath), url, listener);
+	}
+
+	public static FileDownloader addTask(final FileDownloader fileDownloader)
+	{
+		throwIfNotOnMainThread();
+		mInstance.mDownloaderList.add(fileDownloader);
 		mInstance.mExecutorService.execute(new Runnable()
 		{
 			@Override
@@ -78,8 +102,9 @@ public class DownloaderUtils
 		return fileDownloader;
 	}
 
-	public FileDownloader addTask(Context context, String storeFilePath, String url,DownloaderListener listener)
+	private static void throwIfNotOnMainThread()
 	{
-		return addTask(context, new File(storeFilePath), url, listener);
+		if (Looper.getMainLooper() != Looper.myLooper())
+			throw new IllegalStateException("Downloader must be not invoked from the main thread.");
 	}
 }

@@ -15,17 +15,20 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DBHelper extends SQLiteOpenHelper
 {
-	public static final String DOWNLOAD_TBL_NAME = "DownloadInfo";
-	public static final String FLAG_TBL_NAME = "FlagInfo";
-	public static final String TBL_KEYNAME = "name";
-	public static final String TBL_FLAG = "flag";
-	public static final String TBL_ID = "threadid";
-	public static final String TBL_LENGTH = "downloadlength";
+	private static final String DB_NAME = "download.db";
+	private static final int VERSION = 1;
+	private static final String DOWNLOAD_TBL_NAME = "DownloadInfo";
+	private static final String FLAG_TBL_NAME = "FlagInfo";
+	private static final String KEY_NAME = "name";
+	private static final String KEY_ID = "threadid";
+	private static final String KEY_FLAG = "flag";
+	private static final String KEY_LENGTH = "downloadlength";
+	private static final String CREATE_DOWNLOAD_TBL = String.format("create table %1$s(%2$s VARCHAR(1024), %3$s INTEGER, %4$s INTEGER, PRIMARY KEY(%5$s, %6$s))", DOWNLOAD_TBL_NAME, KEY_NAME, KEY_ID,
+			KEY_LENGTH, KEY_NAME, KEY_ID);
+	private static final String CREATE_FLAG_TBL = String.format("create table %1$s(%2$s VARCHAR(1024), %3$s INTEGER, %4$s INTEGER, PRIMARY KEY(%5$s))", FLAG_TBL_NAME, KEY_NAME, KEY_FLAG, KEY_LENGTH,
+			KEY_NAME);
 	public static final String lock = "Visit";
-	private static final int VERSION = 2;
-	private static final String DB_NAME = "Appmarket.db";
-	private static final String CREATE_DOWNLOAD_TBL = "create table DownloadInfo(name VARCHAR(1024), threadid INTEGER, downloadlength INTEGER, PRIMARY KEY(name,threadid))";
-	private static final String CREATE_FLAG_TBL = "create table FlagInfo(name VARCHAR(1024), flag INTEGER, downloadlength INTEGER, PRIMARY KEY(name))";
+
 	private static DBHelper mInstance = null;
 	private SQLiteDatabase mDatabase = null;
 
@@ -46,6 +49,11 @@ public class DBHelper extends SQLiteOpenHelper
 	{
 		if (mInstance == null)
 			mInstance = new DBHelper(context.getApplicationContext());
+
+		if (mInstance.mDatabase != null && !mInstance.mDatabase.isOpen())
+		{
+			mInstance = new DBHelper(context.getApplicationContext());
+		}
 		return mInstance;
 	}
 
@@ -59,24 +67,24 @@ public class DBHelper extends SQLiteOpenHelper
 	public void insertDownload(String name, int threadId, int downloadlength)
 	{
 		ContentValues values = new ContentValues();
-		values.put(TBL_KEYNAME, name);
-		values.put(TBL_ID, threadId);
-		values.put(TBL_LENGTH, downloadlength);
+		values.put(KEY_NAME, name);
+		values.put(KEY_ID, threadId);
+		values.put(KEY_LENGTH, downloadlength);
 		mDatabase.insert(DOWNLOAD_TBL_NAME, null, values);
 	}
 
 	public void updateDownloadId(String name, int threadId, int downloadLength)
 	{
-		mDatabase.execSQL("update DownloadInfo set downloadlength = ? where name = ? and threadid = ?", new Object[] { downloadLength, name, threadId });
+		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ? and %4$s = ?", DOWNLOAD_TBL_NAME, KEY_LENGTH, KEY_NAME, KEY_ID), new Object[] { downloadLength, name, threadId });
 	}
 
 	public void insertFlag(String name, int flag, int size)
 	{
 		ContentValues values = new ContentValues();
-		values.put(TBL_KEYNAME, name);
-		values.put(TBL_FLAG, flag);
+		values.put(KEY_NAME, name);
+		values.put(KEY_FLAG, flag);
 		// default value
-		values.put(TBL_LENGTH, 0);
+		values.put(KEY_LENGTH, 0);
 		mDatabase.insert(FLAG_TBL_NAME, null, values);
 	}
 
@@ -88,10 +96,10 @@ public class DBHelper extends SQLiteOpenHelper
 	public int queryDownloadedLength(String name)
 	{
 		int length = -1;
-		Cursor cursor = mDatabase.rawQuery("select * from FlagInfo where name = ?", new String[] { name });
+		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ?", FLAG_TBL_NAME, KEY_NAME), new String[] { name });
 		if (cursor != null && cursor.moveToNext())
 		{
-			length = cursor.getInt(cursor.getColumnIndex(TBL_LENGTH));
+			length = cursor.getInt(cursor.getColumnIndex(KEY_LENGTH));
 			cursor.close();
 		}
 		return length;
@@ -100,10 +108,10 @@ public class DBHelper extends SQLiteOpenHelper
 	public int queryDownloadedLength(String name, int threadId)
 	{
 		int length = -1;
-		Cursor cursor = mDatabase.rawQuery("select * from DownloadInfo where name = ? and threadid = ?", new String[] { name, String.valueOf(threadId) });
+		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ? and %3$s = ?", DOWNLOAD_TBL_NAME, KEY_NAME, KEY_ID), new String[] { name, String.valueOf(threadId) });
 		if (cursor != null && cursor.moveToNext())
 		{
-			length = cursor.getInt(cursor.getColumnIndex(TBL_LENGTH));
+			length = cursor.getInt(cursor.getColumnIndex(KEY_LENGTH));
 			cursor.close();
 		}
 		return length;
@@ -111,20 +119,30 @@ public class DBHelper extends SQLiteOpenHelper
 
 	public void updateFlag(String name, int flag)
 	{
-		mDatabase.execSQL("update FlagInfo set flag = ? where name = ?", new Object[] { flag, name });
+		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ?", FLAG_TBL_NAME, KEY_FLAG, KEY_NAME), new Object[] { flag, name });
 	}
 
 	public void updateDownloadLength(String name, int downloadLength)
 	{
-		mDatabase.execSQL("update FlagInfo set downloadlength = ? where name = ?", new Object[] { downloadLength, name });
+		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ?", FLAG_TBL_NAME, KEY_LENGTH, KEY_NAME), new Object[] { downloadLength, name });
 	}
 
-	public void delete(String name, String tableName)
+	public void deleteDownloadInfo(String name)
 	{
-		mDatabase.execSQL("delete from " + tableName + " where name = ?", new Object[] { name });
+		delete(DOWNLOAD_TBL_NAME, name);
 	}
 
-	public void close()
+	public void deleteFlagInfo(String name)
+	{
+		delete(FLAG_TBL_NAME, name);
+	}
+
+	public void delete(String tableName, String name)
+	{
+		mDatabase.execSQL(String.format("delete from %1$s where %2$s = ?", tableName, KEY_NAME), new Object[] { name });
+	}
+
+	public void closeDB()
 	{
 		if (mDatabase != null)
 		{
@@ -146,7 +164,7 @@ public class DBHelper extends SQLiteOpenHelper
 	public List<HistoryFileInfo> queryFlagAll()
 	{
 		List<HistoryFileInfo> apkInfos = new ArrayList<>();
-		Cursor cursor = mDatabase.rawQuery("select * from FlagInfo", null);
+		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s", FLAG_TBL_NAME), null);
 		if (cursor != null)
 		{
 			while (cursor.moveToNext())
@@ -164,14 +182,14 @@ public class DBHelper extends SQLiteOpenHelper
 
 	public HistoryFileInfo queryFlag(String name)
 	{
-		Cursor cursor = mDatabase.rawQuery("select * from FlagInfo where name = ?", new String[] { name });
+		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ?", FLAG_TBL_NAME, KEY_NAME), new String[] { name });
 		HistoryFileInfo apkInfo = null;
 		if (cursor != null && cursor.moveToNext())
 		{
 			apkInfo = new HistoryFileInfo();
-			apkInfo.setName(cursor.getString(cursor.getColumnIndex(TBL_KEYNAME)));
-			apkInfo.setFlag(cursor.getInt(cursor.getColumnIndex(TBL_FLAG)));
-			apkInfo.setDownloadLength(cursor.getInt(cursor.getColumnIndex(TBL_LENGTH)));
+			apkInfo.setName(cursor.getString(cursor.getColumnIndex(KEY_NAME)));
+			apkInfo.setFlag(cursor.getInt(cursor.getColumnIndex(KEY_FLAG)));
+			apkInfo.setDownloadLength(cursor.getInt(cursor.getColumnIndex(KEY_LENGTH)));
 			cursor.close();
 		}
 		return apkInfo;
@@ -179,11 +197,11 @@ public class DBHelper extends SQLiteOpenHelper
 
 	public HistoryFileInfo queryDownload(String name, int threadId)
 	{
-		Cursor cursor = mDatabase.rawQuery("select * from DownloadInfo where name = ? and threadid = ?", new String[] { name, String.valueOf(threadId) });
+		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ? and %3$s = ?", DOWNLOAD_TBL_NAME, KEY_NAME, KEY_ID), new String[] { name, String.valueOf(threadId) });
 		HistoryFileInfo apkInfo = null;
 		if (cursor != null && cursor.moveToNext())
 		{
-			apkInfo = new HistoryFileInfo(cursor.getString(cursor.getColumnIndex(TBL_KEYNAME)), cursor.getInt(cursor.getColumnIndex(TBL_ID)), cursor.getInt(cursor.getColumnIndex(TBL_LENGTH)));
+			apkInfo = new HistoryFileInfo(cursor.getString(cursor.getColumnIndex(KEY_NAME)), cursor.getInt(cursor.getColumnIndex(KEY_ID)), cursor.getInt(cursor.getColumnIndex(KEY_LENGTH)));
 			cursor.close();
 		}
 		return apkInfo;
