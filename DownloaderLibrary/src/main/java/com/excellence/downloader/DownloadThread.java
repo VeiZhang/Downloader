@@ -95,12 +95,8 @@ public class DownloadThread extends Thread
 						while (!mFileDownloader.isStop() && (len = inputStream.read(buffer)) != -1)
 						{
 							mAccessFile.write(buffer, 0, len);
-							mFileDownloader.append(len);
 							mDownloadLength += len;
-							synchronized (DBHelper.lock)
-							{
-								mDBHelper.updateDownloadId(mFileName, mThreadId, mDownloadLength);
-							}
+							mFileDownloader.append(mThreadId, mDownloadLength, len);
 						}
 						inputStream.close();
 						connection.disconnect();

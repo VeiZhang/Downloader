@@ -8,6 +8,8 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import android.content.Context;
@@ -71,6 +73,7 @@ public class FileDownloader implements IDownloaderListener
 					connection.setRequestMethod("GET");
 					int responseCode = connection.getResponseCode();
 					Log.e(TAG, "response code : " + responseCode);
+					getHeader(connection.getHeaderFields());
 					if (responseCode == 200)
 					{
 						int fileSize = connection.getContentLength();
@@ -143,6 +146,14 @@ public class FileDownloader implements IDownloaderListener
 		}
 	}
 
+	private void getHeader(Map<String, List<String>> headerFields)
+	{
+		for (Map.Entry<String, List<String>> field : headerFields.entrySet())
+		{
+			Log.i(TAG, "[Key : " + field.getKey() + "][value : " + field.getValue() + "]");
+		}
+	}
+
 	private void checkLocalFile(int fileSize) throws Exception
 	{
 		if (!mStoreFile.exists())
@@ -181,12 +192,15 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 同步总下载长度
+	 * 同步总下载长度，同步单个线程下载长度
 	 * 
 	 * @param size 一次文件流的长度
 	 */
-	protected synchronized void append(long size)
+	protected synchronized void append(int mThreadId, int threadDownloadLength, long size)
 	{
+		// 更新某线程下载长度
+		mDBHelper.updateDownloadId(mFileName, mThreadId, threadDownloadLength);
+		// 总下载长度
 		mDownloadLength += size;
 		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadLength);
 		onDownloadingListener(mFileName, mDownloadLength);
