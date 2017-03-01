@@ -8,8 +8,6 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 
 import android.content.Context;
@@ -18,6 +16,7 @@ import android.util.Log;
 import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.utils.DownloadConstant;
 import com.excellence.downloader.utils.DownloaderListener;
+import com.excellence.downloader.utils.HttpUtils;
 import com.excellence.downloader.utils.IDownloaderListener;
 import com.excellence.downloader.utils.MemorySpaceCheck;
 
@@ -82,7 +81,7 @@ public class FileDownloader implements IDownloaderListener
 					connection.setRequestMethod("GET");
 					int responseCode = connection.getResponseCode();
 					Log.e(TAG, "response code : " + responseCode);
-					getHeader(connection.getHeaderFields());
+					HttpUtils.printHeader(connection);
 					if (responseCode == 200)
 					{
 						int fileSize = connection.getContentLength();
@@ -152,19 +151,6 @@ public class FileDownloader implements IDownloaderListener
 			// url is empty
 			Log.e(TAG, "download url is empty");
 			sendErrorMsg();
-		}
-	}
-
-	/**
-	 * Http响应头字段
-	 *
-	 * @param headerFields
-     */
-	private void getHeader(Map<String, List<String>> headerFields)
-	{
-		for (Map.Entry<String, List<String>> field : headerFields.entrySet())
-		{
-			Log.i(TAG, "[Key : " + field.getKey() + "][value : " + field.getValue() + "]");
 		}
 	}
 
