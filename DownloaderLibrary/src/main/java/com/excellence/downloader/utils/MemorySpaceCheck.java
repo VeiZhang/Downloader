@@ -42,7 +42,7 @@ public class MemorySpaceCheck {
 			return getSystemAvailableSize() > length;
 		}
 	}
-	public static boolean hasSDEnoughMemory(String filePath, int length) {
+	public static boolean hasSDEnoughMemory(String filePath, long length) {
 		Log.d("hasSD", getAvailableSize(filePath) + "::" + length);
 		return getAvailableSize(filePath) > length;
 	}

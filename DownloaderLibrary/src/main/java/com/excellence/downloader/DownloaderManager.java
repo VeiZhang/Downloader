@@ -77,7 +77,7 @@ public class DownloaderManager
 		if (mInstance.mDownloaderList != null)
 			return mInstance.mDownloaderList;
 		else
-			throw new IllegalStateException("DownloaderList not initialized");
+			throw new IllegalStateException("DownloaderList not initialized.");
 	}
 
 	public static FileDownloader addTask(Context context, File storeFile, String url, DownloaderListener listener)

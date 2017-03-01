@@ -11,9 +11,12 @@ import java.net.URL;
 import java.util.concurrent.Executor;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.excellence.downloader.db.DBHelper;
+import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.exception.ServerConnectException;
+import com.excellence.downloader.exception.SpaceNotEnoughException;
+import com.excellence.downloader.exception.URLInvalidException;
 import com.excellence.downloader.utils.DownloadConstant;
 import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.utils.HttpUtils;
@@ -35,18 +38,20 @@ public class FileDownloader implements IDownloaderListener
 	public static final int STATE_PAUSE = 1;
 	public static final int STATE_SUCCESS = 2;
 	public static final int STATE_DISCARD = 3;
+	public static final int STATE_ERROR = 4;
 
 	private Context mContext;
 	private File mStoreFile = null;
 	private String mFileUrl;
+	private String mFileName;
 	private DownloaderListener mDownloaderListener = null;
 	private Executor mResponsePoster = null;
-	private DownloadThread[] mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	private DBHelper mDBHelper = null;
+	private DownloadThread[] mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	private boolean isStop = false;
 	private boolean isFinished = false;
-	private long mDownloadLength = 0;
-	private String mFileName;
+	private long mDownloadSize = 0;
+	private long mFileSize = 0;
 	private int mState;
 
 	public FileDownloader(Context context, File storeFile, String url, DownloaderListener listener, Executor executor)
@@ -66,91 +71,75 @@ public class FileDownloader implements IDownloaderListener
 	public void deploy()
 	{
 		mState = STATE_DOWNLOADING;
-		if (!mFileUrl.isEmpty())
+		try
 		{
-			try
+			if (!mFileUrl.isEmpty())
 			{
-				Log.e(TAG, " download url:" + mFileUrl);
-				if (mFileUrl != null && mFileUrl.trim().length() > 0)
+				URL url = new URL(mFileUrl);
+				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				connection.setConnectTimeout(CONNECT_TIME_OUT);
+				connection.setReadTimeout(SO_TIME_OUT);
+				// default request : GET
+				connection.setRequestMethod("GET");
+				int responseCode = connection.getResponseCode();
+				HttpUtils.printHeader(connection);
+				if (responseCode == 200)
 				{
-					URL url = new URL(mFileUrl);
-					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-					connection.setConnectTimeout(CONNECT_TIME_OUT);
-					connection.setReadTimeout(SO_TIME_OUT);
-					// default request : GET
-					connection.setRequestMethod("GET");
-					int responseCode = connection.getResponseCode();
-					Log.e(TAG, "response code : " + responseCode);
-					HttpUtils.printHeader(connection);
-					if (responseCode == 200)
+					mFileSize = connection.getContentLength();
+					connection.disconnect();
+					checkLocalFile(mFileSize);
+					if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), mFileSize))
 					{
-						int fileSize = connection.getContentLength();
-						connection.disconnect();
-						checkLocalFile(fileSize);
-						if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), fileSize))
-						{
-							mDownloadLength = mDBHelper.queryDownloadedLength(mFileName);
-							onDownloadStartListener(mFileName, fileSize);
+						mDownloadSize = mDBHelper.queryDownloadedLength(mFileName);
+						onPreExecute(mFileSize);
 
-							int block = fileSize % THREAD_COUNT == 0 ? fileSize / THREAD_COUNT : fileSize / THREAD_COUNT + 1;
+						long block = mFileSize % THREAD_COUNT == 0 ? mFileSize / THREAD_COUNT : mFileSize / THREAD_COUNT + 1;
+						for (int i = 0; i < THREAD_COUNT; i++)
+						{
+							mDownloadThreads[i] = new DownloadThread(mContext, this, i, block, mFileSize);
+							mDownloadThreads[i].start();
+						}
+
+						while (!isStop && !isFinished)
+						{
+							isFinished = true;
 							for (int i = 0; i < THREAD_COUNT; i++)
 							{
-								mDownloadThreads[i] = new DownloadThread(mContext, this, mFileUrl, mStoreFile, block, i, fileSize);
-								mDownloadThreads[i].start();
-							}
-
-							while (!isStop && !isFinished)
-							{
-								isFinished = true;
-								for (int i = 0; i < THREAD_COUNT; i++)
+								if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
 								{
-									if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
-									{
-										isFinished = false;
-									}
+									isFinished = false;
 								}
 							}
-
-							if (isFinished)
-							{
-								if (!mStoreFile.exists())
-									throw new IllegalStateException("Download failed, Storage file is not exist.");
-								mState = STATE_SUCCESS;
-								mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
-								DownloaderManager.getDownloaderList().remove(this);
-								onDownloadFinishListener(mFileName);
-							}
 						}
-						else
+
+						if (isFinished)
 						{
-							sendErrorMsg(DownloadConstant.SPACE_IS_NOT_ENOUGH);
+							if (!mStoreFile.exists())
+								throw new IllegalStateException("Download failed, Storage file is not exist.");
+							mState = STATE_SUCCESS;
+							mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
+							DownloaderManager.getDownloaderList().remove(this);
+							onSuccess();
 						}
 					}
 					else
 					{
-						Log.e(TAG, "download request fail");
-						sendErrorMsg();
-
+						sendErrorMsg(new SpaceNotEnoughException());
 					}
 				}
 				else
 				{
-					Log.e(TAG, "get download url fail");
-					sendErrorMsg();
+					sendErrorMsg(new ServerConnectException(responseCode));
 				}
 			}
-			catch (Exception e)
+			else
 			{
-				e.printStackTrace();
-				Log.e(TAG, "download exception");
-				sendErrorMsg();
+				sendErrorMsg(new URLInvalidException());
 			}
 		}
-		else
+		catch (Exception e)
 		{
-			// url is empty
-			Log.e(TAG, "download url is empty");
-			sendErrorMsg();
+			sendErrorMsg(new DownloadError(e.getMessage()));
 		}
 	}
 
@@ -160,7 +149,7 @@ public class FileDownloader implements IDownloaderListener
 	 * @param fileSize 下载文件长度
 	 * @throws Exception
      */
-	private void checkLocalFile(int fileSize) throws Exception
+	private void checkLocalFile(long fileSize) throws Exception
 	{
 		if (!mStoreFile.exists())
 		{
@@ -175,30 +164,13 @@ public class FileDownloader implements IDownloaderListener
 		}
 
 		if (mDBHelper.queryFlag(mFileName) == null)
-			mDBHelper.insertFlag(mFileName, 0, fileSize);
+			mDBHelper.insertFlag(mFileName, 0, (int) fileSize);
 		else
 			mDBHelper.updateFlag(mFileName, 0);
 
 		RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 		accessFile.setLength(fileSize);
 		accessFile.close();
-	}
-
-	public void sendErrorMsg()
-	{
-		sendErrorMsg(DownloadConstant.FLAG_ERROR);
-	}
-
-	// 一个下载线程停止，其他线程也停止
-	public void sendErrorMsg(int flag)
-	{
-		if (isStop)
-			return;
-		mState = STATE_PAUSE;
-		DownloaderManager.getDownloaderList().remove(this);
-		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
-		isStop = true;
-		onDownloadFailListener(mFileName, flag);
 	}
 
 	/**
@@ -208,8 +180,8 @@ public class FileDownloader implements IDownloaderListener
 	 */
 	protected synchronized void append(long size)
 	{
-		mDownloadLength += size;
-		onDownloadingListener(mFileName, mDownloadLength);
+		mDownloadSize += size;
+		onProgressChange(mFileSize, mDownloadSize);
 	}
 
 	/**
@@ -222,11 +194,11 @@ public class FileDownloader implements IDownloaderListener
 		// 更新某线程下载长度
 		mDBHelper.updateDownloadId(mFileName, threadId, threadDownloadLength);
 		// 更新总下载长度
-		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadLength);
+		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadSize);
 	}
 
 	@Override
-	public void onDownloadStartListener(final String filename, final int fileLength)
+	public void onPreExecute(final long fileSize)
 	{
 		mResponsePoster.execute(new Runnable()
 		{
@@ -234,13 +206,13 @@ public class FileDownloader implements IDownloaderListener
 			public void run()
 			{
 				if (mDownloaderListener != null)
-					mDownloaderListener.onDownloadStartListener(filename, fileLength);
+					mDownloaderListener.onPreExecute(fileSize);
 			}
 		});
 	}
 
 	@Override
-	public void onDownloadingListener(final String filename, final long downloadedLength)
+	public void onProgressChange(final long fileSize, final long downloadedSize)
 	{
 		mResponsePoster.execute(new Runnable()
 		{
@@ -248,13 +220,13 @@ public class FileDownloader implements IDownloaderListener
 			public void run()
 			{
 				if (mDownloaderListener != null)
-					mDownloaderListener.onDownloadingListener(filename, downloadedLength);
+					mDownloaderListener.onProgressChange(fileSize, downloadedSize);
 			}
 		});
 	}
 
 	@Override
-	public void onDownloadFinishListener(final String filename)
+	public void onError(final DownloadError error)
 	{
 		mResponsePoster.execute(new Runnable()
 		{
@@ -262,13 +234,13 @@ public class FileDownloader implements IDownloaderListener
 			public void run()
 			{
 				if (mDownloaderListener != null)
-					mDownloaderListener.onDownloadFinishListener(filename);
+					mDownloaderListener.onError(error);
 			}
 		});
 	}
 
 	@Override
-	public void onDownloadFailListener(final String filename, final int result)
+	public void onSuccess()
 	{
 		mResponsePoster.execute(new Runnable()
 		{
@@ -276,9 +248,23 @@ public class FileDownloader implements IDownloaderListener
 			public void run()
 			{
 				if (mDownloaderListener != null)
-					mDownloaderListener.onDownloadFailListener(filename, result);
+					mDownloaderListener.onSuccess();
 			}
 		});
+	}
+
+	/**
+	 * 下载异常，一个下载线程停止，其他相关的线程也停止
+	 *
+	 * @param error 异常
+     */
+	public void sendErrorMsg(DownloadError error)
+	{
+		isStop = true;
+		mState = STATE_ERROR;
+		DownloaderManager.getDownloaderList().remove(this);
+		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
+		onError(error);
 	}
 
 	/**
@@ -324,7 +310,7 @@ public class FileDownloader implements IDownloaderListener
 		return isStop;
 	}
 
-	public String getDownloaderName()
+	public String getFileName()
 	{
 		return mFileName;
 	}
@@ -334,4 +320,8 @@ public class FileDownloader implements IDownloaderListener
 		return mStoreFile;
 	}
 
+	public String getFileUrl()
+	{
+		return mFileUrl;
+	}
 }

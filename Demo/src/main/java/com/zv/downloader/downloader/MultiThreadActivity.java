@@ -9,6 +9,7 @@ import android.widget.ProgressBar;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
+import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.DownloaderManager;
 import com.excellence.downloader.FileDownloader;
@@ -111,6 +112,7 @@ public class MultiThreadActivity extends DownloadActivity
 							break;
 
 						case FileDownloader.STATE_PAUSE:
+						case FileDownloader.STATE_ERROR:
 							fileDownloader.resume();
 							break;
 						}
@@ -132,38 +134,40 @@ public class MultiThreadActivity extends DownloadActivity
 				File file = new File(DOWNLOAD_PATH, mDownloaderTask.getFileName());
 				mDownloaderTask.setFileDownloader(DownloaderManager.addTask(MultiThreadActivity.this, file, mDownloaderTask.getFileUrl(), new DownloaderListener()
 				{
+
 					@Override
-					public void onDownloadStartListener(String filename, int fileLength)
+					public void onPreExecute(long fileSize)
 					{
-						super.onDownloadStartListener(filename, fileLength);
-						mDownloaderTask.setFileSize(fileLength);
+						super.onPreExecute(fileSize);
+						mDownloaderTask.setFileSize(fileSize);
 						mDownloaderTask.invalidateTask();
-						System.out.println("start: " + filename + " : " + fileLength);
+						System.out.println("pre " + fileSize);
 					}
 
 					@Override
-					public void onDownloadingListener(String filename, long downloadedLength)
+					public void onProgressChange(long fileSize, long downloadedSize)
 					{
-						super.onDownloadingListener(filename, downloadedLength);
-						mDownloaderTask.setDownloadLength(downloadedLength);
+						super.onProgressChange(fileSize, downloadedSize);
+						mDownloaderTask.setDownloadLength(downloadedSize);
 						mDownloaderTask.invalidateTask();
 					}
 
 					@Override
-					public void onDownloadFinishListener(String filename)
+					public void onError(DownloadError error)
 					{
-						super.onDownloadFinishListener(filename);
+						super.onError(error);
 						mDownloaderTask.invalidateTask();
-						System.out.println("finish: " + filename);
+						System.out.println(error.getMessage());
 					}
 
 					@Override
-					public void onDownloadFailListener(String filename, int result)
+					public void onSuccess()
 					{
-						super.onDownloadFailListener(filename, result);
+						super.onSuccess();
 						mDownloaderTask.invalidateTask();
-						System.out.println("failed: " + filename + " : " + result);
+						System.out.println("success");
 					}
+
 				}));
 			}
 

@@ -1,32 +1,36 @@
 package com.excellence.downloader.utils;
 
+import com.excellence.downloader.exception.DownloadError;
+
 /**
  * Created by ZhangWei on 2017/2/16.
  */
 
 public class DownloaderListener implements IDownloaderListener
 {
+
 	@Override
-	public void onDownloadStartListener(String filename, int fileLength)
+	public void onPreExecute(long fileSize)
 	{
 
 	}
 
 	@Override
-	public void onDownloadingListener(String filename, long downloadedLength)
+	public void onProgressChange(long fileSize, long downloadedSize)
 	{
 
 	}
 
 	@Override
-	public void onDownloadFinishListener(String filename)
+	public void onError(DownloadError error)
 	{
 
 	}
 
 	@Override
-	public void onDownloadFailListener(String filename, int result)
+	public void onSuccess()
 	{
 
 	}
+
 }

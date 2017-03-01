@@ -120,6 +120,10 @@ public class DownloaderTask
 				mStartBtn.setText(R.string.state_pause);
 				break;
 
+			case FileDownloader.STATE_ERROR:
+				mStartBtn.setText(R.string.state_error);
+				break;
+
 			case FileDownloader.STATE_PAUSE:
 				mStartBtn.setText(R.string.state_continue);
 				break;

@@ -7,10 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.entity.HistoryFileInfo;
+import com.excellence.downloader.exception.DownloadError;
 
 /**
  * Created by ZhangWei on 2016/2/22.
@@ -23,36 +23,34 @@ public class DownloadThread extends Thread
 
 	private DBHelper mDBHelper = null;
 	private FileDownloader mFileDownloader = null;
-	private String mDownloadUrl = null;
 	private int mThreadId = 0;
-	private int mFileLength = 0;
-	private int mStartPosition = 0;
-	private int mDownloadLength = 0;
-	private int mEndPosition = 0;
+	private long mFileSize = 0;
+	private int mDownloadSize = 0;
+	private long mStartPosition = 0;
+	private long mEndPosition = 0;
 	private String mFileName = null;
 	private boolean isFinished = false;
 	private RandomAccessFile mAccessFile = null;
 
-	public DownloadThread(Context context, FileDownloader fileDownloader, String downloadUrl, File saveFile, int block, int threadId, int fileLength)
+	public DownloadThread(Context context, FileDownloader fileDownloader, int threadId, long block, long fileSize)
 	{
 		mDBHelper = DBHelper.getInstance(context);
 		mFileDownloader = fileDownloader;
-		mDownloadUrl = downloadUrl;
 		mThreadId = threadId;
-		mFileLength = fileLength;
+		mFileSize = fileSize;
 		mStartPosition = threadId * block;
 		mEndPosition = (threadId + 1) * block - 1;
-		mFileName = saveFile.getName();
-
+		mFileName = mFileDownloader.getFileName();
 		try
 		{
-			if (!saveFile.exists())
+			File storeFile = mFileDownloader.getStoreFile();
+			if (!storeFile.exists())
 				throw new IllegalStateException("Storage file is not exist.");
-			mAccessFile = new RandomAccessFile(saveFile, "rwd");
+			mAccessFile = new RandomAccessFile(storeFile, "rwd");
 		}
 		catch (Exception e)
 		{
-			e.printStackTrace();
+			mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
 		}
 	}
 
@@ -67,28 +65,28 @@ public class DownloadThread extends Thread
 				HistoryFileInfo historyFileInfo = mDBHelper.queryDownload(mFileName, mThreadId);
 				if (historyFileInfo != null)
 				{
-					mDownloadLength = historyFileInfo.getDownloadLength();
+					mDownloadSize = historyFileInfo.getDownloadLength();
 				}
 				else
 				{
 					// create once
 					synchronized (DBHelper.lock)
 					{
-						mDBHelper.insertDownload(mFileName, mThreadId, mDownloadLength);
+						mDBHelper.insertDownload(mFileName, mThreadId, mDownloadSize);
 					}
 				}
-				mAccessFile.seek(mStartPosition + mDownloadLength);
-				if (mEndPosition > mFileLength)
-					mEndPosition = mFileLength;
-				if ((mEndPosition + 1) == (mStartPosition + mDownloadLength) || mEndPosition == (mStartPosition + mDownloadLength))
+				mAccessFile.seek(mStartPosition + mDownloadSize);
+				if (mEndPosition > mFileSize)
+					mEndPosition = mFileSize;
+				if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
 				{
 					isFinished = true;
 				}
 				else
 				{
-					URL url = new URL(mDownloadUrl);
+					URL url = new URL(mFileDownloader.getFileUrl());
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-					int tmpStartPosition = mStartPosition + mDownloadLength;
+					long tmpStartPosition = mStartPosition + mDownloadSize;
 					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
 					if (connection.getResponseCode() == 206)
 					{
@@ -98,13 +96,13 @@ public class DownloadThread extends Thread
 						while (!mFileDownloader.isStop() && (len = inputStream.read(buffer)) != -1)
 						{
 							mAccessFile.write(buffer, 0, len);
-							mDownloadLength += len;
+							mDownloadSize += len;
 							mFileDownloader.append(len);
 						}
-						mFileDownloader.updateDatabase(mThreadId, mDownloadLength);
+						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
 						inputStream.close();
 						connection.disconnect();
-						if ((mEndPosition + 1) == (mStartPosition + mDownloadLength) || mEndPosition == (mStartPosition + mDownloadLength))
+						if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
 						{
 							isFinished = true;
 						}
@@ -114,13 +112,12 @@ public class DownloadThread extends Thread
 			}
 			catch (Exception e)
 			{
-				if (requestCount == 0)
+				if (requestCount == 0 && !mFileDownloader.isStop())
 				{
-					e.printStackTrace();
-					if (mDownloadLength != 0)
-						mFileDownloader.updateDatabase(mThreadId, mDownloadLength);
-					Log.e(TAG, requestCount + "download exception ----- download tasks:" + mFileName + "threadId:" + mThreadId);
-					mFileDownloader.sendErrorMsg();
+					mFileDownloader.pause();
+					mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
+					if (mDownloadSize != 0)
+						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
 				}
 			}
 		} while (--requestCount > 0);
