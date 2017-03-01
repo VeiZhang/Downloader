@@ -1,4 +1,4 @@
-package com.excellence.downloader;
+package com.excellence.downloader.entity;
 
 /**
  * Created by ZhangWei on 2016/2/20.

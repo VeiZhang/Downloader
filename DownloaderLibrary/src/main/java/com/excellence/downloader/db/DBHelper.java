@@ -1,4 +1,4 @@
-package com.excellence.downloader;
+package com.excellence.downloader.db;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import com.excellence.downloader.entity.HistoryFileInfo;
 
 /**
  * Created by ZhangWei on 2016/2/19.

@@ -9,7 +9,7 @@ import android.widget.ProgressBar;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
-import com.excellence.downloader.DownloaderListener;
+import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.DownloaderManager;
 import com.excellence.downloader.FileDownloader;
 import com.zv.downloader.DownloadActivity;

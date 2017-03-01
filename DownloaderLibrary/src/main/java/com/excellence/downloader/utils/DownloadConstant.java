@@ -1,4 +1,4 @@
-package com.excellence.downloader;
+package com.excellence.downloader.utils;
 
 /**
  * Created by MK on 2016/10/31.

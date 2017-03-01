@@ -9,6 +9,9 @@ import java.net.URL;
 import android.content.Context;
 import android.util.Log;
 
+import com.excellence.downloader.db.DBHelper;
+import com.excellence.downloader.entity.HistoryFileInfo;
+
 /**
  * Created by ZhangWei on 2016/2/22.
  */

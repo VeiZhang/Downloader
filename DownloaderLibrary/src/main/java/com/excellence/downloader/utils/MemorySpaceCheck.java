@@ -1,4 +1,4 @@
-package com.excellence.downloader;
+package com.excellence.downloader.utils;
 
 import java.io.File;
 

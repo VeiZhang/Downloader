@@ -15,6 +15,12 @@ import java.util.concurrent.Executor;
 import android.content.Context;
 import android.util.Log;
 
+import com.excellence.downloader.db.DBHelper;
+import com.excellence.downloader.utils.DownloadConstant;
+import com.excellence.downloader.utils.DownloaderListener;
+import com.excellence.downloader.utils.IDownloaderListener;
+import com.excellence.downloader.utils.MemorySpaceCheck;
+
 /***
  * 文件下载器
  */
