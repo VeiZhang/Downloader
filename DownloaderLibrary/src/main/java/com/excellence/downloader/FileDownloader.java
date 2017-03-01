@@ -23,8 +23,8 @@ public class FileDownloader implements IDownloaderListener
 	private static final String TAG = FileDownloader.class.getSimpleName();
 
 	private static final int THREAD_COUNT = 3;
-	private static final int CONNECT_TIME_OUT = 30 * 1000;
-	private static final int SO_TIME_OUT = 15 * 1000;
+	private static final int CONNECT_TIME_OUT = 5 * 1000;
+	private static final int SO_TIME_OUT = 5 * 1000;
 
 	public static final int STATE_DOWNLOADING = 0;
 	public static final int STATE_PAUSE = 1;
@@ -55,6 +55,9 @@ public class FileDownloader implements IDownloaderListener
 		mDBHelper = DBHelper.getInstance(context);
 	}
 
+	/**
+	 * 开始下载任务
+	 */
 	public void deploy()
 	{
 		mState = STATE_DOWNLOADING;
@@ -146,6 +149,11 @@ public class FileDownloader implements IDownloaderListener
 		}
 	}
 
+	/**
+	 * Http响应头字段
+	 *
+	 * @param headerFields
+     */
 	private void getHeader(Map<String, List<String>> headerFields)
 	{
 		for (Map.Entry<String, List<String>> field : headerFields.entrySet())
@@ -154,12 +162,22 @@ public class FileDownloader implements IDownloaderListener
 		}
 	}
 
+	/**
+	 * 本地文件检测
+	 *
+	 * @param fileSize 下载文件长度
+	 * @throws Exception
+     */
 	private void checkLocalFile(int fileSize) throws Exception
 	{
 		if (!mStoreFile.exists())
 		{
 			mDBHelper.deleteDownloadInfo(mFileName);
 			mDBHelper.deleteFlagInfo(mFileName);
+
+			if (!mStoreFile.getParentFile().exists() && !mStoreFile.getParentFile().mkdirs())
+				throw new IllegalStateException("Failed to open downloader space.");
+
 			if (!mStoreFile.createNewFile())
 				throw new IllegalStateException("Failed to create storage file.");
 		}
@@ -192,7 +210,7 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 刷新总下载长度
+	 * 更新总下载长度
 	 * 
 	 * @param size 一次文件流的长度
 	 */
