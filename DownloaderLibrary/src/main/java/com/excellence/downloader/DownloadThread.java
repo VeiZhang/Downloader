@@ -9,7 +9,6 @@ import java.net.URL;
 import android.content.Context;
 
 import com.excellence.downloader.db.DBHelper;
-import com.excellence.downloader.entity.HistoryFileInfo;
 import com.excellence.downloader.exception.DownloadError;
 
 /**
@@ -62,17 +61,14 @@ public class DownloadThread extends Thread
 		{
 			try
 			{
-				HistoryFileInfo historyFileInfo = mDBHelper.queryDownload(mFileName, mThreadId);
-				if (historyFileInfo != null)
-				{
-					mDownloadSize = historyFileInfo.getDownloadLength();
-				}
-				else
+				mDownloadSize = mDBHelper.queryDownloadSize(mFileName, mThreadId);
+				if (mDownloadSize == -1)
 				{
 					// create once
+					mDownloadSize = 0;
 					synchronized (DBHelper.lock)
 					{
-						mDBHelper.insertDownload(mFileName, mThreadId, mDownloadSize);
+						mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
 					}
 				}
 				mAccessFile.seek(mStartPosition + mDownloadSize);

@@ -17,7 +17,6 @@ import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.ServerConnectException;
 import com.excellence.downloader.exception.SpaceNotEnoughException;
 import com.excellence.downloader.exception.URLInvalidException;
-import com.excellence.downloader.utils.DownloadConstant;
 import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.utils.HttpUtils;
 import com.excellence.downloader.utils.IDownloaderListener;
@@ -90,7 +89,7 @@ public class FileDownloader implements IDownloaderListener
 					checkLocalFile(mFileSize);
 					if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), mFileSize))
 					{
-						mDownloadSize = mDBHelper.queryDownloadedLength(mFileName);
+						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
 						onPreExecute(mFileSize);
 
 						long block = mFileSize % THREAD_COUNT == 0 ? mFileSize / THREAD_COUNT : mFileSize / THREAD_COUNT + 1;
@@ -117,7 +116,6 @@ public class FileDownloader implements IDownloaderListener
 							if (!mStoreFile.exists())
 								throw new IllegalStateException("Download failed, Storage file is not exist.");
 							mState = STATE_SUCCESS;
-							mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_DOWNLOAD_FINISHED);
 							DownloaderManager.getDownloaderList().remove(this);
 							onSuccess();
 						}
@@ -154,7 +152,6 @@ public class FileDownloader implements IDownloaderListener
 		if (!mStoreFile.exists())
 		{
 			mDBHelper.deleteDownloadInfo(mFileName);
-			mDBHelper.deleteFlagInfo(mFileName);
 
 			if (!mStoreFile.getParentFile().exists() && !mStoreFile.getParentFile().mkdirs())
 				throw new IllegalStateException("Failed to open downloader space.");
@@ -162,12 +159,6 @@ public class FileDownloader implements IDownloaderListener
 			if (!mStoreFile.createNewFile())
 				throw new IllegalStateException("Failed to create storage file.");
 		}
-
-		if (mDBHelper.queryFlag(mFileName) == null)
-			mDBHelper.insertFlag(mFileName, 0, (int) fileSize);
-		else
-			mDBHelper.updateFlag(mFileName, 0);
-
 		RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 		accessFile.setLength(fileSize);
 		accessFile.close();
@@ -189,12 +180,10 @@ public class FileDownloader implements IDownloaderListener
 	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
 	 * 但是，主动销毁app，或Crash异常，则不能保存数据
 	 */
-	protected synchronized void updateDatabase(int threadId, int threadDownloadLength)
+	protected synchronized void updateDatabase(int threadId, int threadDownloadSize)
 	{
 		// 更新某线程下载长度
-		mDBHelper.updateDownloadId(mFileName, threadId, threadDownloadLength);
-		// 更新总下载长度
-		mDBHelper.updateDownloadLength(mFileName, (int) mDownloadSize);
+		mDBHelper.updateDownloadSize(mFileName, threadId, threadDownloadSize);
 	}
 
 	@Override
@@ -263,7 +252,6 @@ public class FileDownloader implements IDownloaderListener
 		isStop = true;
 		mState = STATE_ERROR;
 		DownloaderManager.getDownloaderList().remove(this);
-		mDBHelper.updateFlag(mFileName, DownloadConstant.FLAG_ERROR);
 		onError(error);
 	}
 
@@ -295,7 +283,6 @@ public class FileDownloader implements IDownloaderListener
 		mState = STATE_DISCARD;
 		isStop = true;
 		mDBHelper.deleteDownloadInfo(mFileName);
-		mDBHelper.deleteFlagInfo(mFileName);
 		mStoreFile.delete();
 		DownloaderManager.getDownloaderList().remove(this);
 	}
