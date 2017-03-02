@@ -1,10 +1,10 @@
 # Downloader 文件下载器
 
-* [DownloaderLibrary](#DownloaderLibrary)
+* [downloaderlibrary](#downloaderlibrary)
 
-* [Netroid](#Netroid)
+* [netroid](#netroid)
 
-DownloaderLibrary
+downloaderlibrary
 -----------------
 [![Bintray][icon_Bintray]][Bintray]
 [![GitHub forks][icon_forks]][forks]
@@ -101,7 +101,7 @@ FileDownloader.resume();
 ```
 
 
-[Netroid][NetroidLibrary]
+[netroid][NetroidLibrary]
 -------------------------
 ```
 Netroid依赖库使用，实现多任务单线程断点下载，使用临时文件作为断点标记
