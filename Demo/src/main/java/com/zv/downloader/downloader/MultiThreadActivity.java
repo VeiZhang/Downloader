@@ -153,11 +153,18 @@ public class MultiThreadActivity extends DownloadActivity
 					}
 
 					@Override
+					public void onCancel()
+					{
+						super.onCancel();
+						System.out.println("cancel");
+					}
+
+					@Override
 					public void onError(DownloadError error)
 					{
 						super.onError(error);
+						error.printStackTrace();
 						mDownloaderTask.invalidateTask();
-						System.out.println(error.getMessage());
 					}
 
 					@Override

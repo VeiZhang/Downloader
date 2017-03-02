@@ -80,18 +80,21 @@ public class FileDownloader implements IDownloaderListener
 				connection.setReadTimeout(SO_TIME_OUT);
 				// default request : GET
 				connection.setRequestMethod("GET");
+				connection.disconnect();
+
+				if (isStop)
+					return;
+
 				int responseCode = connection.getResponseCode();
 				HttpUtils.printHeader(connection);
 				if (responseCode == 200)
 				{
 					mFileSize = connection.getContentLength();
-					connection.disconnect();
-					checkLocalFile(mFileSize);
 					if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), mFileSize))
 					{
-						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
+						checkLocalStoreFile(mFileSize);
 						onPreExecute(mFileSize);
-
+						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
 						long block = mFileSize % THREAD_COUNT == 0 ? mFileSize / THREAD_COUNT : mFileSize / THREAD_COUNT + 1;
 						for (int i = 0; i < THREAD_COUNT; i++)
 						{
@@ -137,17 +140,17 @@ public class FileDownloader implements IDownloaderListener
 		}
 		catch (Exception e)
 		{
-			sendErrorMsg(new DownloadError(e.getMessage()));
+			sendErrorMsg(new DownloadError(e));
 		}
 	}
 
 	/**
-	 * 本地文件检测
+	 * 本地储存文件检测
 	 *
 	 * @param fileSize 下载文件长度
 	 * @throws Exception
      */
-	private void checkLocalFile(long fileSize) throws Exception
+	private void checkLocalStoreFile(long fileSize) throws Exception
 	{
 		if (!mStoreFile.exists())
 		{
@@ -189,6 +192,9 @@ public class FileDownloader implements IDownloaderListener
 	@Override
 	public void onPreExecute(final long fileSize)
 	{
+		if (isStop)
+			return;
+
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -215,8 +221,25 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	@Override
+	public void onCancel()
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onCancel();
+			}
+		});
+	}
+
+	@Override
 	public void onError(final DownloadError error)
 	{
+		if (isStop)
+			return;
+
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -249,10 +272,11 @@ public class FileDownloader implements IDownloaderListener
      */
 	public void sendErrorMsg(DownloadError error)
 	{
-		isStop = true;
 		mState = STATE_ERROR;
 		DownloaderManager.getDownloaderList().remove(this);
+		// 暂停、错误冲突：暂停就不打印错误，否则打印，下面语句顺序不能改变
 		onError(error);
+		isStop = true;
 	}
 
 	/**
@@ -272,6 +296,7 @@ public class FileDownloader implements IDownloaderListener
 	{
 		mState = STATE_PAUSE;
 		isStop = true;
+		onCancel();
 		DownloaderManager.getDownloaderList().remove(this);
 	}
 

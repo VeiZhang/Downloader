@@ -49,7 +49,7 @@ public class DownloadThread extends Thread
 		}
 		catch (Exception e)
 		{
-			mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
+			mFileDownloader.sendErrorMsg(new DownloadError(e));
 		}
 	}
 
@@ -111,7 +111,7 @@ public class DownloadThread extends Thread
 				if (requestCount == 0 && !mFileDownloader.isStop())
 				{
 					mFileDownloader.pause();
-					mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
+					mFileDownloader.sendErrorMsg(new DownloadError(e));
 					if (mDownloadSize != 0)
 						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
 				}

@@ -23,6 +23,11 @@ public interface IDownloaderListener
 	void onProgressChange(long fileSize, long downloadedSize);
 
 	/**
+	 * 暂停下载
+	 */
+	void onCancel();
+
+	/**
 	 * 下载失败
      */
 	void onError(DownloadError error);
