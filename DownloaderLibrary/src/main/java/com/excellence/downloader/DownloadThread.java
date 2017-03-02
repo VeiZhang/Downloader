@@ -127,7 +127,7 @@ public class DownloadThread extends Thread
 			mDBHelper.updateDownloadSize(mFileName, mThreadId, mDownloadSize);
 	}
 
-	public boolean isFinished()
+	protected boolean isFinished()
 	{
 		return isFinished;
 	}

@@ -292,7 +292,7 @@ public class FileDownloader implements IDownloaderListener
 	/**
 	 * 退出暂停任务
 	 */
-	public void destroy()
+	protected void destroy()
 	{
 		mState = STATE_PAUSE;
 		isStop = true;
