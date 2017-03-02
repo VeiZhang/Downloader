@@ -1,9 +1,9 @@
 # Downloader
 文件下载器
 
-[DownloaderLibrary](#DownloaderLibrary)
+[DownloaderLibrary](###DownloaderLibrary)
 
-[Netroid](#Netroid)
+[Netroid](###Netroid)
 
 ### DownloaderLibrary
 [![Bintray][icon_Bintray]][Bintray]
@@ -104,14 +104,14 @@ FileDownloader.resume();
 ```
 
 
-### [Netroid]([NetroidLibrary])
+### [Netroid][NetroidLibrary]
 ```
 Netroid依赖库使用，实现多任务单线程断点下载，使用临时文件作为断点标记
 ```
 
 
 <!-- 网站链接 -->
-[Bintray]:https://bintray.com/veizhang/maven/downloader
+[Bintray]:https://bintray.com/veizhang/maven/downloader "Bintray"
 [forks]:https://github.com/VeiZhang/Downloader/network/members
 [stars]:https://github.com/VeiZhang/Downloader/stargazers
 [NetroidLibrary]:http://netroid.cn/
