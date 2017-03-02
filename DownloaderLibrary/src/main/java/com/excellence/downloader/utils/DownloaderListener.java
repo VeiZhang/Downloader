@@ -22,6 +22,12 @@ public class DownloaderListener implements IDownloaderListener
 	}
 
 	@Override
+	public void onCancel()
+	{
+
+	}
+
+	@Override
 	public void onError(DownloadError error)
 	{
 

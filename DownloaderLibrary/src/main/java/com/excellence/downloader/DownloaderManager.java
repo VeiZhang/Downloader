@@ -5,7 +5,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.utils.DownloaderListener;
 
 import java.io.File;
@@ -35,13 +34,14 @@ public class DownloaderManager
 	private List<FileDownloader> mDownloaderList = null;
 	private ExecutorService mExecutorService = null;
 	private Executor mResponsePoster = null;
+	private Context mContext = null;
 
-	private DownloaderManager()
+	private DownloaderManager(Context context)
 	{
-
+		mContext = context;
 	}
 
-	public static void init(int parallelTaskCount)
+	public static void init(Context context, int parallelTaskCount)
 	{
 		if (parallelTaskCount >= Runtime.getRuntime().availableProcessors())
 		{
@@ -50,7 +50,7 @@ public class DownloaderManager
 			if (parallelTaskCount == 0)
 				parallelTaskCount = 1;
 		}
-		mInstance = new DownloaderManager();
+		mInstance = new DownloaderManager(context.getApplicationContext());
 		mInstance.mDownloaderList = new ArrayList<>();
 		mInstance.mExecutorService = Executors.newFixedThreadPool(parallelTaskCount);
 		mInstance.mResponsePoster = new Executor()
@@ -67,8 +67,9 @@ public class DownloaderManager
 	{
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
-			task.pause();
+			task.destroy();
 		}
+		mInstance.mDownloaderList.clear();
 		DBHelper.getInstance(context).closeDB();
 	}
 
@@ -80,14 +81,14 @@ public class DownloaderManager
 			throw new IllegalStateException("DownloaderList not initialized.");
 	}
 
-	public static FileDownloader addTask(Context context, File storeFile, String url, DownloaderListener listener)
+	public static FileDownloader addTask(File storeFile, String url, DownloaderListener listener)
 	{
-		return addTask(new FileDownloader(context, storeFile, url, listener, mInstance.mResponsePoster));
+		return addTask(new FileDownloader(mInstance.mContext, storeFile, url, listener, mInstance.mResponsePoster));
 	}
 
-	public static FileDownloader addTask(Context context, String storeFilePath, String url, DownloaderListener listener)
+	public static FileDownloader addTask(String storeFilePath, String url, DownloaderListener listener)
 	{
-		return addTask(context, new File(storeFilePath), url, listener);
+		return addTask(new File(storeFilePath), url, listener);
 	}
 
 	public static FileDownloader addTask(final FileDownloader fileDownloader)

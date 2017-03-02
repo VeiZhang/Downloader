@@ -38,7 +38,7 @@ public class MultiThreadActivity extends DownloadActivity
 	@Override
 	protected void initDownloader()
 	{
-		DownloaderManager.init(2);
+		DownloaderManager.init(this, 2);
 	}
 
 	@Override
@@ -132,7 +132,7 @@ public class MultiThreadActivity extends DownloadActivity
 			private void buildTask()
 			{
 				File file = new File(DOWNLOAD_PATH, mDownloaderTask.getFileName());
-				mDownloaderTask.setFileDownloader(DownloaderManager.addTask(MultiThreadActivity.this, file, mDownloaderTask.getFileUrl(), new DownloaderListener()
+				mDownloaderTask.setFileDownloader(DownloaderManager.addTask(file, mDownloaderTask.getFileUrl(), new DownloaderListener()
 				{
 
 					@Override
@@ -153,11 +153,18 @@ public class MultiThreadActivity extends DownloadActivity
 					}
 
 					@Override
+					public void onCancel()
+					{
+						super.onCancel();
+						System.out.println("cancel");
+					}
+
+					@Override
 					public void onError(DownloadError error)
 					{
 						super.onError(error);
+						error.printStackTrace();
 						mDownloaderTask.invalidateTask();
-						System.out.println(error.getMessage());
 					}
 
 					@Override

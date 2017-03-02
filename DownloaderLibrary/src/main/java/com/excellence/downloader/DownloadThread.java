@@ -8,8 +8,10 @@ import java.net.URL;
 
 import android.content.Context;
 
-import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.exception.DownloadError;
+
+import static com.excellence.downloader.FileDownloader.CONNECT_TIME_OUT;
+import static com.excellence.downloader.FileDownloader.SO_TIME_OUT;
 
 /**
  * Created by ZhangWei on 2016/2/22.
@@ -31,7 +33,7 @@ public class DownloadThread extends Thread
 	private boolean isFinished = false;
 	private RandomAccessFile mAccessFile = null;
 
-	public DownloadThread(Context context, FileDownloader fileDownloader, int threadId, long block, long fileSize)
+	protected DownloadThread(Context context, FileDownloader fileDownloader, int threadId, long block, long fileSize)
 	{
 		mDBHelper = DBHelper.getInstance(context);
 		mFileDownloader = fileDownloader;
@@ -49,7 +51,7 @@ public class DownloadThread extends Thread
 		}
 		catch (Exception e)
 		{
-			mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
+			mFileDownloader.sendErrorMsg(new DownloadError(e));
 		}
 	}
 
@@ -66,10 +68,7 @@ public class DownloadThread extends Thread
 				{
 					// create once
 					mDownloadSize = 0;
-					synchronized (DBHelper.lock)
-					{
-						mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
-					}
+					mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
 				}
 				mAccessFile.seek(mStartPosition + mDownloadSize);
 				if (mEndPosition > mFileSize)
@@ -82,6 +81,8 @@ public class DownloadThread extends Thread
 				{
 					URL url = new URL(mFileDownloader.getFileUrl());
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					connection.setConnectTimeout(CONNECT_TIME_OUT);
+					connection.setReadTimeout(SO_TIME_OUT);
 					long tmpStartPosition = mStartPosition + mDownloadSize;
 					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
 					if (connection.getResponseCode() == 206)
@@ -95,7 +96,7 @@ public class DownloadThread extends Thread
 							mDownloadSize += len;
 							mFileDownloader.append(len);
 						}
-						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
+						updateDatabase();
 						inputStream.close();
 						connection.disconnect();
 						if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
@@ -111,15 +112,30 @@ public class DownloadThread extends Thread
 				if (requestCount == 0 && !mFileDownloader.isStop())
 				{
 					mFileDownloader.pause();
-					mFileDownloader.sendErrorMsg(new DownloadError(e.getMessage()));
-					if (mDownloadSize != 0)
-						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
+					mFileDownloader.sendErrorMsg(new DownloadError(e));
+					updateDatabase();
 				}
 			}
 		} while (--requestCount > 0);
 	}
 
-	public boolean isFinished()
+	/**
+	 * 更新单个任务中的数据库
+	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
+	 * 但是，主动销毁app，或Crash异常，则不能保存数据
+	 */
+	protected void updateDatabase()
+	{
+		// 更新某线程下载长度
+		if (mDBHelper != null && mDownloadSize > 0)
+			mDBHelper.updateDownloadSize(mFileName, mThreadId, mDownloadSize);
+	}
+
+	/**
+	 * 判断当前线程是否成功下载
+	 * @return
+     */
+	protected boolean isFinished()
 	{
 		return isFinished;
 	}

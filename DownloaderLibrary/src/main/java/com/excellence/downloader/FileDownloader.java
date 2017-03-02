@@ -12,7 +12,6 @@ import java.util.concurrent.Executor;
 
 import android.content.Context;
 
-import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.ServerConnectException;
 import com.excellence.downloader.exception.SpaceNotEnoughException;
@@ -30,8 +29,8 @@ public class FileDownloader implements IDownloaderListener
 	private static final String TAG = FileDownloader.class.getSimpleName();
 
 	private static final int THREAD_COUNT = 3;
-	private static final int CONNECT_TIME_OUT = 5 * 1000;
-	private static final int SO_TIME_OUT = 5 * 1000;
+	protected static final int CONNECT_TIME_OUT = 10 * 1000;
+	protected static final int SO_TIME_OUT = 10 * 1000;
 
 	public static final int STATE_DOWNLOADING = 0;
 	public static final int STATE_PAUSE = 1;
@@ -67,7 +66,7 @@ public class FileDownloader implements IDownloaderListener
 	/**
 	 * 开始下载任务
 	 */
-	public void deploy()
+	protected void deploy()
 	{
 		mState = STATE_DOWNLOADING;
 		try
@@ -80,18 +79,21 @@ public class FileDownloader implements IDownloaderListener
 				connection.setReadTimeout(SO_TIME_OUT);
 				// default request : GET
 				connection.setRequestMethod("GET");
+				connection.disconnect();
+
+				if (isStop)
+					return;
+
 				int responseCode = connection.getResponseCode();
 				HttpUtils.printHeader(connection);
 				if (responseCode == 200)
 				{
 					mFileSize = connection.getContentLength();
-					connection.disconnect();
-					checkLocalFile(mFileSize);
 					if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), mFileSize))
 					{
-						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
+						checkLocalStoreFile(mFileSize);
 						onPreExecute(mFileSize);
-
+						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
 						long block = mFileSize % THREAD_COUNT == 0 ? mFileSize / THREAD_COUNT : mFileSize / THREAD_COUNT + 1;
 						for (int i = 0; i < THREAD_COUNT; i++)
 						{
@@ -137,17 +139,17 @@ public class FileDownloader implements IDownloaderListener
 		}
 		catch (Exception e)
 		{
-			sendErrorMsg(new DownloadError(e.getMessage()));
+			sendErrorMsg(new DownloadError(e));
 		}
 	}
 
 	/**
-	 * 本地文件检测
+	 * 本地储存文件检测
 	 *
 	 * @param fileSize 下载文件长度
 	 * @throws Exception
      */
-	private void checkLocalFile(long fileSize) throws Exception
+	private void checkLocalStoreFile(long fileSize) throws Exception
 	{
 		if (!mStoreFile.exists())
 		{
@@ -175,20 +177,12 @@ public class FileDownloader implements IDownloaderListener
 		onProgressChange(mFileSize, mDownloadSize);
 	}
 
-	/**
-	 * 更新单个任务中的数据库
-	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
-	 * 但是，主动销毁app，或Crash异常，则不能保存数据
-	 */
-	protected synchronized void updateDatabase(int threadId, int threadDownloadSize)
-	{
-		// 更新某线程下载长度
-		mDBHelper.updateDownloadSize(mFileName, threadId, threadDownloadSize);
-	}
-
 	@Override
 	public void onPreExecute(final long fileSize)
 	{
+		if (isStop)
+			return;
+
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -215,8 +209,25 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	@Override
+	public void onCancel()
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mDownloaderListener != null)
+					mDownloaderListener.onCancel();
+			}
+		});
+	}
+
+	@Override
 	public void onError(final DownloadError error)
 	{
+		if (isStop)
+			return;
+
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -247,12 +258,13 @@ public class FileDownloader implements IDownloaderListener
 	 *
 	 * @param error 异常
      */
-	public void sendErrorMsg(DownloadError error)
+	protected void sendErrorMsg(DownloadError error)
 	{
-		isStop = true;
 		mState = STATE_ERROR;
 		DownloaderManager.getDownloaderList().remove(this);
+		// 暂停、错误冲突：暂停就不打印错误，否则打印，下面语句顺序不能改变
 		onError(error);
+		isStop = true;
 	}
 
 	/**
@@ -272,7 +284,21 @@ public class FileDownloader implements IDownloaderListener
 	{
 		mState = STATE_PAUSE;
 		isStop = true;
+		onCancel();
 		DownloaderManager.getDownloaderList().remove(this);
+	}
+
+	/**
+	 * 退出暂停任务
+	 */
+	protected void destroy()
+	{
+		mState = STATE_PAUSE;
+		isStop = true;
+		for (DownloadThread taskThread : mDownloadThreads)
+		{
+			taskThread.updateDatabase();
+		}
 	}
 
 	/**
@@ -287,26 +313,51 @@ public class FileDownloader implements IDownloaderListener
 		DownloaderManager.getDownloaderList().remove(this);
 	}
 
+	/**
+	 * 获取下载状态
+	 *
+	 * @return 下载状态
+     */
 	public int getState()
 	{
 		return mState;
 	}
 
+	/**
+	 * 是否停止下载
+	 *
+	 * @return
+     */
 	public boolean isStop()
 	{
 		return isStop;
 	}
 
+	/**
+	 * 获取文件名
+	 *
+	 * @return 文件名
+     */
 	public String getFileName()
 	{
 		return mFileName;
 	}
 
+	/**
+	 * 获取文件
+	 *
+	 * @return File类型
+     */
 	public File getStoreFile()
 	{
 		return mStoreFile;
 	}
 
+	/**
+	 * 获取下载链接
+	 *
+	 * @return 下载链接
+     */
 	public String getFileUrl()
 	{
 		return mFileUrl;
