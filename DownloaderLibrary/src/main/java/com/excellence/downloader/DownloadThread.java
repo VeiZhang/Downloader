@@ -8,8 +8,10 @@ import java.net.URL;
 
 import android.content.Context;
 
-import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.exception.DownloadError;
+
+import static com.excellence.downloader.FileDownloader.CONNECT_TIME_OUT;
+import static com.excellence.downloader.FileDownloader.SO_TIME_OUT;
 
 /**
  * Created by ZhangWei on 2016/2/22.
@@ -31,7 +33,7 @@ public class DownloadThread extends Thread
 	private boolean isFinished = false;
 	private RandomAccessFile mAccessFile = null;
 
-	public DownloadThread(Context context, FileDownloader fileDownloader, int threadId, long block, long fileSize)
+	protected DownloadThread(Context context, FileDownloader fileDownloader, int threadId, long block, long fileSize)
 	{
 		mDBHelper = DBHelper.getInstance(context);
 		mFileDownloader = fileDownloader;
@@ -79,6 +81,8 @@ public class DownloadThread extends Thread
 				{
 					URL url = new URL(mFileDownloader.getFileUrl());
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					connection.setConnectTimeout(CONNECT_TIME_OUT);
+					connection.setReadTimeout(SO_TIME_OUT);
 					long tmpStartPosition = mStartPosition + mDownloadSize;
 					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
 					if (connection.getResponseCode() == 206)
@@ -127,6 +131,10 @@ public class DownloadThread extends Thread
 			mDBHelper.updateDownloadSize(mFileName, mThreadId, mDownloadSize);
 	}
 
+	/**
+	 * 判断当前线程是否成功下载
+	 * @return
+     */
 	protected boolean isFinished()
 	{
 		return isFinished;

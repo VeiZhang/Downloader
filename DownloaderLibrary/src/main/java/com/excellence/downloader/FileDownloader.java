@@ -12,7 +12,6 @@ import java.util.concurrent.Executor;
 
 import android.content.Context;
 
-import com.excellence.downloader.db.DBHelper;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.ServerConnectException;
 import com.excellence.downloader.exception.SpaceNotEnoughException;
@@ -30,8 +29,8 @@ public class FileDownloader implements IDownloaderListener
 	private static final String TAG = FileDownloader.class.getSimpleName();
 
 	private static final int THREAD_COUNT = 3;
-	private static final int CONNECT_TIME_OUT = 5 * 1000;
-	private static final int SO_TIME_OUT = 5 * 1000;
+	protected static final int CONNECT_TIME_OUT = 10 * 1000;
+	protected static final int SO_TIME_OUT = 10 * 1000;
 
 	public static final int STATE_DOWNLOADING = 0;
 	public static final int STATE_PAUSE = 1;
@@ -67,7 +66,7 @@ public class FileDownloader implements IDownloaderListener
 	/**
 	 * 开始下载任务
 	 */
-	public void deploy()
+	protected void deploy()
 	{
 		mState = STATE_DOWNLOADING;
 		try
@@ -259,7 +258,7 @@ public class FileDownloader implements IDownloaderListener
 	 *
 	 * @param error 异常
      */
-	public void sendErrorMsg(DownloadError error)
+	protected void sendErrorMsg(DownloadError error)
 	{
 		mState = STATE_ERROR;
 		DownloaderManager.getDownloaderList().remove(this);
@@ -314,26 +313,51 @@ public class FileDownloader implements IDownloaderListener
 		DownloaderManager.getDownloaderList().remove(this);
 	}
 
+	/**
+	 * 获取下载状态
+	 *
+	 * @return 下载状态
+     */
 	public int getState()
 	{
 		return mState;
 	}
 
+	/**
+	 * 是否停止下载
+	 *
+	 * @return
+     */
 	public boolean isStop()
 	{
 		return isStop;
 	}
 
+	/**
+	 * 获取文件名
+	 *
+	 * @return 文件名
+     */
 	public String getFileName()
 	{
 		return mFileName;
 	}
 
+	/**
+	 * 获取文件
+	 *
+	 * @return File类型
+     */
 	public File getStoreFile()
 	{
 		return mStoreFile;
 	}
 
+	/**
+	 * 获取下载链接
+	 *
+	 * @return 下载链接
+     */
 	public String getFileUrl()
 	{
 		return mFileUrl;

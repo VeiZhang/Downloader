@@ -1,4 +1,4 @@
-package com.excellence.downloader.db;
+package com.excellence.downloader;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -9,6 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 /**
  * Created by ZhangWei on 2016/2/19.
+ */
+
+/**
+ * 多线程断点数据库
  */
 public class DBHelper extends SQLiteOpenHelper
 {
@@ -55,7 +59,14 @@ public class DBHelper extends SQLiteOpenHelper
 		db.execSQL(CREATE_DOWNLOAD_TBL);
 	}
 
-	public synchronized void insertDownloadSize(String name, int threadId, int downloadSize)
+	/**
+	 * 新建单线程下载记录
+	 *
+	 * @param name 文件名
+	 * @param threadId 线程Id
+	 * @param downloadSize 下载长度
+     */
+	protected synchronized void insertDownloadSize(String name, int threadId, int downloadSize)
 	{
 		ContentValues values = new ContentValues();
 		values.put(KEY_NAME, name);
@@ -64,11 +75,24 @@ public class DBHelper extends SQLiteOpenHelper
 		mDatabase.insert(DOWNLOAD_TBL_NAME, null, values);
 	}
 
-	public synchronized void updateDownloadSize(String name, int threadId, int downloadSize)
+	/**
+	 * 更新单线程下载记录
+	 *
+	 * @param name 文件名
+	 * @param threadId 线程Id
+	 * @param downloadSize 下载长度
+     */
+	protected synchronized void updateDownloadSize(String name, int threadId, int downloadSize)
 	{
 		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ? and %4$s = ?", DOWNLOAD_TBL_NAME, KEY_LENGTH, KEY_NAME, KEY_ID), new Object[] { downloadSize, name, threadId });
 	}
 
+	/**
+	 * 查询下载总长度
+	 *
+	 * @param name 文件名
+	 * @return 下载总长度
+     */
 	public synchronized int queryDownloadSize(String name)
 	{
 		int length = 0;
@@ -84,6 +108,13 @@ public class DBHelper extends SQLiteOpenHelper
 		return length;
 	}
 
+	/**
+	 * 查询单线程下载长度
+	 *
+	 * @param name 文件名
+	 * @param threadId 线程Id
+     * @return 下载长度
+     */
 	public synchronized int queryDownloadSize(String name, int threadId)
 	{
 		int length = -1;
@@ -96,17 +127,31 @@ public class DBHelper extends SQLiteOpenHelper
 		return length;
 	}
 
-	public synchronized void deleteDownloadInfo(String name)
+	/**
+	 * 删除下载表中的文件记录
+	 *
+	 * @param name 文件名
+     */
+	protected synchronized void deleteDownloadInfo(String name)
 	{
 		delete(DOWNLOAD_TBL_NAME, name);
 	}
 
-	public synchronized void delete(String tableName, String name)
+	/**
+	 * 删除某数据表中的记录
+	 *
+	 * @param tableName 数据表名
+	 * @param name 文件名
+     */
+	private synchronized void delete(String tableName, String name)
 	{
 		mDatabase.execSQL(String.format("delete from %1$s where %2$s = ?", tableName, KEY_NAME), new Object[] { name });
 	}
 
-	public synchronized void closeDB()
+	/**
+	 * 关闭数据连接
+	 */
+	protected synchronized void closeDB()
 	{
 		if (mDatabase != null)
 		{
@@ -114,6 +159,13 @@ public class DBHelper extends SQLiteOpenHelper
 		}
 	}
 
+	/**
+	 * 升级数据库
+	 *
+	 * @param db 数据库索引
+	 * @param oldVersion 旧版本号
+	 * @param newVersion 新版本号
+     */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
 	{
