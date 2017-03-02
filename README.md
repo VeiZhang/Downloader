@@ -1,11 +1,12 @@
 # Downloader
 文件下载器
 
-[DownloaderLibrary](###DownloaderLibrary)
+[DownloaderLibrary](#DownloaderLibrary)
 
-[Netroid](###Netroid)
+[Netroid](#Netroid)
 
-### DownloaderLibrary
+DownloaderLibrary
+-----------------
 [![Bintray][icon_Bintray]][Bintray]
 [![GitHub forks][icon_forks]][forks]
 [![GitHub stars][icon_stars]][stars]
@@ -14,8 +15,7 @@ HttpURLConnection下载文件依赖库，实现多任务多线程断点下载
 ```
 
 
-导入Android Studio
-----------------
+### 导入Android Studio
 添加jCenter远程依赖到module里的build.gradle：
 ```
 dependencies {
@@ -30,8 +30,7 @@ compile project(':DownloaderLibrary')
 ```
 
 
-使用示例
-----
+### 使用示例
 1.onCreate方法中初始化
 ```
 // 最大下载的任务数
@@ -89,8 +88,7 @@ FileDownloader.pause();
 FileDownloader.resume();
 ```
 
-修改日志
--------
+### 修改日志
 |         版本         |         描述         |
 | ------------------- | ------------------- |
 | [1.0.0][DownloadLibrary1.0.0] | 多线程下载，数据库断点续传 |
@@ -104,7 +102,8 @@ FileDownloader.resume();
 ```
 
 
-### [Netroid][NetroidLibrary]
+[Netroid][NetroidLibrary]
+-------------------------
 ```
 Netroid依赖库使用，实现多任务单线程断点下载，使用临时文件作为断点标记
 ```
