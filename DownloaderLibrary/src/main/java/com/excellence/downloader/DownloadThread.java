@@ -66,10 +66,7 @@ public class DownloadThread extends Thread
 				{
 					// create once
 					mDownloadSize = 0;
-					synchronized (DBHelper.lock)
-					{
-						mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
-					}
+					mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
 				}
 				mAccessFile.seek(mStartPosition + mDownloadSize);
 				if (mEndPosition > mFileSize)
@@ -95,7 +92,7 @@ public class DownloadThread extends Thread
 							mDownloadSize += len;
 							mFileDownloader.append(len);
 						}
-						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
+						updateDatabase();
 						inputStream.close();
 						connection.disconnect();
 						if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
@@ -112,11 +109,22 @@ public class DownloadThread extends Thread
 				{
 					mFileDownloader.pause();
 					mFileDownloader.sendErrorMsg(new DownloadError(e));
-					if (mDownloadSize != 0)
-						mFileDownloader.updateDatabase(mThreadId, mDownloadSize);
+					updateDatabase();
 				}
 			}
 		} while (--requestCount > 0);
+	}
+
+	/**
+	 * 更新单个任务中的数据库
+	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
+	 * 但是，主动销毁app，或Crash异常，则不能保存数据
+	 */
+	protected void updateDatabase()
+	{
+		// 更新某线程下载长度
+		if (mDBHelper != null && mDownloadSize > 0)
+			mDBHelper.updateDownloadSize(mFileName, mThreadId, mDownloadSize);
 	}
 
 	public boolean isFinished()

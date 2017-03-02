@@ -178,17 +178,6 @@ public class FileDownloader implements IDownloaderListener
 		onProgressChange(mFileSize, mDownloadSize);
 	}
 
-	/**
-	 * 更新单个任务中的数据库
-	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
-	 * 但是，主动销毁app，或Crash异常，则不能保存数据
-	 */
-	protected synchronized void updateDatabase(int threadId, int threadDownloadSize)
-	{
-		// 更新某线程下载长度
-		mDBHelper.updateDownloadSize(mFileName, threadId, threadDownloadSize);
-	}
-
 	@Override
 	public void onPreExecute(final long fileSize)
 	{
@@ -298,6 +287,19 @@ public class FileDownloader implements IDownloaderListener
 		isStop = true;
 		onCancel();
 		DownloaderManager.getDownloaderList().remove(this);
+	}
+
+	/**
+	 * 退出暂停任务
+	 */
+	public void destroy()
+	{
+		mState = STATE_PAUSE;
+		isStop = true;
+		for (DownloadThread taskThread : mDownloadThreads)
+		{
+			taskThread.updateDatabase();
+		}
 	}
 
 	/**

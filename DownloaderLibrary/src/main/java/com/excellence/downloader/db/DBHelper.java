@@ -20,7 +20,6 @@ public class DBHelper extends SQLiteOpenHelper
 	private static final String KEY_LENGTH = "downloadsize";
 	private static final String CREATE_DOWNLOAD_TBL = String.format("create table %1$s(%2$s VARCHAR(1024), %3$s INTEGER, %4$s INTEGER, PRIMARY KEY(%5$s, %6$s))", DOWNLOAD_TBL_NAME, KEY_NAME, KEY_ID,
 			KEY_LENGTH, KEY_NAME, KEY_ID);
-	public static final String lock = "Visit";
 
 	private static DBHelper mInstance = null;
 	private SQLiteDatabase mDatabase = null;
@@ -56,7 +55,7 @@ public class DBHelper extends SQLiteOpenHelper
 		db.execSQL(CREATE_DOWNLOAD_TBL);
 	}
 
-	public void insertDownloadSize(String name, int threadId, int downloadSize)
+	public synchronized void insertDownloadSize(String name, int threadId, int downloadSize)
 	{
 		ContentValues values = new ContentValues();
 		values.put(KEY_NAME, name);
@@ -65,14 +64,14 @@ public class DBHelper extends SQLiteOpenHelper
 		mDatabase.insert(DOWNLOAD_TBL_NAME, null, values);
 	}
 
-	public void updateDownloadSize(String name, int threadId, int downloadSize)
+	public synchronized void updateDownloadSize(String name, int threadId, int downloadSize)
 	{
 		mDatabase.execSQL(String.format("update %1$s set %2$s = ? where %3$s = ? and %4$s = ?", DOWNLOAD_TBL_NAME, KEY_LENGTH, KEY_NAME, KEY_ID), new Object[] { downloadSize, name, threadId });
 	}
 
-	public int queryDownloadSize(String name)
+	public synchronized int queryDownloadSize(String name)
 	{
-		int length = -1;
+		int length = 0;
 		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ?", DOWNLOAD_TBL_NAME, KEY_NAME), new String[] { name });
 		if (cursor != null)
 		{
@@ -85,7 +84,7 @@ public class DBHelper extends SQLiteOpenHelper
 		return length;
 	}
 
-	public int queryDownloadSize(String name, int threadId)
+	public synchronized int queryDownloadSize(String name, int threadId)
 	{
 		int length = -1;
 		Cursor cursor = mDatabase.rawQuery(String.format("select * from %1$s where %2$s = ? and %3$s = ?", DOWNLOAD_TBL_NAME, KEY_NAME, KEY_ID), new String[] { name, String.valueOf(threadId) });
@@ -97,12 +96,12 @@ public class DBHelper extends SQLiteOpenHelper
 		return length;
 	}
 
-	public void deleteDownloadInfo(String name)
+	public synchronized void deleteDownloadInfo(String name)
 	{
 		delete(DOWNLOAD_TBL_NAME, name);
 	}
 
-	public void delete(String tableName, String name)
+	public synchronized void delete(String tableName, String name)
 	{
 		mDatabase.execSQL(String.format("delete from %1$s where %2$s = ?", tableName, KEY_NAME), new Object[] { name });
 	}
