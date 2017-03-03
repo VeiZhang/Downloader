@@ -35,7 +35,7 @@ compile project(':DownloaderLibrary')
 // 最大下载的任务数
 DownloaderManager.init(int parallelTaskCount);
 ```
-2.finish结束
+2.finish结束所有任务
 ```
 // 暂停所有下载任务，保存断点，并关闭数据库
 DownloaderManager.destroy(Context context);
@@ -43,7 +43,7 @@ DownloaderManager.destroy(Context context);
 3.添加下载任务，并开始下载
 ```
 // 文件路径，下载链接
-DownloaderManager.addTask(File file, DownloadURL, new DownloaderListener()
+DownloaderManager.addTask(File file, String DownloadURL, new DownloaderListener()
 {
 
     @Override
@@ -78,14 +78,16 @@ DownloaderManager.addTask(File file, DownloadURL, new DownloaderListener()
     }
 });
 ```
-4.暂停任务
+4.暂停下载任务
 ```
 FileDownloader.pause();
 ```
-5.恢复下载
+5.恢复下载任务
 ```
 FileDownloader.resume();
 ```
+6.删除下载任务
+FileDownloader.discard();
 
 ### 修改日志
 |         版本         |         描述         |

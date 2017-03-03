@@ -47,9 +47,10 @@ public class SingleThreadActivity extends DownloadActivity
 	private void init()
 	{
 		List<NetroidTask> netroidTasks = new ArrayList<>();
+		netroidTasks.add(new NetroidTask("QQ_Netroid.apk", QQ_URL));
+		netroidTasks.add(new NetroidTask("AngryBirds.apk", ANGRYBIRDS_URL));
 		netroidTasks.add(new NetroidTask("Filmon_Netroid.apk", FILMON_URL));
 		netroidTasks.add(new NetroidTask("RomUpdate_Netroid.bin", ROMUPDATE_URL));
-		netroidTasks.add(new NetroidTask("QQ_Netroid.apk", QQ_URL));
 		mDownloadAdapter = new DownloadAdapter(this, netroidTasks, R.layout.download_item);
 		mDownloadListView.setAdapter(mDownloadAdapter);
 	}

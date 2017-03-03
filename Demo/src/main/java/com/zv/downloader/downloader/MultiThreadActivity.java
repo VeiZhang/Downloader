@@ -50,7 +50,7 @@ public class MultiThreadActivity extends DownloadActivity
 	private void init()
 	{
 		mDownloaderTasks = new ArrayList<>();
-		mDownloaderTasks.add(new DownloaderTask("AngryBirds.apk", APPMARKET_URL));
+		mDownloaderTasks.add(new DownloaderTask("AngryBirds.apk", ANGRYBIRDS_URL));
 		mDownloaderTasks.add(new DownloaderTask("QQ.apk", QQ_URL));
 		mDownloaderTasks.add(new DownloaderTask("RomUpdate.bin", ROMUPDATE_URL));
 		mDownloaderTasks.add(new DownloaderTask("Filmon.apk", FILMON_URL));

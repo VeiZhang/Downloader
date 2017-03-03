@@ -13,11 +13,14 @@ import java.io.File;
 
 public abstract class DownloadActivity extends AppCompatActivity
 {
+	/**
+	 * LOCAL_IP是基于本地服务器测试的链接，如果本地服务器关闭，则下载失败
+	 */
 	private static final String LOCAL_IP =  "http://192.168.33.72/";
 	protected static final String FILMON_URL = LOCAL_IP + "Filmon.apk";
 	protected static final String ROMUPDATE_URL = LOCAL_IP + "RomUpdate_V101_FW101_01_00_20170214.bin";
 	protected static final String QQ_URL = "http://gdown.baidu.com/data/wisegame/dc429998555b7d4d/QQ_398.apk";
-	protected static final String APPMARKET_URL = "http://63.141.241.34:8080//apks/20161031195947.apk";
+	protected static final String ANGRYBIRDS_URL = "http://63.141.241.34:8080//apks/20161031195947.apk";
 
 	private static final String DOWNLOAD_DIR = "ZVDownloader";
 	private static final String MNT_DIR = "/mnt/";
