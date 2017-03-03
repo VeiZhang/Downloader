@@ -104,9 +104,9 @@ public class FileDownloader implements IDownloaderListener
 						while (!isStop && !isFinished)
 						{
 							isFinished = true;
-							for (int i = 0; i < THREAD_COUNT; i++)
+							for (DownloadThread taskThread : mDownloadThreads)
 							{
-								if (mDownloadThreads[i] != null && !mDownloadThreads[i].isFinished())
+								if (taskThread != null && !taskThread.isFinished())
 								{
 									isFinished = false;
 								}

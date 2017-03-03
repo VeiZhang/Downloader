@@ -70,10 +70,10 @@ public class DownloadThread extends Thread
 					mDownloadSize = 0;
 					mDBHelper.insertDownloadSize(mFileName, mThreadId, mDownloadSize);
 				}
-				mAccessFile.seek(mStartPosition + mDownloadSize);
+				long tmpStartPosition = mStartPosition + mDownloadSize;
 				if (mEndPosition > mFileSize)
 					mEndPosition = mFileSize;
-				if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
+				if ((mEndPosition + 1) == tmpStartPosition || mEndPosition == tmpStartPosition)
 				{
 					isFinished = true;
 				}
@@ -83,23 +83,26 @@ public class DownloadThread extends Thread
 					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 					connection.setConnectTimeout(CONNECT_TIME_OUT);
 					connection.setReadTimeout(SO_TIME_OUT);
-					long tmpStartPosition = mStartPosition + mDownloadSize;
 					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
+					connection.connect();
 					if (connection.getResponseCode() == 206)
 					{
-						InputStream inputStream = connection.getInputStream();
+						InputStream inStream = connection.getInputStream();
 						byte[] buffer = new byte[STREAM_LENGTH];
-						int len = 0;
-						while (!mFileDownloader.isStop() && (len = inputStream.read(buffer)) != -1)
+						int offset = 0;
+						mAccessFile.seek(tmpStartPosition);
+						while (!mFileDownloader.isStop() && (offset = inStream.read(buffer)) != -1)
 						{
-							mAccessFile.write(buffer, 0, len);
-							mDownloadSize += len;
-							mFileDownloader.append(len);
+							mAccessFile.write(buffer, 0, offset);
+							mDownloadSize += offset;
+							mFileDownloader.append(offset);
 						}
 						updateDatabase();
-						inputStream.close();
+						inStream.close();
 						connection.disconnect();
-						if ((mEndPosition + 1) == (mStartPosition + mDownloadSize) || mEndPosition == (mStartPosition + mDownloadSize))
+						mAccessFile.close();
+						tmpStartPosition = mStartPosition + mDownloadSize;
+						if ((mEndPosition + 1) == tmpStartPosition || mEndPosition == tmpStartPosition)
 						{
 							isFinished = true;
 						}
