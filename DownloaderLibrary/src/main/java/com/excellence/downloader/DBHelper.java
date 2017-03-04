@@ -128,6 +128,24 @@ public class DBHelper extends SQLiteOpenHelper
 	}
 
 	/**
+	 * 获取单个下载记录任务的并发线程数
+	 *
+	 * @param name 文件名
+	 * @return 单任务下载线程数
+     */
+	protected synchronized int queryDownloadThreadCount(String name)
+	{
+		int count = 0;
+		Cursor cursor = mDatabase.rawQuery(String.format("select count(*) from %1$s where %2$s = ?", DOWNLOAD_TBL_NAME, KEY_NAME), new String[] { name });
+		if (cursor != null && cursor.moveToFirst())
+		{
+			count = cursor.getInt(0);
+			cursor.close();
+		}
+		return count;
+	}
+
+	/**
 	 * 删除下载表中的文件记录
 	 *
 	 * @param name 文件名

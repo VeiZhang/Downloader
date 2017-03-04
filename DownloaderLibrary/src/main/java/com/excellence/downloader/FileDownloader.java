@@ -45,13 +45,14 @@ public class FileDownloader implements IDownloaderListener
 	private DownloaderListener mDownloaderListener = null;
 	private Executor mResponsePoster = null;
 	private DBHelper mDBHelper = null;
-	private DownloadThread[] mDownloadThreads = new DownloadThread[THREAD_COUNT];
+	private DownloadThread[] mDownloadThreads = null;
 	private boolean isStop = false;
 	private boolean isFinished = false;
 	private boolean isRefresh = false;
 	private long mDownloadSize = 0;
 	private long mFileSize = 0;
 	private int mState;
+	private int mThreadCount  = THREAD_COUNT;
 
 	public FileDownloader(Context context, File storeFile, String fileUrl, DownloaderListener listener, Executor executor)
 	{
@@ -109,8 +110,9 @@ public class FileDownloader implements IDownloaderListener
 						checkLocalStoreFile(mFileSize);
 						onPreExecute(mFileSize);
 						mDownloadSize = mDBHelper.queryDownloadSize(mFileName);
-						long block = mFileSize % THREAD_COUNT == 0 ? mFileSize / THREAD_COUNT : mFileSize / THREAD_COUNT + 1;
-						for (int i = 0; i < THREAD_COUNT; i++)
+						mDownloadThreads = new DownloadThread[mThreadCount];
+						long block = mFileSize % mThreadCount == 0 ? mFileSize / mThreadCount : mFileSize / mThreadCount + 1;
+						for (int i = 0; i < mThreadCount; i++)
 						{
 							mDownloadThreads[i] = new DownloadThread(mContext, this, i, block, mFileSize);
 							mDownloadThreads[i].start();
@@ -167,7 +169,7 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 本地储存文件检测
+	 * 本地储存文件检测：1.文件不存在；2.下载线程数被修改
 	 *
 	 * @param fileSize 下载文件长度
 	 * @throws Exception
@@ -183,6 +185,15 @@ public class FileDownloader implements IDownloaderListener
 
 			if (!mStoreFile.createNewFile())
 				throw new IllegalStateException("Failed to create storage file.");
+		}
+		else
+		{
+			// 当文件存在时，下载线程数被修改
+			if (mDBHelper.queryDownloadThreadCount(mFileName) != mThreadCount)
+			{
+				// 有下载记录的任务，删除下载记录，重新下载
+				mDBHelper.deleteDownloadInfo(mFileName);
+			}
 		}
 		RandomAccessFile accessFile = new RandomAccessFile(mStoreFile, "rwd");
 		accessFile.setLength(fileSize);
@@ -318,9 +329,13 @@ public class FileDownloader implements IDownloaderListener
 	{
 		mState = STATE_PAUSE;
 		isStop = true;
-		for (DownloadThread taskThread : mDownloadThreads)
+		if (mDownloadThreads != null)
 		{
-			taskThread.updateDatabase();
+			for (DownloadThread taskThread : mDownloadThreads)
+			{
+				if (taskThread != null)
+					taskThread.updateDatabase();
+			}
 		}
 	}
 
