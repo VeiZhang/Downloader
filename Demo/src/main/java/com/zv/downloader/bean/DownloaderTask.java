@@ -134,6 +134,8 @@ public class DownloaderTask
 				break;
 
 			case FileDownloader.STATE_SUCCESS:
+				mProgressBar.setProgress(100);
+				mProgressBar.setMax(100);
 				mStartBtn.setText(R.string.state_success);
 				break;
 

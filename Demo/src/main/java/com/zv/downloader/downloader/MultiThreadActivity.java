@@ -139,6 +139,7 @@ public class MultiThreadActivity extends DownloadActivity
 					public void onPreExecute(long fileSize)
 					{
 						super.onPreExecute(fileSize);
+						mDownloaderTask.setDownloadLength(0);
 						mDownloaderTask.setFileSize(fileSize);
 						mDownloaderTask.invalidateTask();
 						System.out.println("pre " + fileSize);
