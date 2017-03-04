@@ -23,7 +23,7 @@ public class DownloadThread extends Thread
 {
 	private static final String TAG = DownloadThread.class.getSimpleName();
 
-	private static final int STREAM_LENGTH = 6 * 1024;
+	private static final int STREAM_LENGTH = 8 * 1024;
 
 	private DBHelper mDBHelper = null;
 	private FileDownloader mFileDownloader = null;
@@ -99,17 +99,20 @@ public class DownloadThread extends Thread
 					if (connection.getResponseCode() == 206)
 					{
 						InputStream inStream = connection.getInputStream();
+						BufferedInputStream bufferedInputStream = new BufferedInputStream(inStream);
 						byte[] buffer = new byte[STREAM_LENGTH];
 						int offset = 0;
-						mAccessFile.seek(tmpStartPosition);
-						while (!mFileDownloader.isStop() && (offset = inStream.read(buffer)) != -1)
+						FileChannel outFileChannel = mAccessFile.getChannel();
+						outFileChannel.position(tmpStartPosition);
+						while (!mFileDownloader.isStop() && (offset = bufferedInputStream.read(buffer)) != -1)
 						{
-							mAccessFile.write(buffer, 0, offset);
+							outFileChannel.write(ByteBuffer.wrap(buffer, 0, offset));
 							mDownloadSize += offset;
 							mFileDownloader.append(offset);
 						}
 						updateDatabase();
 						inStream.close();
+						outFileChannel.close();
 						mAccessFile.close();
 						tmpStartPosition = mStartPosition + mDownloadSize;
 						if ((mEndPosition + 1) == tmpStartPosition || mEndPosition == tmpStartPosition)
