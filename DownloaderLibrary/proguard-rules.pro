@@ -15,3 +15,15 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+-assumenosideeffects class android.util.Log {				#去掉代码里的Log
+    public static boolean isLoggable(java.lang.String,int);
+    public static *** d(...);
+	public static *** v(...);
+	public static *** i(...);
+	public static *** w(...);
+	public static *** e(...);
+}
+
+-keep class com.excellence.downloader.** {*;}				#保证源码不混淆
+-keep class com.excellence.downloader.exception.** {*;}
+-keep class com.excellence.downloader.utils.** {*;}

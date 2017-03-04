@@ -101,7 +101,7 @@ public class FileDownloader implements IDownloaderListener
 
 				int responseCode = connection.getResponseCode();
 				HttpUtils.printHeader(connection);
-				if (responseCode == 200)
+				if (responseCode == HttpURLConnection.HTTP_OK)
 				{
 					mFileSize = connection.getContentLength();
 					if (MemorySpaceCheck.hasSDEnoughMemory(mStoreFile.getParent(), mFileSize))
