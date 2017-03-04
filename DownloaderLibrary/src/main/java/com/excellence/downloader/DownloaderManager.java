@@ -53,12 +53,13 @@ public class DownloaderManager
 		mInstance = new DownloaderManager(context.getApplicationContext());
 		mInstance.mDownloaderList = new ArrayList<>();
 		mInstance.mExecutorService = Executors.newFixedThreadPool(parallelTaskCount);
+		final Handler handler = new Handler(Looper.getMainLooper());
 		mInstance.mResponsePoster = new Executor()
 		{
 			@Override
 			public void execute(Runnable command)
 			{
-				new Handler(Looper.getMainLooper()).post(command);
+				handler.post(command);
 			}
 		};
 	}

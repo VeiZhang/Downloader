@@ -1,10 +1,13 @@
 package com.excellence.downloader;
 
+import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
 
 import android.content.Context;
 
@@ -79,12 +82,20 @@ public class DownloadThread extends Thread
 				}
 				else
 				{
-					URL url = new URL(mFileDownloader.getFileUrl());
-					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+					URL httpURL = new URL(mFileDownloader.getFileUrl());
+					HttpURLConnection connection = (HttpURLConnection) httpURL.openConnection();
 					connection.setConnectTimeout(CONNECT_TIME_OUT);
 					connection.setReadTimeout(SO_TIME_OUT);
+					connection.setRequestMethod("GET");
+					connection.setRequestProperty("Accept",
+							"image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+					connection.setRequestProperty("Accept-Language", "zh-CN");
+					connection.setRequestProperty("Referer", mFileDownloader.getFileUrl());
+					connection.setRequestProperty("Charset", "UTF-8");
 					connection.setRequestProperty("Range", "bytes=" + tmpStartPosition + "-" + mEndPosition);
-					connection.connect();
+					connection.setRequestProperty("User-Agent",
+							"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
+					connection.setRequestProperty("Connection", "Keep-Alive");
 					if (connection.getResponseCode() == 206)
 					{
 						InputStream inStream = connection.getInputStream();
@@ -99,7 +110,6 @@ public class DownloadThread extends Thread
 						}
 						updateDatabase();
 						inStream.close();
-						connection.disconnect();
 						mAccessFile.close();
 						tmpStartPosition = mStartPosition + mDownloadSize;
 						if ((mEndPosition + 1) == tmpStartPosition || mEndPosition == tmpStartPosition)
@@ -123,8 +133,7 @@ public class DownloadThread extends Thread
 	}
 
 	/**
-	 * 更新单个任务中的数据库
-	 * 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
+	 * 更新单个任务中的数据库 考虑频繁操作数据库会耗内存和影响读写速度，因此分离到下载暂停、结束或异常后更新
 	 * 但是，主动销毁app，或Crash异常，则不能保存数据
 	 */
 	protected void updateDatabase()
@@ -136,8 +145,9 @@ public class DownloadThread extends Thread
 
 	/**
 	 * 判断当前线程是否成功下载
+	 * 
 	 * @return
-     */
+	 */
 	protected boolean isFinished()
 	{
 		return isFinished;

@@ -29,7 +29,7 @@ public class FileDownloader implements IDownloaderListener
 	private static final String TAG = FileDownloader.class.getSimpleName();
 
 	private static final int THREAD_COUNT = 3;
-	protected static final int CONNECT_TIME_OUT = 10 * 1000;
+	protected static final int CONNECT_TIME_OUT = 5 * 1000;
 	protected static final int SO_TIME_OUT = 10 * 1000;
 
 	public static final int STATE_DOWNLOADING = 0;
@@ -52,11 +52,11 @@ public class FileDownloader implements IDownloaderListener
 	private long mFileSize = 0;
 	private int mState;
 
-	public FileDownloader(Context context, File storeFile, String url, DownloaderListener listener, Executor executor)
+	public FileDownloader(Context context, File storeFile, String fileUrl, DownloaderListener listener, Executor executor)
 	{
 		mContext = context;
 		mStoreFile = storeFile;
-		mFileUrl = url;
+		mFileUrl = fileUrl;
 		mFileName = storeFile.getName();
 		mDownloaderListener = listener;
 		mResponsePoster = executor;
@@ -64,7 +64,7 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 开始下载任务
+	 * 开始下载任务，不进行第二次请求，保持URL连接
 	 */
 	protected void deploy()
 	{
@@ -73,13 +73,27 @@ public class FileDownloader implements IDownloaderListener
 		{
 			if (!mFileUrl.isEmpty())
 			{
-				URL url = new URL(mFileUrl);
-				HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+				URL httpURL = new URL(mFileUrl);
+				HttpURLConnection connection = (HttpURLConnection) httpURL.openConnection();
 				connection.setConnectTimeout(CONNECT_TIME_OUT);
 				connection.setReadTimeout(SO_TIME_OUT);
+				// 设置 HttpURLConnection的请求方式
 				// default request : GET
 				connection.setRequestMethod("GET");
-				connection.disconnect();
+				// 设置 HttpURLConnection的接收的文件类型
+				connection.setRequestProperty("Accept",
+						"image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+				// 设置 HttpURLConnection的接收语音
+				connection.setRequestProperty("Accept-Language", "zh-CN");
+				// 指定请求uri的源资源地址
+				connection.setRequestProperty("Referer", mFileUrl);
+				// 设置 HttpURLConnection的字符编码
+				connection.setRequestProperty("Charset", "UTF-8");
+				// 检查浏览页面的访问者在用什么操作系统（包括版本号）浏览器（包括版本号）和用户个人偏好
+				connection.setRequestProperty("User-Agent",
+						"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
+				connection.setRequestProperty("Connection", "Keep-Alive");
+				connection.connect();
 
 				if (isStop)
 					return;
@@ -168,7 +182,7 @@ public class FileDownloader implements IDownloaderListener
 
 	/**
 	 * 更新总下载长度
-	 * 
+	 *
 	 * @param size 一次文件流的长度
 	 */
 	protected synchronized void append(long size)
