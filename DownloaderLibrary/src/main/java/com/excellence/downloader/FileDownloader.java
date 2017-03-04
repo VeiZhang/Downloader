@@ -48,6 +48,7 @@ public class FileDownloader implements IDownloaderListener
 	private DownloadThread[] mDownloadThreads = new DownloadThread[THREAD_COUNT];
 	private boolean isStop = false;
 	private boolean isFinished = false;
+	private boolean isRefresh = false;
 	private long mDownloadSize = 0;
 	private long mFileSize = 0;
 	private int mState;
@@ -123,7 +124,15 @@ public class FileDownloader implements IDownloaderListener
 								if (taskThread != null && !taskThread.isFinished())
 								{
 									isFinished = false;
+									if (isRefresh)
+										taskThread.updateDatabase();
 								}
+							}
+
+							if (isRefresh)
+							{
+								onProgressChange(mFileSize, mDownloadSize);
+								isRefresh = false;
 							}
 						}
 
@@ -181,14 +190,14 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 更新总下载长度
+	 * 更新总下载长度，设置标志位，同时保存断点
 	 *
 	 * @param size 一次文件流的长度
 	 */
 	protected synchronized void append(long size)
 	{
 		mDownloadSize += size;
-		onProgressChange(mFileSize, mDownloadSize);
+		isRefresh = true;
 	}
 
 	@Override
