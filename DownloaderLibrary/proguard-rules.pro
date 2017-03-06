@@ -27,3 +27,6 @@
 -keep class com.excellence.downloader.** {*;}				#保证源码不混淆
 -keep class com.excellence.downloader.exception.** {*;}
 -keep class com.excellence.downloader.utils.** {*;}
+
+-renamesourcefileattribute SourceFile     					#保证异常时显示行号
+-keepattributes SourceFile,LineNumberTable
