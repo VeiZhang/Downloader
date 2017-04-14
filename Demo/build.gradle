@@ -5,7 +5,7 @@ android {
     buildToolsVersion "23.0.3"
     defaultConfig {
         applicationId "com.zv.downloader"
-        minSdkVersion 17
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -26,12 +26,12 @@ dependencies {
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:23.2.1'
     testCompile 'junit:junit:4.12'
+    compile 'com.excellence:basetools:1.1.0'
     compile project(':Netroid')
     // 本地依赖
     compile project(':DownloaderLibrary')
     // 远程依赖
     // compile 'com.excellence:downloader:1.0.0'
-    compile 'com.excellence:basetools:1.1.0'
 }
