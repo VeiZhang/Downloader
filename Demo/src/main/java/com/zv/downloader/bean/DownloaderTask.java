@@ -1,13 +1,18 @@
 package com.zv.downloader.bean;
 
-import android.widget.Button;
-import android.widget.ProgressBar;
-
 import com.excellence.downloader.FileDownloader;
 import com.zv.downloader.R;
 
+import android.widget.Button;
+import android.widget.ProgressBar;
+
 /**
- * Created by ZhangWei on 2017/2/17.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/17
+ *     desc   : 下载任务
+ * </pre>
  */
 
 public class DownloaderTask

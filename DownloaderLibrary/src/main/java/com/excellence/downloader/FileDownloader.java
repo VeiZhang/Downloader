@@ -1,17 +1,10 @@
 package com.excellence.downloader;
 
-/**
- * Created by MK on 2016/10/27.
- */
-
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Executor;
-
-import android.content.Context;
-import android.os.StatFs;
 
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.ServerConnectException;
@@ -21,9 +14,18 @@ import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.utils.HttpUtils;
 import com.excellence.downloader.utils.IDownloaderListener;
 
-/***
- * 文件下载器
+import android.content.Context;
+import android.os.StatFs;
+
+/**
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/22
+ *     desc   : 单任务下载
+ * </pre>
  */
+
 public class FileDownloader implements IDownloaderListener
 {
 	private static final String TAG = FileDownloader.class.getSimpleName();
@@ -52,7 +54,7 @@ public class FileDownloader implements IDownloaderListener
 	private long mDownloadSize = 0;
 	private long mFileSize = 0;
 	private int mState;
-	private int mThreadCount  = THREAD_COUNT;
+	private int mThreadCount = THREAD_COUNT;
 
 	public FileDownloader(Context context, File storeFile, String fileUrl, DownloaderListener listener, Executor executor)
 	{
@@ -159,7 +161,7 @@ public class FileDownloader implements IDownloaderListener
 	 *
 	 * @param fileSize 下载文件长度
 	 * @throws Exception
-     */
+	 */
 	private void checkLocalStoreFile(long fileSize) throws Exception
 	{
 		if (getAvailableSize(mStoreFile.getParent()) <= mFileSize)
@@ -194,7 +196,7 @@ public class FileDownloader implements IDownloaderListener
 	 *
 	 * @param path 文件路径
 	 * @return 可用大小
-     */
+	 */
 	private long getAvailableSize(String path)
 	{
 		StatFs fileStats = new StatFs(path);
@@ -293,7 +295,7 @@ public class FileDownloader implements IDownloaderListener
 	 * 下载异常，一个下载线程停止，其他相关的线程也停止
 	 *
 	 * @param error 异常
-     */
+	 */
 	protected void sendErrorMsg(DownloadError error)
 	{
 		mState = STATE_ERROR;
@@ -357,7 +359,7 @@ public class FileDownloader implements IDownloaderListener
 	 * 获取下载状态
 	 *
 	 * @return 下载状态
-     */
+	 */
 	public int getState()
 	{
 		return mState;
@@ -366,8 +368,8 @@ public class FileDownloader implements IDownloaderListener
 	/**
 	 * 是否停止下载
 	 *
-	 * @return
-     */
+	 * @return {@code true}：是<br>{@code false}：否
+	 */
 	public boolean isStop()
 	{
 		return isStop;
@@ -377,7 +379,7 @@ public class FileDownloader implements IDownloaderListener
 	 * 获取文件名
 	 *
 	 * @return 文件名
-     */
+	 */
 	public String getFileName()
 	{
 		return mFileName;
@@ -387,7 +389,7 @@ public class FileDownloader implements IDownloaderListener
 	 * 获取文件
 	 *
 	 * @return File类型
-     */
+	 */
 	public File getStoreFile()
 	{
 		return mStoreFile;
@@ -397,7 +399,7 @@ public class FileDownloader implements IDownloaderListener
 	 * 获取下载链接
 	 *
 	 * @return 下载链接
-     */
+	 */
 	public String getFileUrl()
 	{
 		return mFileUrl;

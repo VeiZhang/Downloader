@@ -1,5 +1,8 @@
 package com.excellence.downloader;
 
+import static com.excellence.downloader.FileDownloader.CONNECT_TIME_OUT;
+import static com.excellence.downloader.FileDownloader.SO_TIME_OUT;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.InputStream;
@@ -9,16 +12,19 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 
-import android.content.Context;
-
 import com.excellence.downloader.exception.DownloadError;
 
-import static com.excellence.downloader.FileDownloader.CONNECT_TIME_OUT;
-import static com.excellence.downloader.FileDownloader.SO_TIME_OUT;
+import android.content.Context;
 
 /**
- * Created by ZhangWei on 2016/2/22.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/22
+ *     desc   : 单个下载线程
+ * </pre>
  */
+
 public class DownloadThread extends Thread
 {
 	private static final String TAG = DownloadThread.class.getSimpleName();

@@ -1,12 +1,14 @@
 package com.excellence.downloader.exception;
 
 /**
- * Created by ZhangWei on 2017/3/1.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/3/1
+ *     desc   : 储存空间异常类
+ * </pre>
  */
 
-/**
- * 储存空间异常类
- */
 public class SpaceNotEnoughException extends DownloadError
 {
 	public SpaceNotEnoughException()

@@ -1,14 +1,19 @@
 package com.zv.downloader;
 
+import java.io.File;
+
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
 
-import java.io.File;
-
 /**
- * Created by ZhangWei on 2017/2/15.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/15
+ *     desc   :
+ * </pre>
  */
 
 public abstract class DownloadActivity extends AppCompatActivity
@@ -20,7 +25,7 @@ public abstract class DownloadActivity extends AppCompatActivity
 	protected static final String FILMON_URL = LOCAL_IP + "Filmon.apk";
 	protected static final String ROMUPDATE_URL = LOCAL_IP + "RomUpdate_V101_FW101_01_00_20170214.bin";
 	protected static final String QQ_URL = "http://gdown.baidu.com/data/wisegame/dc429998555b7d4d/QQ_398.apk";
-	protected static final String ANGRYBIRDS_URL = "http://63.141.241.34:8080//apks/20161031195947.apk";
+	protected static final String ANGRYBIRDS_URL = "http://gdown.baidu.com/data/wisegame/9d4083325b73f6d7/fennudexiaoniaozhongwenban_22200603.apk";
 
 	private static final String DOWNLOAD_DIR = "ZVDownloader";
 	private static final String MNT_DIR = "/mnt/";

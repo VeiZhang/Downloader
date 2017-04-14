@@ -1,12 +1,14 @@
 package com.excellence.downloader.exception;
 
 /**
- * Created by ZhangWei on 2017/3/1.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/3/1
+ *     desc   : 服务器异常类
+ * </pre>
  */
 
-/**
- * 服务器异常类
- */
 public class ServerConnectException extends DownloadError
 {
 	public ServerConnectException()

@@ -1,14 +1,19 @@
 package com.zv.downloader.bean;
 
-/**
- * Created by ZhangWei on 2017/2/15.
- */
+import com.vincestyling.netroid.toolbox.FileDownloader.DownloadController;
+import com.zv.downloader.R;
 
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-import com.vincestyling.netroid.toolbox.FileDownloader.DownloadController;
-import com.zv.downloader.R;
+/**
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/15
+ *     desc   :
+ * </pre>
+ */
 
 public class NetroidTask
 {

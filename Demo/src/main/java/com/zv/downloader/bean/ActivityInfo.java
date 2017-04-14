@@ -3,7 +3,12 @@ package com.zv.downloader.bean;
 import android.app.Activity;
 
 /**
- * Created by ZhangWei on 2017/2/15.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/15
+ *     desc   :
+ * </pre>
  */
 
 public class ActivityInfo

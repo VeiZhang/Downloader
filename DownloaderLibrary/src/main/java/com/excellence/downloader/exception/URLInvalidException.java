@@ -1,12 +1,14 @@
 package com.excellence.downloader.exception;
 
 /**
- * Created by ZhangWei on 2017/3/1.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/3/1
+ *     desc   : URL地址异常类
+ * </pre>
  */
 
-/**
- * URL地址异常类
- */
 public class URLInvalidException extends DownloadError
 {
 	public URLInvalidException()

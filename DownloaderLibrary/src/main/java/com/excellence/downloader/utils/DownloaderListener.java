@@ -3,7 +3,12 @@ package com.excellence.downloader.utils;
 import com.excellence.downloader.exception.DownloadError;
 
 /**
- * Created by ZhangWei on 2017/2/16.
+ * <pre>
+ *     author : VeiZhang
+ *     blog   : https://veizhang.github.io/
+ *     time   : 2017/2/16
+ *     desc   : 监听接口实现
+ * </pre>
  */
 
 public class DownloaderListener implements IDownloaderListener
