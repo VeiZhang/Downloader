@@ -81,9 +81,8 @@ public class DownloaderManager
 		for (FileDownloader task : mInstance.mDownloaderList)
 		{
 			if (task != null)
-				task.destroy();
+				task.pause();
 		}
-		mInstance.mDownloaderList.clear();
 		DBHelper.getInstance(context).closeDB();
 	}
 

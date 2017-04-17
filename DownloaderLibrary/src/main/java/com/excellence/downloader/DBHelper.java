@@ -62,6 +62,20 @@ public class DBHelper extends SQLiteOpenHelper
 	}
 
 	/**
+	 * 升级数据库
+	 *
+	 * @param db 数据库索引
+	 * @param oldVersion 旧版本号
+	 * @param newVersion 新版本号
+	 */
+	@Override
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
+	{
+		db.execSQL("drop table if exists " + DOWNLOAD_TBL_NAME);
+		onCreate(db);
+	}
+
+	/**
 	 * 新建单线程下载记录
 	 *
 	 * @param name 文件名
@@ -152,7 +166,7 @@ public class DBHelper extends SQLiteOpenHelper
 	 *
 	 * @param name 文件名
 	 */
-	protected synchronized void deleteDownloadInfo(String name)
+	public synchronized void deleteDownloadInfo(String name)
 	{
 		delete(DOWNLOAD_TBL_NAME, name);
 	}
@@ -171,26 +185,12 @@ public class DBHelper extends SQLiteOpenHelper
 	/**
 	 * 关闭数据连接
 	 */
-	protected synchronized void closeDB()
+	public synchronized void closeDB()
 	{
 		if (mDatabase != null)
 		{
 			mDatabase.close();
 		}
-	}
-
-	/**
-	 * 升级数据库
-	 *
-	 * @param db 数据库索引
-	 * @param oldVersion 旧版本号
-	 * @param newVersion 新版本号
-	 */
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion)
-	{
-		db.execSQL("drop table if exists " + DOWNLOAD_TBL_NAME);
-		onCreate(db);
 	}
 
 }

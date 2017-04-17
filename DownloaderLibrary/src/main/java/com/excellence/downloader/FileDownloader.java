@@ -1,5 +1,7 @@
 package com.excellence.downloader;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+
 import java.io.File;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
@@ -68,7 +70,7 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	/**
-	 * 开始下载任务，不进行第二次请求，保持URL连接
+	 * 开始下载任务
 	 */
 	protected void deploy()
 	{
@@ -106,7 +108,7 @@ public class FileDownloader implements IDownloaderListener
 			int responseCode = connection.getResponseCode();
 			HttpUtils.printHeader(connection);
 
-			if (responseCode != HttpURLConnection.HTTP_OK)
+			if (responseCode != HTTP_OK)
 				throw new ServerConnectException(responseCode);
 
 			mFileSize = connection.getContentLength();
@@ -324,23 +326,6 @@ public class FileDownloader implements IDownloaderListener
 		isStop = true;
 		onCancel();
 		DownloaderManager.getDownloaderList().remove(this);
-	}
-
-	/**
-	 * 退出暂停任务
-	 */
-	protected void destroy()
-	{
-		mState = STATE_PAUSE;
-		isStop = true;
-		if (mDownloadThreads != null)
-		{
-			for (DownloadThread taskThread : mDownloadThreads)
-			{
-				if (taskThread != null)
-					taskThread.updateDatabase();
-			}
-		}
 	}
 
 	/**

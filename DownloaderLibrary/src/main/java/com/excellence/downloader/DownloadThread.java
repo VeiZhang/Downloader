@@ -2,6 +2,7 @@ package com.excellence.downloader;
 
 import static com.excellence.downloader.FileDownloader.CONNECT_TIME_OUT;
 import static com.excellence.downloader.FileDownloader.SO_TIME_OUT;
+import static java.net.HttpURLConnection.HTTP_PARTIAL;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -102,7 +103,7 @@ public class DownloadThread extends Thread
 					connection.setRequestProperty("User-Agent",
 							"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
 					connection.setRequestProperty("Connection", "Keep-Alive");
-					if (connection.getResponseCode() == HttpURLConnection.HTTP_PARTIAL)
+					if (connection.getResponseCode() == HTTP_PARTIAL)
 					{
 						InputStream inStream = connection.getInputStream();
 						BufferedInputStream bufferedInputStream = new BufferedInputStream(inStream);
