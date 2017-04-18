@@ -133,7 +133,6 @@ public class DownloaderManager
 	 */
 	public static FileDownloader addTask(final FileDownloader fileDownloader)
 	{
-		throwIfNotOnMainThread();
 		mInstance.mDownloaderList.add(fileDownloader);
 		mInstance.mExecutorService.execute(new Runnable()
 		{
@@ -146,12 +145,4 @@ public class DownloaderManager
 		return fileDownloader;
 	}
 
-	/**
-	 * 在主进程中执行，在线程中执行异常
-	 */
-	private static void throwIfNotOnMainThread()
-	{
-		if (Looper.getMainLooper() != Looper.myLooper())
-			throw new IllegalStateException("Downloader must be not invoked from the main thread.");
-	}
 }
