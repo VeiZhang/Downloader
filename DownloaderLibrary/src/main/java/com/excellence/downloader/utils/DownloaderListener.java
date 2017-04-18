@@ -1,7 +1,5 @@
 package com.excellence.downloader.utils;
 
-import com.excellence.downloader.exception.DownloadError;
-
 /**
  * <pre>
  *     author : VeiZhang
@@ -33,7 +31,7 @@ public class DownloaderListener implements IDownloaderListener
 	}
 
 	@Override
-	public void onError(DownloadError error)
+	public void onError(Exception error)
 	{
 
 	}

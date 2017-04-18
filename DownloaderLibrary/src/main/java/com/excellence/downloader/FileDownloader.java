@@ -8,7 +8,6 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.Executor;
 
-import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.ServerConnectException;
 import com.excellence.downloader.exception.SpaceNotEnoughException;
 import com.excellence.downloader.exception.URLInvalidException;
@@ -154,7 +153,7 @@ public class FileDownloader implements IDownloaderListener
 		}
 		catch (Exception e)
 		{
-			sendErrorMsg(new DownloadError(e));
+			sendErrorMsg(e);
 		}
 	}
 
@@ -263,7 +262,7 @@ public class FileDownloader implements IDownloaderListener
 	}
 
 	@Override
-	public void onError(final DownloadError error)
+	public void onError(final Exception error)
 	{
 		if (isStop)
 			return;
@@ -298,7 +297,7 @@ public class FileDownloader implements IDownloaderListener
 	 *
 	 * @param error 异常
 	 */
-	protected void sendErrorMsg(DownloadError error)
+	protected void sendErrorMsg(Exception error)
 	{
 		mState = STATE_ERROR;
 		DownloaderManager.getDownloaderList().remove(this);

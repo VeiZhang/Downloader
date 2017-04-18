@@ -1,7 +1,5 @@
 package com.excellence.downloader.utils;
 
-import com.excellence.downloader.exception.DownloadError;
-
 /**
  * <pre>
  *     author : VeiZhang
@@ -36,7 +34,7 @@ public interface IDownloaderListener
 	/**
 	 * 下载失败
 	 */
-	void onError(DownloadError error);
+	void onError(Exception error);
 
 	/**
 	 * 下载成功

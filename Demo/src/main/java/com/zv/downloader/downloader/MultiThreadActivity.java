@@ -1,25 +1,24 @@
 package com.zv.downloader.downloader;
 
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
+import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
+import com.excellence.downloader.DownloaderManager;
+import com.excellence.downloader.FileDownloader;
+import com.excellence.downloader.utils.DownloaderListener;
+import com.zv.downloader.DownloadActivity;
+import com.zv.downloader.R;
+import com.zv.downloader.bean.DownloaderTask;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
-
-import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
-import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
-import com.excellence.downloader.exception.DownloadError;
-import com.excellence.downloader.utils.DownloaderListener;
-import com.excellence.downloader.DownloaderManager;
-import com.excellence.downloader.FileDownloader;
-import com.zv.downloader.DownloadActivity;
-import com.zv.downloader.R;
-import com.zv.downloader.bean.DownloaderTask;
-
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MultiThreadActivity extends DownloadActivity
 {
@@ -161,7 +160,7 @@ public class MultiThreadActivity extends DownloadActivity
 					}
 
 					@Override
-					public void onError(DownloadError error)
+					public void onError(Exception error)
 					{
 						super.onError(error);
 						error.printStackTrace();
