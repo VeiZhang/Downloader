@@ -219,15 +219,12 @@ public class FileDownloader implements IDownloaderListener
 	@Override
 	public void onPreExecute(final long fileSize)
 	{
-		if (isStop)
-			return;
-
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if (mDownloaderListener != null)
+				if (mDownloaderListener != null && !isStop)
 					mDownloaderListener.onPreExecute(fileSize);
 			}
 		});
@@ -241,7 +238,7 @@ public class FileDownloader implements IDownloaderListener
 			@Override
 			public void run()
 			{
-				if (mDownloaderListener != null)
+				if (mDownloaderListener != null && !isStop)
 					mDownloaderListener.onProgressChange(fileSize, downloadedSize);
 			}
 		});
@@ -264,15 +261,12 @@ public class FileDownloader implements IDownloaderListener
 	@Override
 	public void onError(final Exception error)
 	{
-		if (isStop)
-			return;
-
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
 			public void run()
 			{
-				if (mDownloaderListener != null)
+				if (mDownloaderListener != null && !isStop)
 					mDownloaderListener.onError(error);
 			}
 		});
