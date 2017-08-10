@@ -8,6 +8,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.excellence.downloader.utils.DownloaderListener;
+import com.excellence.downloader.utils.IDownloaderListener;
 
 import android.content.Context;
 import android.os.Handler;
@@ -107,6 +108,20 @@ public class DownloaderManager
 	 * @param listener 监听器
 	 * @return
 	 */
+	public static FileDownloader addTask(File storeFile, String url, IDownloaderListener listener)
+	{
+		return addTask(new FileDownloader(mInstance.mContext, storeFile, url, listener, mInstance.mResponsePoster));
+	}
+
+	/**
+	 * 新建下载任务
+	 *
+	 * @param storeFile File类型
+	 * @param url 下载链接
+	 * @param listener 监听器
+	 * @return
+	 */
+	@Deprecated
 	public static FileDownloader addTask(File storeFile, String url, DownloaderListener listener)
 	{
 		return addTask(new FileDownloader(mInstance.mContext, storeFile, url, listener, mInstance.mResponsePoster));
@@ -120,6 +135,21 @@ public class DownloaderManager
 	 * @param listener 监听器
 	 * @return
 	 */
+	@Deprecated
+	public static FileDownloader addTask(String storeFilePath, String url, IDownloaderListener listener)
+	{
+		return addTask(new File(storeFilePath), url, listener);
+	}
+
+	/**
+	 * 新建下载任务
+	 *
+	 * @param storeFilePath 文件路径
+	 * @param url 下载链接
+	 * @param listener 监听器
+	 * @return
+	 */
+	@Deprecated
 	public static FileDownloader addTask(String storeFilePath, String url, DownloaderListener listener)
 	{
 		return addTask(new File(storeFilePath), url, listener);

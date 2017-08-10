@@ -11,7 +11,6 @@ import java.util.concurrent.Executor;
 import com.excellence.downloader.exception.ServerConnectException;
 import com.excellence.downloader.exception.SpaceNotEnoughException;
 import com.excellence.downloader.exception.URLInvalidException;
-import com.excellence.downloader.utils.DownloaderListener;
 import com.excellence.downloader.utils.HttpUtils;
 import com.excellence.downloader.utils.IDownloaderListener;
 
@@ -45,7 +44,7 @@ public class FileDownloader implements IDownloaderListener
 	private File mStoreFile = null;
 	private String mFileUrl;
 	private String mFileName;
-	private DownloaderListener mDownloaderListener = null;
+	private IDownloaderListener mDownloaderListener = null;
 	private Executor mResponsePoster = null;
 	private DBHelper mDBHelper = null;
 	private DownloadThread[] mDownloadThreads = null;
@@ -57,7 +56,7 @@ public class FileDownloader implements IDownloaderListener
 	private int mState;
 	private int mThreadCount = THREAD_COUNT;
 
-	public FileDownloader(Context context, File storeFile, String fileUrl, DownloaderListener listener, Executor executor)
+	public FileDownloader(Context context, File storeFile, String fileUrl, IDownloaderListener listener, Executor executor)
 	{
 		mContext = context;
 		mStoreFile = storeFile;
