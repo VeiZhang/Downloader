@@ -21,7 +21,6 @@ import com.excellence.downloader.exception.FileError;
 import com.excellence.downloader.exception.URLInvalidError;
 import com.excellence.downloader.utils.IListener;
 
-import android.os.Build;
 import android.util.Log;
 
 /**
@@ -103,11 +102,6 @@ class HttpDownloadTask implements Runnable, IListener
 		File storeFile = mTaskEntity.storeFile;
 		if (!storeFile.exists())
 		{
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-			{
-
-			}
-
 			if (!storeFile.getParentFile().exists() && !storeFile.getParentFile().mkdirs())
 				throw new FileError("Failed to open downloader dir");
 

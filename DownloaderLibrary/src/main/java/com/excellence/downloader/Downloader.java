@@ -1,13 +1,20 @@
 package com.excellence.downloader;
 
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+
 import java.io.File;
 import java.util.LinkedList;
 
 import com.excellence.downloader.utils.IListener;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Build;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 /**
@@ -70,6 +77,18 @@ public class Downloader
 		}
 		mInstace = new Downloader();
 		mInstace.mFileDownloader = new FileDownloader(parallelTaskCount, threadCount);
+		checkPermission(context);
+	}
+
+	private static void checkPermission(Context context)
+	{
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+		{
+			String[] PERMISSIONS_STORAGE = { READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE };
+			int permission = ActivityCompat.checkSelfPermission(context, WRITE_EXTERNAL_STORAGE);
+			if (permission != PERMISSION_GRANTED)
+				ActivityCompat.requestPermissions((Activity) context, PERMISSIONS_STORAGE, 1);
+		}
 	}
 
 	/**
