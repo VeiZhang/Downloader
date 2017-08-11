@@ -159,6 +159,8 @@ public class FileDownloader
 				@Override
 				public void onError(DownloadError error)
 				{
+					mTaskEntity.setStatus(STATUS_SUCCESS);
+					remove(DownloadTask.this);
 					if (listener != null)
 						listener.onError(error);
 				}
