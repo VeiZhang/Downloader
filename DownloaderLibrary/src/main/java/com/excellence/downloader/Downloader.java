@@ -7,6 +7,7 @@ import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import java.io.File;
 import java.util.LinkedList;
 
+import com.excellence.downloader.FileDownloader.DownloadTask;
 import com.excellence.downloader.utils.IListener;
 
 import android.app.Activity;

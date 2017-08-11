@@ -2,6 +2,8 @@ package com.excellence.downloader.entity;
 
 import java.io.File;
 
+import android.support.annotation.IntRange;
+
 /**
  * <pre>
  *     author : VeiZhang
@@ -58,6 +60,35 @@ public class TaskEntity
 	public int status = STATUS_WAITING;
 
 	/**
+	 * 下载取消标记
+	 */
+	public boolean isCancel = false;
+
+	/**
+	 * 取消
+	 */
+	public void cancel()
+	{
+		isCancel = true;
+		status = STATUS_PAUSE;
+	}
+
+	public void discard()
+	{
+		isCancel = true;
+		status = STATUS_DISCARD;
+	}
+
+	/**
+	 * 继续
+	 */
+	public void deploy()
+	{
+		isCancel = false;
+		status = STATUS_DOWNLOADING;
+	}
+
+	/**
 	 * 是否正在下载
 	 * 
 	 * @return
@@ -66,4 +97,20 @@ public class TaskEntity
 	{
 		return status == STATUS_DOWNLOADING;
 	}
+
+	/**
+	 * 设置下载状态
+	 *
+	 * @param status 下载状态
+	 *               @see #STATUS_WAITING
+	 *               @see #STATUS_DOWNLOADING
+	 *               @see #STATUS_PAUSE
+	 *               @see #STATUS_SUCCESS
+	 *               @see #STATUS_DISCARD
+	 */
+	public void setStatus(@IntRange(from = STATUS_WAITING, to = STATUS_DISCARD) int status)
+	{
+		this.status = status;
+	}
+
 }

@@ -65,6 +65,13 @@ public class HttpFileInfoTask implements Runnable
 			conn.setRequestProperty("Range", "bytes=" + 0 + "-");
 			setConnectParam(conn, mTaskEntity.url);
 			conn.connect();
+
+			if (mTaskEntity.isCancel)
+			{
+				mOnFileInfoCallback.onCancel();
+				return;
+			}
+
 			handleHeader(conn);
 			printHeader(conn);
 			mOnFileInfoCallback.onComplete();

@@ -15,5 +15,7 @@ public interface OnFileInfoCallback
 {
 	void onComplete();
 
+	void onCancel();
+
 	void onError(DownloadError error);
 }

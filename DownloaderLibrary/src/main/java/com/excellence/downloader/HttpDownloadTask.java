@@ -14,6 +14,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.concurrent.Executor;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
@@ -40,12 +41,14 @@ class HttpDownloadTask implements Runnable, IListener
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;
 
+	private Executor mResponsePoster = null;
 	private TaskEntity mTaskEntity = null;
 	private IListener mListener = null;
 	private File mTempFile = null;
 
-	public HttpDownloadTask(TaskEntity taskEntity, IListener listener)
+	public HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener)
 	{
+		mResponsePoster = responsePoster;
 		mTaskEntity = taskEntity;
 		mListener = listener;
 		mTempFile = new File(mTaskEntity.storeFile + ".tmp");
@@ -54,7 +57,6 @@ class HttpDownloadTask implements Runnable, IListener
 	@Override
 	public void run()
 	{
-		onPreExecute(mTaskEntity.fileSize);
 		HttpURLConnection conn = null;
 		try
 		{
@@ -64,12 +66,20 @@ class HttpDownloadTask implements Runnable, IListener
 			conn = (HttpURLConnection) httpURL.openConnection();
 			conn.setConnectTimeout(CONNECT_TIME_OUT);
 			conn.setReadTimeout(SO_TIME_OUT);
-			conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + mTaskEntity.fileSize);
+			conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + (mTaskEntity.fileSize - 1));
 			setConnectParam(conn, mTaskEntity.url);
 			conn.connect();
+
+			if (mTaskEntity.isCancel)
+			{
+				onCancel();
+				return;
+			}
+
 			printHeader(conn);
 
 			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
+			randomAccessFile.seek(mTaskEntity.downloadLen);
 			InputStream is = conn.getInputStream();
 			BufferedInputStream buffStream = new BufferedInputStream(is);
 			byte[] buffer = new byte[STREAM_LEN];
@@ -80,19 +90,22 @@ class HttpDownloadTask implements Runnable, IListener
 				outFileChannel.write(ByteBuffer.wrap(buffer, 0, read));
 				mTaskEntity.downloadLen += read;
 				onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
+
+				if (mTaskEntity.isCancel)
+				{
+					onCancel();
+					break;
+				}
+
 			}
 			is.close();
 			outFileChannel.close();
 			randomAccessFile.close();
-			if (mTempFile.canRead() && mTempFile.length() > 0)
+			if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize)
 			{
 				if (!mTempFile.renameTo(mTaskEntity.storeFile))
 					throw new FileError("Can't rename download temp file");
 				onSuccess();
-			}
-			else
-			{
-				throw new FileError("Download temp file is invalid");
 			}
 		}
 		catch (Exception e)
@@ -147,32 +160,72 @@ class HttpDownloadTask implements Runnable, IListener
 	}
 
 	@Override
-	public void onPreExecute(long fileSize)
+	public void onPreExecute(final long fileSize)
 	{
-		mListener.onPreExecute(fileSize);
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null)
+					mListener.onPreExecute(fileSize);
+			}
+		});
 	}
 
 	@Override
-	public void onProgressChange(long fileSize, long downloadedSize)
+	public void onProgressChange(final long fileSize, final long downloadedSize)
 	{
-		mListener.onProgressChange(fileSize, downloadedSize);
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null)
+					mListener.onProgressChange(fileSize, downloadedSize);
+			}
+		});
 	}
 
 	@Override
 	public void onCancel()
 	{
-		mListener.onCancel();
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null)
+					mListener.onCancel();
+			}
+		});
 	}
 
 	@Override
-	public void onError(DownloadError error)
+	public void onError(final DownloadError error)
 	{
-		mListener.onError(error);
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null)
+					mListener.onError(error);
+			}
+		});
 	}
 
 	@Override
 	public void onSuccess()
 	{
-		mListener.onSuccess();
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null)
+					mListener.onSuccess();
+			}
+		});
 	}
 }
