@@ -19,9 +19,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".downloader.MultiThreadActivity">
-        </activity>
-        <activity android:name=".netroid.SingleThreadActivity">
+        <activity android:name=".downloader.SingleThreadActivity">
         </activity>
     </application>
 

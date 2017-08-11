@@ -29,7 +29,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.2.1'
     testCompile 'junit:junit:4.12'
     compile 'com.excellence:basetools:1.1.0'
-    compile project(':Netroid')
     // 本地依赖
     compile project(':DownloaderLibrary')
     // 远程依赖

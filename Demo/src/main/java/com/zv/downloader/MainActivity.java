@@ -1,21 +1,20 @@
 package com.zv.downloader;
 
-import android.content.Context;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.basetoolslibrary.utils.ActivityUtils;
 import com.zv.downloader.bean.ActivityInfo;
-import com.zv.downloader.downloader.MultiThreadActivity;
-import com.zv.downloader.netroid.SingleThreadActivity;
+import com.zv.downloader.downloader.SingleThreadActivity;
 
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener
 {
@@ -34,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
 		List<ActivityInfo> activityInfos = new ArrayList<>();
 		activityInfos.add(new ActivityInfo("单线程断点", SingleThreadActivity.class));
-		activityInfos.add(new ActivityInfo("多线程断点", MultiThreadActivity.class));
 		listView.setAdapter(new ActivityAdapter(this, activityInfos, android.R.layout.simple_expandable_list_item_1));
 		listView.setOnItemClickListener(this);
 	}

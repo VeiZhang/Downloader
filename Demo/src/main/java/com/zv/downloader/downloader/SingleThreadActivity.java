@@ -25,9 +25,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
-public class MultiThreadActivity extends DownloadActivity
+public class SingleThreadActivity extends DownloadActivity
 {
-	private static final String TAG = MultiThreadActivity.class.getSimpleName();
+	private static final String TAG = SingleThreadActivity.class.getSimpleName();
 
 	private List<Task> mTasks = null;
 

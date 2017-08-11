@@ -1,1 +1,1 @@
-include ':Demo', ':DownloaderLibrary', ':Netroid'
+include ':Demo', ':DownloaderLibrary'
