@@ -1,12 +1,8 @@
 package com.zv.downloader.netroid;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
@@ -18,9 +14,13 @@ import com.zv.downloader.DownloadActivity;
 import com.zv.downloader.R;
 import com.zv.downloader.bean.NetroidTask;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.LayoutRes;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 
 public class SingleThreadActivity extends DownloadActivity
 {
@@ -185,7 +185,8 @@ public class SingleThreadActivity extends DownloadActivity
 						mNetroidTask.setDownloadController(null);
 						mNetroidTask.invalidateTask();
 						Log.e(TAG, "Error");
-						Log.w(TAG, error.getMessage());
+						if (error != null)
+							Log.w(TAG, error.getMessage());
 					}
 
 					@Override

@@ -3,6 +3,7 @@ package com.excellence.downloader.utils;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -171,5 +172,48 @@ public class CommonUtil
 	public static boolean deleteFile(File file)
 	{
 		return file != null && file.exists() && file.delete();
+	}
+
+	/**
+	 * 格式化文件大小
+	 * 
+	 * @param fileSize
+	 * @return
+	 */
+	public static String formatFileSize(long fileSize)
+	{
+		if (fileSize < 0)
+		{
+			return "0kb";
+		}
+		double kiloByte = fileSize / 1024;
+		if (kiloByte < 1)
+		{
+			return fileSize + "b";
+		}
+
+		double megaByte = kiloByte / 1024;
+		BigDecimal result;
+		if (megaByte < 1)
+		{
+			result = new BigDecimal(Double.toString(kiloByte));
+			return result.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "kb";
+		}
+
+		double gigaByte = megaByte / 1024;
+		if (gigaByte < 1)
+		{
+			result = new BigDecimal(Double.toString(megaByte));
+			return result.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "mb";
+		}
+
+		double teraBytes = gigaByte / 1024;
+		if (teraBytes < 1)
+		{
+			result = new BigDecimal(Double.toString(gigaByte));
+			return result.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "gb";
+		}
+		result = new BigDecimal(teraBytes);
+		return result.setScale(2, BigDecimal.ROUND_HALF_UP).toPlainString() + "tb";
 	}
 }

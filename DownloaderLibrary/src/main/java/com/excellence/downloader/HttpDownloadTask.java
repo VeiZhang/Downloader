@@ -15,6 +15,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.zip.GZIPInputStream;
 
@@ -44,11 +46,14 @@ class HttpDownloadTask implements Runnable, IListener
 	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;
+	private static final int TIMER_SEC = 1000;
 
 	private Executor mResponsePoster = null;
 	private TaskEntity mTaskEntity = null;
 	private IListener mListener = null;
 	private File mTempFile = null;
+	private Timer mSpeedTimer = null;
+	private long mStartLen = 0;
 
 	public HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener)
 	{
@@ -83,6 +88,7 @@ class HttpDownloadTask implements Runnable, IListener
 
 			printHeader(conn);
 
+			startTimer();
 			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
 			randomAccessFile.seek(mTaskEntity.downloadLen);
 			InputStream is = conn.getInputStream();
@@ -129,6 +135,37 @@ class HttpDownloadTask implements Runnable, IListener
 		{
 			if (conn != null)
 				conn.disconnect();
+		}
+	}
+
+	private void startTimer()
+	{
+		mStartLen = mTaskEntity.downloadLen;
+		mSpeedTimer = new Timer(true);
+		mSpeedTimer.schedule(new TimerTask()
+		{
+			@Override
+			public void run()
+			{
+				if (mTaskEntity.isCancel)
+				{
+					closeTimer();
+				}
+				else
+				{
+					onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen, mTaskEntity.downloadLen - mStartLen);
+					mStartLen = mTaskEntity.downloadLen;
+				}
+			}
+		}, 0, TIMER_SEC);
+	}
+
+	private void closeTimer()
+	{
+		if (mSpeedTimer != null)
+		{
+			mSpeedTimer.purge();
+			mSpeedTimer.cancel();
 		}
 	}
 
@@ -201,8 +238,23 @@ class HttpDownloadTask implements Runnable, IListener
 	}
 
 	@Override
+	public void onProgressChange(final long fileSize, final long downloadedSize, final long speed)
+	{
+		mResponsePoster.execute(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				if (mListener != null && !mTaskEntity.isCancel)
+					mListener.onProgressChange(fileSize, downloadedSize, speed);
+			}
+		});
+	}
+
+	@Override
 	public void onCancel()
 	{
+		closeTimer();
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -217,6 +269,7 @@ class HttpDownloadTask implements Runnable, IListener
 	@Override
 	public void onError(final DownloadError error)
 	{
+		closeTimer();
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override
@@ -231,6 +284,7 @@ class HttpDownloadTask implements Runnable, IListener
 	@Override
 	public void onSuccess()
 	{
+		closeTimer();
 		mResponsePoster.execute(new Runnable()
 		{
 			@Override

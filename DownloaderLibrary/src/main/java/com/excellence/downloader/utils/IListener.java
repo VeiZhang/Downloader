@@ -28,6 +28,8 @@ public interface IListener
 	 */
 	void onProgressChange(long fileSize, long downloadedSize);
 
+	void onProgressChange(long fileSize, long downloadedSize, long speed);
+
 	/**
 	 * 暂停下载
 	 */

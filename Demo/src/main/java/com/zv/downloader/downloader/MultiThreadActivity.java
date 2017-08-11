@@ -1,17 +1,22 @@
 package com.zv.downloader.downloader;
 
+import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
-import com.excellence.downloader.DownloaderManager;
-import com.excellence.downloader.FileDownloader;
-import com.excellence.downloader.utils.DownloaderListener;
+import com.excellence.downloader.Downloader;
+import com.excellence.downloader.FileDownloader.DownloadTask;
+import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.utils.IListener;
 import com.zv.downloader.DownloadActivity;
 import com.zv.downloader.R;
-import com.zv.downloader.bean.DownloaderTask;
+import com.zv.downloader.bean.Task;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -24,7 +29,7 @@ public class MultiThreadActivity extends DownloadActivity
 {
 	private static final String TAG = MultiThreadActivity.class.getSimpleName();
 
-	private List<DownloaderTask> mDownloaderTasks = null;
+	private List<Task> mTasks = null;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -37,34 +42,34 @@ public class MultiThreadActivity extends DownloadActivity
 	@Override
 	protected void initDownloader()
 	{
-		DownloaderManager.init(this, 2);
+		Downloader.init(this);
 	}
 
 	@Override
 	protected void destroyDownloader()
 	{
-		DownloaderManager.destroy(this);
+		Downloader.destroy();
 	}
 
 	private void init()
 	{
-		mDownloaderTasks = new ArrayList<>();
-		mDownloaderTasks.add(new DownloaderTask("AngryBirds.apk", ANGRYBIRDS_URL));
-		mDownloaderTasks.add(new DownloaderTask("QQ.apk", QQ_URL));
-		mDownloaderTasks.add(new DownloaderTask("RomUpdate.bin", ROMUPDATE_URL));
-		mDownloaderTasks.add(new DownloaderTask("Filmon.apk", FILMON_URL));
-		mDownloadListView.setAdapter(new DownloaderAdapter(this, mDownloaderTasks, R.layout.download_item));
+		mTasks = new ArrayList<>();
+		mTasks.add(new Task("AngryBirds.apk", ANGRYBIRDS_URL));
+		mTasks.add(new Task("QQ.apk", QQ_URL));
+		mTasks.add(new Task("RomUpdate.bin", ROMUPDATE_URL));
+		mTasks.add(new Task("Filmon.apk", FILMON_URL));
+		mDownloadListView.setAdapter(new DownloaderAdapter(this, mTasks, R.layout.download_item));
 	}
 
-	private class DownloaderAdapter extends CommonAdapter<DownloaderTask>
+	private class DownloaderAdapter extends CommonAdapter<Task>
 	{
-		public DownloaderAdapter(Context context, List<DownloaderTask> datas, @LayoutRes int layoutId)
+		public DownloaderAdapter(Context context, List<Task> datas, @LayoutRes int layoutId)
 		{
 			super(context, datas, layoutId);
 		}
 
 		@Override
-		public void convert(ViewHolder viewHolder, DownloaderTask item, int position)
+		public void convert(ViewHolder viewHolder, Task item, int position)
 		{
 			viewHolder.setText(R.id.task_textview, item.getFileName());
 			Button startBtn = viewHolder.getView(R.id.start_btn);
@@ -80,102 +85,105 @@ public class MultiThreadActivity extends DownloadActivity
 
 		private class TaskClick implements View.OnClickListener
 		{
-			private DownloaderTask mDownloaderTask = null;
+			private Task mTask = null;
 
-			public TaskClick(DownloaderTask item)
+			public TaskClick(Task item)
 			{
-				mDownloaderTask = item;
+				mTask = item;
 			}
 
 			@Override
 			public void onClick(View v)
 			{
-				if (mDownloaderTask == null)
+				if (mTask == null)
 					return;
 
-				FileDownloader fileDownloader = mDownloaderTask.getFileDownloader();
+				DownloadTask downloadTask = mTask.getDownloadTask();
+
 				switch (v.getId())
 				{
 				case R.id.start_btn:
-					if (fileDownloader == null)
+					if (downloadTask == null)
 					{
 						// 建立下载任务
 						buildTask();
 					}
 					else
 					{
-						switch (fileDownloader.getState())
+						switch (downloadTask.getStatus())
 						{
-						case FileDownloader.STATE_DOWNLOADING:
-							fileDownloader.pause();
+						case STATUS_DOWNLOADING:
+							downloadTask.pause();
 							break;
 
-						case FileDownloader.STATE_PAUSE:
-						case FileDownloader.STATE_ERROR:
-							fileDownloader.resume();
+						case STATUS_PAUSE:
+						case STATUS_ERROR:
+							downloadTask.resume();
 							break;
 						}
 					}
 					break;
 
 				case R.id.delete_btn:
-					if (fileDownloader != null)
-						fileDownloader.discard();
+					if (downloadTask != null)
+						downloadTask.discard();
 
-					mDownloaderTask.setFileDownloader(null);
+					mTask.setDownloadTask(null);
 					break;
 				}
-				mDownloaderTask.invalidateTask();
+				mTask.invalidateTask();
 			}
 
 			private void buildTask()
 			{
-				File file = new File(DOWNLOAD_PATH, mDownloaderTask.getFileName());
-				mDownloaderTask.setFileDownloader(DownloaderManager.addTask(file, mDownloaderTask.getFileUrl(), new DownloaderListener()
+				File file = new File(DOWNLOAD_PATH, mTask.getFileName());
+				mTask.setDownloadTask(Downloader.addTask(file, mTask.getFileUrl(), new IListener()
 				{
 
 					@Override
 					public void onPreExecute(long fileSize)
 					{
-						super.onPreExecute(fileSize);
-						mDownloaderTask.setDownloadLength(0);
-						mDownloaderTask.setFileSize(fileSize);
-						mDownloaderTask.invalidateTask();
+						mTask.setDownloadLength(0);
+						mTask.setFileSize(fileSize);
+						mTask.invalidateTask();
 						System.out.println("pre " + fileSize);
 					}
 
 					@Override
 					public void onProgressChange(long fileSize, long downloadedSize)
 					{
-						super.onProgressChange(fileSize, downloadedSize);
-						mDownloaderTask.setDownloadLength(downloadedSize);
-						mDownloaderTask.invalidateTask();
+						mTask.setDownloadLength(downloadedSize);
+						mTask.invalidateTask();
+					}
+
+					@Override
+					public void onProgressChange(long fileSize, long downloadedSize, long speed)
+					{
+
 					}
 
 					@Override
 					public void onCancel()
 					{
-						super.onCancel();
 						System.out.println("cancel");
 					}
 
 					@Override
-					public void onError(Exception error)
+					public void onError(DownloadError error)
 					{
-						super.onError(error);
 						error.printStackTrace();
-						mDownloaderTask.invalidateTask();
+						mTask.invalidateTask();
 					}
 
 					@Override
 					public void onSuccess()
 					{
-						super.onSuccess();
-						mDownloaderTask.invalidateTask();
+						mTask.invalidateTask();
 						System.out.println("success");
 					}
 
 				}));
+
 			}
 
 		}

@@ -26,6 +26,12 @@ public class Listener implements IListener
 	}
 
 	@Override
+	public void onProgressChange(long fileSize, long downloadedSize, long speed)
+	{
+
+	}
+
+	@Override
 	public void onCancel()
 	{
 

@@ -205,6 +205,13 @@ public class FileDownloader
 				}
 
 				@Override
+				public void onProgressChange(long fileSize, long downloadedSize, long speed)
+				{
+					if (listener != null)
+						listener.onProgressChange(fileSize, downloadedSize, speed);
+				}
+
+				@Override
 				public void onCancel()
 				{
 					if (listener != null)

@@ -1,6 +1,12 @@
 package com.zv.downloader.bean;
 
-import com.excellence.downloader.FileDownloader;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_DISCARD;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_SUCCESS;
+
+import com.excellence.downloader.FileDownloader.DownloadTask;
 import com.zv.downloader.R;
 
 import android.widget.Button;
@@ -15,19 +21,19 @@ import android.widget.ProgressBar;
  * </pre>
  */
 
-public class DownloaderTask
+public class Task
 {
 	private String mFileName = null;
 	private String mFileUrl = null;
 	private long mDownloadLength;
 	private long mFileSize;
-	private FileDownloader mFileDownloader = null;
+	private DownloadTask mDownloadTask = null;
 
 	private Button mStartBtn = null;
 	private Button mDeleteBtn = null;
 	private ProgressBar mProgressBar = null;
 
-	public DownloaderTask(String fileName, String fileUrl)
+	public Task(String fileName, String fileUrl)
 	{
 		mFileName = fileName;
 		mFileUrl = fileUrl;
@@ -73,14 +79,14 @@ public class DownloaderTask
 		mFileSize = fileSize;
 	}
 
-	public FileDownloader getFileDownloader()
+	public DownloadTask getDownloadTask()
 	{
-		return mFileDownloader;
+		return mDownloadTask;
 	}
 
-	public void setFileDownloader(FileDownloader fileDownloader)
+	public void setDownloadTask(DownloadTask downloadTask)
 	{
-		mFileDownloader = fileDownloader;
+		mDownloadTask = downloadTask;
 	}
 
 	public Button getStartBtn()
@@ -115,30 +121,30 @@ public class DownloaderTask
 
 	public void invalidateTask()
 	{
-		if (mFileDownloader != null)
+		if (mDownloadTask != null)
 		{
-			switch (mFileDownloader.getState())
+			switch (mDownloadTask.getStatus())
 			{
-			case FileDownloader.STATE_DOWNLOADING:
+			case STATUS_DOWNLOADING:
 				mProgressBar.setProgress((int) mDownloadLength);
 				mProgressBar.setMax((int) mFileSize);
 				mStartBtn.setText(R.string.state_pause);
 				break;
 
-			case FileDownloader.STATE_ERROR:
+			case STATUS_ERROR:
 				mStartBtn.setText(R.string.state_error);
 				break;
 
-			case FileDownloader.STATE_PAUSE:
+			case STATUS_PAUSE:
 				mStartBtn.setText(R.string.state_continue);
 				break;
 
-			case FileDownloader.STATE_DISCARD:
+			case STATUS_DISCARD:
 				mProgressBar.setProgress(0);
 				mStartBtn.setText(R.string.state_start);
 				break;
 
-			case FileDownloader.STATE_SUCCESS:
+			case STATUS_SUCCESS:
 				mProgressBar.setProgress(100);
 				mProgressBar.setMax(100);
 				mStartBtn.setText(R.string.state_success);
