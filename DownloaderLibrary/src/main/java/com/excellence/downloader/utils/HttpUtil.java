@@ -13,6 +13,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.excellence.downloader.entity.TaskEntity;
+
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -109,6 +111,22 @@ public class HttpUtil
 	{
 		Map<String, List<String>> headerFields = conn.getHeaderFields();
 		return headerFields.get(key);
+	}
+
+	public static String formatRequestMsg(TaskEntity taskEntity)
+	{
+		StringBuilder sp = new StringBuilder();
+		sp.append("Task [").append(taskEntity.url).append("]");
+		sp.append(" ").append("Request code : ").append(taskEntity.code);
+		return sp.toString();
+	}
+
+	public static String formatRequestMsg(TaskEntity taskEntity, String msg)
+	{
+		StringBuilder sp = new StringBuilder();
+		sp.append("Task [").append(taskEntity.url).append("]");
+		sp.append(" ").append("Request msg : ").append(msg);
+		return sp.toString();
 	}
 
 }

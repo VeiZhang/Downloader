@@ -26,7 +26,7 @@ public class FileDownloader
 {
 	public static final String TAG = FileDownloader.class.getSimpleName();
 
-	private Executor mExecutor = null;
+	private Executor mResponsePoster = null;
 	private final LinkedList<DownloadTask> mTaskQueue;
 	private int mParallelTaskCount;
 	private int mThreadCount;
@@ -34,7 +34,7 @@ public class FileDownloader
 	public FileDownloader(int parallelTaskCount, int threadCount)
 	{
 		final Handler handler = new Handler(Looper.getMainLooper());
-		mExecutor = new Executor()
+		mResponsePoster = new Executor()
 		{
 			@Override
 			public void execute(@NonNull Runnable command)
@@ -54,7 +54,7 @@ public class FileDownloader
 		taskEntity.url = url;
 		taskEntity.threadCount = mThreadCount;
 
-		DownloadTask task = new DownloadTask(taskEntity, listener);
+		DownloadTask task = new DownloadTask(taskEntity, mResponsePoster, listener);
 		synchronized (mTaskQueue)
 		{
 			mTaskQueue.add(task);
