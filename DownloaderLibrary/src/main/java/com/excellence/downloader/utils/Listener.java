@@ -3,15 +3,14 @@ package com.excellence.downloader.utils;
 /**
  * <pre>
  *     author : VeiZhang
- *     blog   : https://veizhang.github.io/
- *     time   : 2017/2/16
- *     desc   : 监听接口实现
+ *     blog   : http://tiimor.cn
+ *     time   : 2017/8/9
+ *     desc   :
  * </pre>
  */
 
-public class DownloaderListener implements IDownloaderListener
+public class Listener implements IListener
 {
-
 	@Override
 	public void onPreExecute(long fileSize)
 	{
@@ -41,5 +40,4 @@ public class DownloaderListener implements IDownloaderListener
 	{
 
 	}
-
 }

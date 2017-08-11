@@ -3,13 +3,13 @@ package com.excellence.downloader.utils;
 /**
  * <pre>
  *     author : VeiZhang
- *     blog   : https://veizhang.github.io/
- *     time   : 2017/2/16
- *     desc   : 监听接口
+ *     blog   : http://tiimor.cn
+ *     time   : 2017/8/9
+ *     desc   : 下载接口
  * </pre>
  */
 
-public interface IDownloaderListener
+public interface IListener
 {
 	/**
 	 * 准备下载
