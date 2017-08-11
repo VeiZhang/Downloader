@@ -29,7 +29,7 @@ import android.util.Log;
  * </pre>
  */
 
-public class HttpFileInfoTask implements Runnable
+public class HttpFileInfoTask extends HttpTask
 {
 	public static final String TAG = HttpFileInfoTask.class.getSimpleName();
 
@@ -45,7 +45,7 @@ public class HttpFileInfoTask implements Runnable
 	}
 
 	@Override
-	public void run()
+	protected boolean buildRequest()
 	{
 		HttpURLConnection conn = null;
 		try
@@ -69,7 +69,7 @@ public class HttpFileInfoTask implements Runnable
 			if (mTaskEntity.isCancel)
 			{
 				mOnFileInfoCallback.onCancel();
-				return;
+				return true;
 			}
 
 			printHeader(conn);
@@ -78,13 +78,20 @@ public class HttpFileInfoTask implements Runnable
 		}
 		catch (Exception e)
 		{
-			mOnFileInfoCallback.onError(new DownloadError(e));
+			if (retry())
+			{
+				mOnFileInfoCallback.onError(new DownloadError(e));
+				return true;
+			}
+			else
+				return false;
 		}
 		finally
 		{
 			if (conn != null)
 				conn.disconnect();
 		}
+		return true;
 	}
 
 	private void handleHeader(HttpURLConnection conn) throws Exception
@@ -119,4 +126,5 @@ public class HttpFileInfoTask implements Runnable
 			throw new FileError(formatRequestMsg(mTaskEntity));
 		}
 	}
+
 }

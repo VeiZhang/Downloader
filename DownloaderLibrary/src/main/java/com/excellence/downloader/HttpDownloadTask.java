@@ -37,7 +37,7 @@ import android.util.Log;
  * </pre>
  */
 
-class HttpDownloadTask implements Runnable, IListener
+public class HttpDownloadTask extends HttpTask implements Runnable, IListener
 {
 	public static final String TAG = HttpDownloadTask.class.getSimpleName();
 
@@ -65,7 +65,7 @@ class HttpDownloadTask implements Runnable, IListener
 	}
 
 	@Override
-	public void run()
+	protected boolean buildRequest()
 	{
 		HttpURLConnection conn = null;
 		try
@@ -83,7 +83,7 @@ class HttpDownloadTask implements Runnable, IListener
 			if (mTaskEntity.isCancel)
 			{
 				onCancel();
-				return;
+				return true;
 			}
 
 			printHeader(conn);
@@ -116,7 +116,7 @@ class HttpDownloadTask implements Runnable, IListener
 			randomAccessFile.close();
 
 			if (mTaskEntity.isCancel)
-				return;
+				return true;
 
 			if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize)
 			{
@@ -129,13 +129,20 @@ class HttpDownloadTask implements Runnable, IListener
 		}
 		catch (Exception e)
 		{
-			onError(new DownloadError(e));
+			if (retry())
+			{
+				onError(new DownloadError(e));
+				return true;
+			}
+			else
+				return false;
 		}
 		finally
 		{
 			if (conn != null)
 				conn.disconnect();
 		}
+		return true;
 	}
 
 	private void startTimer()
