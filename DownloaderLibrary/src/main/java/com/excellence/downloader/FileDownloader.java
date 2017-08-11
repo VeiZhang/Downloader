@@ -1,6 +1,7 @@
 package com.excellence.downloader;
 
 import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_SUCCESS;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_WAITING;
@@ -55,12 +56,20 @@ public class FileDownloader
 
 	public DownloadTask addTask(File storeFile, String url, IListener listener)
 	{
-		DownloadTask task = new DownloadTask(storeFile, url, listener);
-		synchronized (mTaskQueue)
+		DownloadTask task = get(storeFile, url);
+		if (task != null)
 		{
-			mTaskQueue.add(task);
+			task.resume();
 		}
-		schedule();
+		else
+		{
+			task = new DownloadTask(storeFile, url, listener);
+			synchronized (mTaskQueue)
+			{
+				mTaskQueue.add(task);
+			}
+			schedule();
+		}
 		return task;
 	}
 
@@ -159,8 +168,8 @@ public class FileDownloader
 				@Override
 				public void onError(DownloadError error)
 				{
-					mTaskEntity.setStatus(STATUS_SUCCESS);
-					remove(DownloadTask.this);
+					mTaskEntity.setStatus(STATUS_ERROR);
+					schedule();
 					if (listener != null)
 						listener.onError(error);
 				}
@@ -218,6 +227,7 @@ public class FileDownloader
 			switch (mTaskEntity.status)
 			{
 			case STATUS_PAUSE:
+			case STATUS_ERROR:
 				mTaskEntity.setStatus(STATUS_WAITING);
 				schedule();
 				return true;
@@ -232,7 +242,7 @@ public class FileDownloader
 
 		public boolean check(File storeFile, String url)
 		{
-			return mTaskEntity.storeFile == storeFile && mTaskEntity.url.equals(url);
+			return mTaskEntity.storeFile.equals(storeFile) && mTaskEntity.url.equals(url);
 		}
 	}
 }

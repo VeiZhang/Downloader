@@ -19,7 +19,8 @@ public class TaskEntity
 	public static final int STATUS_DOWNLOADING = 1;
 	public static final int STATUS_PAUSE = 2;
 	public static final int STATUS_SUCCESS = 3;
-	public static final int STATUS_DISCARD = 4;
+	public static final int STATUS_ERROR = 4;
+	public static final int STATUS_DISCARD = 5;
 
 	/**
 	 * 下载目标文件
