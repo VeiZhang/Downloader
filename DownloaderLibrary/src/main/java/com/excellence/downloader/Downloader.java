@@ -81,6 +81,11 @@ public class Downloader
 		checkPermission(context);
 	}
 
+	/**
+	 * Android6.0以后动态申请文件读写权限
+	 * 
+	 * @param context
+	 */
 	private static void checkPermission(Context context)
 	{
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -119,10 +124,30 @@ public class Downloader
 		return addTask(new File(filePath), url, listener);
 	}
 
+	/**
+	 * 获取下载任务
+	 *
+	 * @param storeFile 保存文件
+	 * @param url 下载链接
+	 * @return
+	 */
 	public static DownloadTask get(File storeFile, String url)
 	{
 		checkDownloader();
 		return mInstace.mFileDownloader.get(storeFile, url);
+	}
+
+	/**
+	 * 获取下载任务
+	 *
+	 * @param filePath 保存路径
+	 * @param url 下载链接
+	 * @return
+	 */
+	public static DownloadTask get(String filePath, String url)
+	{
+		checkDownloader();
+		return mInstace.mFileDownloader.get(filePath, url);
 	}
 
 	/**
@@ -140,5 +165,14 @@ public class Downloader
 	{
 		if (mInstace == null)
 			throw new RuntimeException("Downloader not initialized!!!");
+	}
+
+	/**
+	 * 关闭下载器
+	 */
+	public static void destroy()
+	{
+		if (mInstace.mFileDownloader != null)
+			mInstace.mFileDownloader.clearAll();
 	}
 }

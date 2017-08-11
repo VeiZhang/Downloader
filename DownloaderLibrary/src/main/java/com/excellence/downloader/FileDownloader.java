@@ -54,6 +54,14 @@ public class FileDownloader
 		mThreadCount = threadCount;
 	}
 
+	/**
+	 * 新建下载任务
+	 *
+	 * @param storeFile 保存文件
+	 * @param url 下载链接
+	 * @param listener
+	 * @return
+	 */
 	public DownloadTask addTask(File storeFile, String url, IListener listener)
 	{
 		DownloadTask task = get(storeFile, url);
@@ -73,13 +81,21 @@ public class FileDownloader
 		return task;
 	}
 
+	/**
+	 * 新建下载任务
+	 *
+	 * @param filePath 保存路径
+	 * @param url 下载链接
+	 * @param listener
+	 * @return
+	 */
 	public DownloadTask addTask(String filePath, String url, IListener listener)
 	{
 		return addTask(new File(filePath), url, listener);
 	}
 
 	/**
-	 * notify task queue
+	 * 刷新任务队列
 	 */
 	private synchronized void schedule()
 	{
@@ -108,6 +124,24 @@ public class FileDownloader
 		schedule();
 	}
 
+	/**
+	 * 关闭所有下载任务
+	 */
+	public synchronized void clearAll()
+	{
+		while (!mTaskQueue.isEmpty())
+		{
+			mTaskQueue.get(0).cancel();
+		}
+	}
+
+	/**
+	 * 获取下载任务
+	 *
+	 * @param storeFile 保存文件
+	 * @param url 下载链接
+	 * @return
+	 */
 	public DownloadTask get(File storeFile, String url)
 	{
 		if (storeFile == null || checkNULL(url))
@@ -120,11 +154,23 @@ public class FileDownloader
 		return null;
 	}
 
+	/**
+	 * 获取下载任务
+	 *
+	 * @param filePath 保存路径
+	 * @param url 下载链接
+	 * @return
+	 */
 	public DownloadTask get(String filePath, String url)
 	{
 		return get(new File(filePath), url);
 	}
 
+	/**
+	 * 任务列表
+	 *
+	 * @return
+	 */
 	public LinkedList<DownloadTask> getTaskQueue()
 	{
 		return mTaskQueue;
@@ -185,6 +231,11 @@ public class FileDownloader
 			});
 		}
 
+		/**
+		 * 开始任务
+		 *
+		 * @return
+		 */
 		private boolean deploy()
 		{
 			// only wait task can deploy
@@ -195,12 +246,27 @@ public class FileDownloader
 			return true;
 		}
 
+		/**
+		 * 是否正在下载
+		 *
+		 * @return
+		 */
 		public boolean isDownloading()
 		{
 			return mTaskEntity.isDownloading();
 		}
 
-		public void cancel()
+		private void cancel()
+		{
+			mTaskEntity.discard();
+			mRequest.cancel();
+			mTaskQueue.remove(this);
+		}
+
+		/**
+		 * 完全删除任务
+		 */
+		public void discard()
 		{
 			mTaskEntity.discard();
 			mRequest.cancel();
@@ -209,6 +275,11 @@ public class FileDownloader
 			deleteFile(mTaskEntity.tempFile);
 		}
 
+		/**
+		 * 暂停任务
+		 *
+		 * @return
+		 */
 		public boolean pause()
 		{
 			switch (mTaskEntity.status)
@@ -222,6 +293,11 @@ public class FileDownloader
 			return false;
 		}
 
+		/**
+		 * 继续任务
+		 *
+		 * @return
+		 */
 		public boolean resume()
 		{
 			switch (mTaskEntity.status)
@@ -235,11 +311,23 @@ public class FileDownloader
 			return false;
 		}
 
+		/**
+		 * 获取下载任务状态
+		 *
+		 * @return
+		 */
 		public int getStatus()
 		{
 			return mTaskEntity.status;
 		}
 
+		/**
+		 * 检验是否是当前任务
+		 *
+		 * @param storeFile 保存文件
+		 * @param url 下载链接
+		 * @return
+		 */
 		public boolean check(File storeFile, String url)
 		{
 			return mTaskEntity.storeFile.equals(storeFile) && mTaskEntity.url.equals(url);
