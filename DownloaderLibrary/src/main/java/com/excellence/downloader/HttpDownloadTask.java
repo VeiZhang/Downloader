@@ -185,7 +185,7 @@ class HttpDownloadTask implements Runnable, IListener
 			@Override
 			public void run()
 			{
-				if (mListener != null)
+				if (mListener != null && !mTaskEntity.isCancel)
 					mListener.onProgressChange(fileSize, downloadedSize);
 			}
 		});
@@ -213,7 +213,7 @@ class HttpDownloadTask implements Runnable, IListener
 			@Override
 			public void run()
 			{
-				if (mListener != null)
+				if (mListener != null && !mTaskEntity.isCancel)
 					mListener.onError(error);
 			}
 		});
