@@ -1,13 +1,20 @@
 package com.excellence.downloader.utils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.math.BigInteger;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import static com.excellence.downloader.utils.CommonUtil.hasDoubleCharacter;
+
+import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
+import java.net.URLEncoder;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * <pre>
@@ -20,125 +27,99 @@ import android.text.TextUtils;
 
 public class HttpUtil
 {
-	/**
-	 * 检测链接是否空
-	 *
-	 * @param url 待检测链接
-	 * @return {@code true}:是<br>{@code false}:否
-	 */
-	public static boolean checkNULL(String url)
-	{
-		return TextUtils.isEmpty(url) || url.equalsIgnoreCase("null");
-	}
+	public static final String TAG = HttpUtil.class.getSimpleName();
 
 	/**
-	 * 根据字符串生成MD5
+	 * 转换链接中中文字符
 	 *
-	 * @param params 字符串
-	 * @return MD5
+	 * @param url
+	 * @return
 	 */
-	public static String getMD5(String... params)
+	public static String convertUrl(String url)
 	{
-		String md5 = "";
-		if (params == null || params.length == 0)
-			return md5;
-		StringBuilder stringBuilder = new StringBuilder();
-		for (String param : params)
-			stringBuilder.append(param);
-		try
-		{
-			MessageDigest md = MessageDigest.getInstance("MD5");
-			md.update(stringBuilder.toString().getBytes());
-			md5 = new BigInteger(1, md.digest()).toString(16);
-		}
-		catch (NoSuchAlgorithmException e)
-		{
-			e.printStackTrace();
-		}
-		return md5;
-	}
+		if (TextUtils.isEmpty(url))
+			return url;
 
-	/**
-	 * 根据流生成MD5
-	 *
-	 * @param is 流
-	 * @return MD5
-	 */
-	public static String getMD5(InputStream is)
-	{
-		String md5 = "";
-		try
+		if (hasDoubleCharacter(url))
 		{
-			if (is == null)
-				return md5;
-
-			MessageDigest digest = MessageDigest.getInstance("MD5");
-			byte[] buffer = new byte[8192];
-			int read;
-			while ((read = is.read(buffer)) > 0)
+			String regex = "[^\\x00-\\xff]";
+			Pattern pattern = Pattern.compile(regex);
+			Matcher matcher = pattern.matcher(url);
+			Set<String> strs = new HashSet<>();
+			while (matcher.find())
 			{
-				digest.update(buffer, 0, read);
+				strs.add(matcher.group());
 			}
-			byte[] md5sum = digest.digest();
-			BigInteger bigInt = new BigInteger(1, md5sum);
-			md5 = String.format("%32s", bigInt.toString(16).replace(' ', '0'));
+
+			try
+			{
+				for (String str : strs)
+					url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
+			}
+			catch (UnsupportedEncodingException e)
+			{
+				e.printStackTrace();
+			}
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		try
-		{
-			is.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return md5;
+		return url;
+	}
+
+	public static void setConnectParam(HttpURLConnection conn, String url) throws Exception
+	{
+		// 设置 HttpURLConnection的请求方式
+		// default request : GET
+		conn.setRequestMethod("GET");
+		// 设置 HttpURLConnection的接收的文件类型
+		conn.setRequestProperty("Accept",
+				"image/gif, image/jpeg, image/pjpeg, image/pjpeg, application/x-shockwave-flash, application/xaml+xml, application/vnd.ms-xpsdocument, application/x-ms-xbap, application/x-ms-application, application/vnd.ms-excel, application/vnd.ms-powerpoint, application/msword, */*");
+		// 设置 HttpURLConnection的接收语音
+		conn.setRequestProperty("Accept-Language", "zh-CN");
+		// 指定请求uri的源资源地址
+		conn.setRequestProperty("Referer", url);
+		// 设置 HttpURLConnection的字符编码
+		conn.setRequestProperty("Charset", "UTF-8");
+		// 检查浏览页面的访问者在用什么操作系统（包括版本号）浏览器（包括版本号）和用户个人偏好
+		conn.setRequestProperty("User-Agent",
+				"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; .NET CLR 1.1.4322; .NET CLR 2.0.50727; .NET CLR 3.0.04506.30; .NET CLR 3.0.4506.2152; .NET CLR 3.5.30729)");
+		conn.setRequestProperty("Connection", "Keep-Alive");
 	}
 
 	/**
-	 * 根据文件生成MD5
+	 * 打印全部请求头信息
 	 *
-	 * @param file 文件
-	 * @return MD5
+	 * @param conn
 	 */
-	public static String getMD5(File file)
+	public static void printHeader(HttpURLConnection conn)
 	{
-		String md5 = "";
-		try
+		Map<String, List<String>> headerFields = conn.getHeaderFields();
+		for (Entry<String, List<String>> field : headerFields.entrySet())
 		{
-			InputStream is = new FileInputStream(file);
-			md5 = getMD5(is);
+			Log.i(TAG, "[key : " + field.getKey() + "][value : " + field.getValue() + "]");
 		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return md5;
 	}
 
 	/**
-	 * 检测文件的MD5
+	 * 获取具体的请求头信息
 	 *
-	 * @param md5 MD5
-	 * @param file 文件
-	 * @return {@code true}:是<br>{@code false}:否
+	 * @param conn
+	 * @param key
+	 * @return
 	 */
-	public static boolean checkMD5(String md5, File file)
+	public static List<String> getHeader(HttpURLConnection conn, String key)
 	{
-		if (TextUtils.isEmpty(md5) || file == null)
-			return false;
-		String fileMD5 = getMD5(file);
-		return fileMD5 != null && fileMD5.equalsIgnoreCase(md5);
+		Map<String, List<String>> headerFields = conn.getHeaderFields();
+		return headerFields.get(key);
 	}
 
-	public static boolean checkMD5(String md5, InputStream is)
+	/**
+	 * 是否支持断点
+	 *
+	 * @param conn
+	 * @return {@coe true}:是<br>{@code false}:否
+	 */
+	public static boolean isSupportRange(HttpURLConnection conn)
 	{
-		if (TextUtils.isEmpty(md5) || is == null)
-			return false;
-		String isMD5 = getMD5(is);
-		return isMD5 != null && isMD5.equalsIgnoreCase(md5);
+		List<String> values = getHeader(conn, "Accept-Ranges");
+		return values != null && values.contains("bytes");
 	}
 }

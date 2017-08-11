@@ -1,6 +1,6 @@
 package com.excellence.downloader;
 
-import static com.excellence.downloader.utils.HttpUtil.checkNULL;
+import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -48,7 +48,7 @@ public class FileDownloader
 
 	public DownloadTask addTask(File storeFile, String url, IListener listener)
 	{
-		DownloadTask task = new DownloadTask(storeFile, url, listener);
+		DownloadTask task = new DownloadTask(storeFile, url, listener, mThreadCount);
 		synchronized (mTaskQueue)
 		{
 			mTaskQueue.add(task);
@@ -57,6 +57,14 @@ public class FileDownloader
 		return task;
 	}
 
+	public DownloadTask addTask(String filePath, String url, IListener listener)
+	{
+		return addTask(new File(filePath), url, listener);
+	}
+
+	/**
+	 * notify task queue
+	 */
 	private synchronized void schedule()
 	{
 		// count run task

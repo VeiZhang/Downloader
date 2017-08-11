@@ -16,6 +16,10 @@ import android.util.Log;
  *     blog   : http://tiimor.cn
  *     time   : 2017/8/9
  *     desc   : 下载器初始化
+ *              权限
+ *                  {@link android.Manifest.permission#INTERNET}
+ *                  {@link android.Manifest.permission#WRITE_EXTERNAL_STORAGE}
+ *                  {@link android.Manifest.permission#READ_EXTERNAL_STORAGE}
  * </pre>
  */
 
@@ -23,8 +27,8 @@ public class Downloader
 {
 	public static final String TAG = Downloader.class.getSimpleName();
 
-	public static final int TASK_COUNT = 2;
-	public static final int THREAD_COUNT = 1;
+	public static final int DEFAULT_TASK_COUNT = 2;
+	public static final int DEFAULT_THREAD_COUNT = 1;
 
 	private static Downloader mInstace = null;
 	private FileDownloader mFileDownloader = null;
@@ -41,7 +45,7 @@ public class Downloader
 	 */
 	public static void init(@NonNull Context context)
 	{
-		init(context, TASK_COUNT, THREAD_COUNT);
+		init(context, DEFAULT_TASK_COUNT, DEFAULT_THREAD_COUNT);
 	}
 
 	/**
@@ -95,7 +99,7 @@ public class Downloader
 		return addTask(new File(filePath), url, listener);
 	}
 
-	public static synchronized DownloadTask get(File storeFile, String url)
+	public static DownloadTask get(File storeFile, String url)
 	{
 		checkDownloader();
 		return mInstace.mFileDownloader.get(storeFile, url);
