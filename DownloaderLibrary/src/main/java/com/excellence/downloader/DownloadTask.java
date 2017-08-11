@@ -81,6 +81,16 @@ public class DownloadTask implements IListener
 		mExecutor.shutdown();
 	}
 
+	public void pause()
+	{
+
+	}
+
+	public void resume()
+	{
+
+	}
+
 	public int getStatus()
 	{
 		return mTaskEntity.status;
@@ -160,4 +170,5 @@ public class DownloadTask implements IListener
 			}
 		});
 	}
+
 }

@@ -42,11 +42,13 @@ class HttpDownloadTask implements Runnable, IListener
 
 	private TaskEntity mTaskEntity = null;
 	private IListener mListener = null;
+	private File mTempFile = null;
 
 	public HttpDownloadTask(TaskEntity taskEntity, IListener listener)
 	{
 		mTaskEntity = taskEntity;
 		mListener = listener;
+		mTempFile = new File(mTaskEntity.storeFile + ".tmp");
 	}
 
 	@Override
@@ -62,11 +64,12 @@ class HttpDownloadTask implements Runnable, IListener
 			conn = (HttpURLConnection) httpURL.openConnection();
 			conn.setConnectTimeout(CONNECT_TIME_OUT);
 			conn.setReadTimeout(SO_TIME_OUT);
+			conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + mTaskEntity.fileSize);
 			setConnectParam(conn, mTaskEntity.url);
 			conn.connect();
 			printHeader(conn);
 
-			RandomAccessFile randomAccessFile = new RandomAccessFile(mTaskEntity.storeFile, "rwd");
+			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
 			InputStream is = conn.getInputStream();
 			BufferedInputStream buffStream = new BufferedInputStream(is);
 			byte[] buffer = new byte[STREAM_LEN];
@@ -75,10 +78,22 @@ class HttpDownloadTask implements Runnable, IListener
 			while ((read = buffStream.read(buffer)) != -1)
 			{
 				outFileChannel.write(ByteBuffer.wrap(buffer, 0, read));
+				mTaskEntity.downloadLen += read;
+				onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
 			}
 			is.close();
 			outFileChannel.close();
 			randomAccessFile.close();
+			if (mTempFile.canRead() && mTempFile.length() > 0)
+			{
+				if (!mTempFile.renameTo(mTaskEntity.storeFile))
+					throw new FileError("Can't rename download temp file");
+				onSuccess();
+			}
+			else
+			{
+				throw new FileError("Download temp file is invalid");
+			}
 		}
 		catch (Exception e)
 		{
@@ -99,24 +114,33 @@ class HttpDownloadTask implements Runnable, IListener
 		if (checkNULL(mTaskEntity.url))
 			throw new URLInvalidError("URL is invalid");
 
-		File storeFile = mTaskEntity.storeFile;
-		if (!storeFile.exists())
+		if (!mTempFile.exists())
 		{
-			if (!storeFile.getParentFile().exists() && !storeFile.getParentFile().mkdirs())
+			if (!mTempFile.getParentFile().exists() && !mTempFile.getParentFile().mkdirs())
 				throw new FileError("Failed to open downloader dir");
 
-			if (!storeFile.createNewFile())
+			if (!mTempFile.createNewFile())
 				throw new FileError("Failed to create storage file");
 		}
 
-		if (storeFile.isDirectory())
+		if (mTempFile.isDirectory())
 			throw new FileError("Storage file is a directory");
 
-		FileInputStream is = new FileInputStream(storeFile);
-		mTaskEntity.downloadLen = is.available();
-		is.close();
+		if (mTaskEntity.isSupportBP)
+		{
+			FileInputStream is = new FileInputStream(mTempFile);
+			mTaskEntity.downloadLen = is.available();
+			is.close();
+		}
+		else
+		{
+			mTaskEntity.downloadLen = 0;
+			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
+			randomAccessFile.setLength(0);
+			randomAccessFile.close();
+		}
 
-		File parentDir = storeFile.getParentFile();
+		File parentDir = mTempFile.getParentFile();
 		if (parentDir.getFreeSpace() <= mTaskEntity.fileSize - mTaskEntity.downloadLen)
 			throw new FileError("Space is not enough");
 
