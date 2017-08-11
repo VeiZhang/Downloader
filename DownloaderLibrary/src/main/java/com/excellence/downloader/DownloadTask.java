@@ -1,6 +1,5 @@
 package com.excellence.downloader;
 
-import static com.excellence.downloader.Downloader.DEFAULT_THREAD_COUNT;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
 import static com.excellence.downloader.utils.HttpUtil.printHeader;
 import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
@@ -13,10 +12,13 @@ import java.net.URL;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.FileError;
 import com.excellence.downloader.utils.IListener;
 
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 /**
  * <pre>
@@ -29,6 +31,8 @@ import android.text.TextUtils;
 
 public class DownloadTask
 {
+	public static final String TAG = DownloadTask.class.getSimpleName();
+
 	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 10 * 1000;
 
@@ -39,24 +43,15 @@ public class DownloadTask
 	public static final int STATUS_DISCARD = 4;
 
 	private int mStatus = STATUS_WAITING;
-	private File mStoreFile = null;
-	private String mUrl = null;
+	private TaskEntity mTaskEntity = null;
 	private IListener mListener = null;
-	private int mThreadCount = DEFAULT_THREAD_COUNT;
 	private Executor mExecutor = null;
 
-	public DownloadTask(File storeFile, String url, IListener listener)
+	public DownloadTask(@NonNull TaskEntity taskEntity, IListener listener)
 	{
-		mStoreFile = storeFile;
-		mUrl = url;
+		mTaskEntity = taskEntity;
 		mListener = listener;
 		mExecutor = Executors.newSingleThreadExecutor();
-	}
-
-	public DownloadTask(File storeFile, String url, IListener listener, int threadCount)
-	{
-		this(storeFile, url, listener);
-		mThreadCount = threadCount;
 	}
 
 	public boolean deploy()
@@ -94,7 +89,8 @@ public class DownloadTask
 
 	private void buildFileInfoRequest() throws Exception
 	{
-		URL httpURL = new URL(convertUrl(mUrl));
+		Log.e(TAG, "Request file info");
+		URL httpURL = new URL(convertUrl(mTaskEntity.url));
 		HttpURLConnection conn = (HttpURLConnection) httpURL.openConnection();
 		conn.setConnectTimeout(CONNECT_TIME_OUT);
 		/**
@@ -102,10 +98,10 @@ public class DownloadTask
 		 * @see #handConnect(HttpURLConnection)
 		 **/
 		conn.setRequestProperty("Range", "bytes=" + 0 + "-");
-		setConnectParam(conn, mUrl);
+		setConnectParam(conn, mTaskEntity.url);
 		conn.connect();
-		printHeader(conn);
 		handConnect(conn);
+		printHeader(conn);
 	}
 
 	private void handConnect(HttpURLConnection conn) throws Exception
@@ -119,47 +115,50 @@ public class DownloadTask
 
 		if (len < 0)
 		{
-			throw new FileError(formatErrorMsg("File length is error"));
+			throw new FileError(formatRequestMsg("File length is error"));
 		}
 
 		int code = conn.getResponseCode();
+		Log.e(TAG, formatRequestMsg(code));
 		switch (code)
 		{
 		case HTTP_OK:
-			mThreadCount = DEFAULT_THREAD_COUNT;
+			mTaskEntity.isSupportBP = false;
 			break;
 
 		case HTTP_PARTIAL:
+			mTaskEntity.isSupportBP = true;
 			break;
 
 		default:
-			throw new FileError(formatErrorMsg(code));
+			throw new FileError(formatRequestMsg(code));
 		}
 	}
 
-	private String formatErrorMsg(int errorCode)
+	private String formatRequestMsg(int code)
 	{
 		StringBuilder sp = new StringBuilder();
-		sp.append("Task [").append(mUrl).append("]");
-		sp.append(" ").append("Error code : ").append(errorCode);
+		sp.append("Task [").append(mTaskEntity.url).append("]");
+		sp.append(" ").append("Request code : ").append(code);
 		return sp.toString();
 	}
 
-	private String formatErrorMsg(String msg)
+	private String formatRequestMsg(String msg)
 	{
 		StringBuilder sp = new StringBuilder();
-		sp.append("Task [").append(mUrl).append("]");
-		sp.append(" ").append("Error msg : ").append(msg);
+		sp.append("Task [").append(mTaskEntity.url).append("]");
+		sp.append(" ").append("Request msg : ").append(msg);
 		return sp.toString();
 	}
 
 	private void buildRequest() throws Exception
 	{
-		URL httpURL = new URL(convertUrl(mUrl));
+		Log.e(TAG, "Start Download");
+		URL httpURL = new URL(convertUrl(mTaskEntity.url));
 		HttpURLConnection conn = (HttpURLConnection) httpURL.openConnection();
 		conn.setConnectTimeout(CONNECT_TIME_OUT);
 		conn.setReadTimeout(SO_TIME_OUT);
-		setConnectParam(conn, mUrl);
+		setConnectParam(conn, mTaskEntity.url);
 		conn.connect();
 		printHeader(conn);
 	}
@@ -176,6 +175,6 @@ public class DownloadTask
 
 	public boolean check(File storeFile, String url)
 	{
-		return mStoreFile == storeFile && mUrl.equals(url);
+		return mTaskEntity.storeFile == storeFile && mTaskEntity.url.equals(url);
 	}
 }

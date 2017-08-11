@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.LinkedList;
 import java.util.concurrent.Executor;
 
+import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.utils.IListener;
 
 import android.os.Handler;
@@ -48,7 +49,12 @@ public class FileDownloader
 
 	public DownloadTask addTask(File storeFile, String url, IListener listener)
 	{
-		DownloadTask task = new DownloadTask(storeFile, url, listener, mThreadCount);
+		TaskEntity taskEntity = new TaskEntity();
+		taskEntity.storeFile = storeFile;
+		taskEntity.url = url;
+		taskEntity.threadCount = mThreadCount;
+
+		DownloadTask task = new DownloadTask(taskEntity, listener);
 		synchronized (mTaskQueue)
 		{
 			mTaskQueue.add(task);

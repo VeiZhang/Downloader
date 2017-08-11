@@ -111,15 +111,4 @@ public class HttpUtil
 		return headerFields.get(key);
 	}
 
-	/**
-	 * 是否支持断点
-	 *
-	 * @param conn
-	 * @return {@coe true}:是<br>{@code false}:否
-	 */
-	public static boolean isSupportRange(HttpURLConnection conn)
-	{
-		List<String> values = getHeader(conn, "Accept-Ranges");
-		return values != null && values.contains("bytes");
-	}
 }
