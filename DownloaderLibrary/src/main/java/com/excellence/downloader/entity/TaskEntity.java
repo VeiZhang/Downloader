@@ -43,6 +43,11 @@ public class TaskEntity
 	public long fileSize;
 
 	/**
+	 * 下载长度
+	 */
+	public long downloadLen;
+
+	/**
 	 * 状态码
 	 */
 	public int code;

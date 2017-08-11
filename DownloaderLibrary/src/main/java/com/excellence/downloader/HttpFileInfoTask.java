@@ -1,5 +1,6 @@
 package com.excellence.downloader;
 
+import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
 import static com.excellence.downloader.utils.HttpUtil.formatRequestMsg;
 import static com.excellence.downloader.utils.HttpUtil.printHeader;
@@ -13,6 +14,7 @@ import java.net.URL;
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.FileError;
+import com.excellence.downloader.exception.URLInvalidError;
 import com.excellence.downloader.utils.OnFileInfoCallback;
 
 import android.text.TextUtils;
@@ -49,6 +51,9 @@ public class HttpFileInfoTask implements Runnable
 		try
 		{
 			Log.e(TAG, "Request file info");
+			if (checkNULL(mTaskEntity.url))
+				throw new URLInvalidError("URL is invalid");
+
 			URL httpURL = new URL(convertUrl(mTaskEntity.url));
 			conn = (HttpURLConnection) httpURL.openConnection();
 			conn.setConnectTimeout(CONNECT_TIME_OUT);

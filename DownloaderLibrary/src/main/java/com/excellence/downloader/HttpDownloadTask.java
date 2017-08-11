@@ -1,10 +1,13 @@
 package com.excellence.downloader;
 
+import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
 import static com.excellence.downloader.utils.HttpUtil.printHeader;
 import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
@@ -14,8 +17,11 @@ import java.nio.channels.FileChannel;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.exception.FileError;
+import com.excellence.downloader.exception.URLInvalidError;
 import com.excellence.downloader.utils.IListener;
 
+import android.os.Build;
 import android.util.Log;
 
 /**
@@ -47,6 +53,7 @@ class HttpDownloadTask implements Runnable, IListener
 	@Override
 	public void run()
 	{
+		onPreExecute(mTaskEntity.fileSize);
 		HttpURLConnection conn = null;
 		try
 		{
@@ -88,38 +95,66 @@ class HttpDownloadTask implements Runnable, IListener
 	/**
 	 * 检测任务：下载链接、本地文件等等
 	 */
-	private void checkTask()
+	private void checkTask() throws Exception
 	{
+		if (checkNULL(mTaskEntity.url))
+			throw new URLInvalidError("URL is invalid");
+
+		File storeFile = mTaskEntity.storeFile;
+		if (!storeFile.exists())
+		{
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+			{
+
+			}
+
+			if (!storeFile.getParentFile().exists() && !storeFile.getParentFile().mkdirs())
+				throw new FileError("Failed to open downloader dir");
+
+			if (!storeFile.createNewFile())
+				throw new FileError("Failed to create storage file");
+		}
+
+		if (storeFile.isDirectory())
+			throw new FileError("Storage file is a directory");
+
+		FileInputStream is = new FileInputStream(storeFile);
+		mTaskEntity.downloadLen = is.available();
+		is.close();
+
+		File parentDir = storeFile.getParentFile();
+		if (parentDir.getFreeSpace() <= mTaskEntity.fileSize - mTaskEntity.downloadLen)
+			throw new FileError("Space is not enough");
 
 	}
 
 	@Override
 	public void onPreExecute(long fileSize)
 	{
-
+		mListener.onPreExecute(fileSize);
 	}
 
 	@Override
 	public void onProgressChange(long fileSize, long downloadedSize)
 	{
-
+		mListener.onProgressChange(fileSize, downloadedSize);
 	}
 
 	@Override
 	public void onCancel()
 	{
-
+		mListener.onCancel();
 	}
 
 	@Override
 	public void onError(DownloadError error)
 	{
-
+		mListener.onError(error);
 	}
 
 	@Override
 	public void onSuccess()
 	{
-
+		mListener.onSuccess();
 	}
 }
