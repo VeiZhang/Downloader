@@ -72,8 +72,8 @@ public class HttpFileInfoTask implements Runnable
 				return;
 			}
 
-			handleHeader(conn);
 			printHeader(conn);
+			handleHeader(conn);
 			mOnFileInfoCallback.onComplete();
 		}
 		catch (Exception e)

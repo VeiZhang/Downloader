@@ -113,6 +113,12 @@ public class HttpUtil
 		return headerFields.get(key);
 	}
 
+	public static boolean isGzipContent(HttpURLConnection conn)
+	{
+		List<String> header = getHeader(conn, "Content-Encoding");
+		return header != null && header.contains("gzip");
+	}
+
 	public static String formatRequestMsg(TaskEntity taskEntity)
 	{
 		StringBuilder sp = new StringBuilder();

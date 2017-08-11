@@ -2,6 +2,7 @@ package com.excellence.downloader;
 
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
+import static com.excellence.downloader.utils.HttpUtil.isGzipContent;
 import static com.excellence.downloader.utils.HttpUtil.printHeader;
 import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
 
@@ -15,6 +16,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.util.concurrent.Executor;
+import java.util.zip.GZIPInputStream;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
@@ -81,6 +83,8 @@ class HttpDownloadTask implements Runnable, IListener
 			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
 			randomAccessFile.seek(mTaskEntity.downloadLen);
 			InputStream is = conn.getInputStream();
+			if (isGzipContent(conn) && !(is instanceof GZIPInputStream))
+				is = new GZIPInputStream(is);
 			BufferedInputStream buffStream = new BufferedInputStream(is);
 			byte[] buffer = new byte[STREAM_LEN];
 			int read;
