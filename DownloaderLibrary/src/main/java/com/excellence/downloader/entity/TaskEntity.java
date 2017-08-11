@@ -21,7 +21,15 @@ public class TaskEntity
 	public static final int STATUS_SUCCESS = 3;
 	public static final int STATUS_DISCARD = 4;
 
+	/**
+	 * 下载目标文件
+	 */
 	public File storeFile = null;
+
+	/**
+	 * 临时文件
+	 */
+	public File tempFile = null;
 
 	/**
 	 * 下载链接

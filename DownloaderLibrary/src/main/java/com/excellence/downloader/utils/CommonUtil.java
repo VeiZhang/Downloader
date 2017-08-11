@@ -161,4 +161,15 @@ public class CommonUtil
 		String isMD5 = getMD5(is);
 		return isMD5 != null && isMD5.equalsIgnoreCase(md5);
 	}
+
+	/**
+	 * 删除文件
+	 * 
+	 * @param file
+	 * @return
+	 */
+	public static boolean deleteFile(File file)
+	{
+		return file != null && file.exists() && file.delete();
+	}
 }

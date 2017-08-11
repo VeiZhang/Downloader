@@ -39,6 +39,8 @@ class HttpDownloadTask implements Runnable, IListener
 {
 	public static final String TAG = HttpDownloadTask.class.getSimpleName();
 
+	public static final String SUFFIX_TMP = ".tmp";
+
 	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;
@@ -53,7 +55,8 @@ class HttpDownloadTask implements Runnable, IListener
 		mResponsePoster = responsePoster;
 		mTaskEntity = taskEntity;
 		mListener = listener;
-		mTempFile = new File(mTaskEntity.storeFile + ".tmp");
+		mTempFile = new File(mTaskEntity.storeFile + SUFFIX_TMP);
+		mTaskEntity.tempFile = mTempFile;
 	}
 
 	@Override
@@ -105,8 +108,14 @@ class HttpDownloadTask implements Runnable, IListener
 			is.close();
 			outFileChannel.close();
 			randomAccessFile.close();
+
+			if (mTaskEntity.isCancel)
+				return;
+
 			if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize)
 			{
+				if (!mTempFile.canRead())
+					throw new FileError("Download temp file is invalid");
 				if (!mTempFile.renameTo(mTaskEntity.storeFile))
 					throw new FileError("Can't rename download temp file");
 				onSuccess();
