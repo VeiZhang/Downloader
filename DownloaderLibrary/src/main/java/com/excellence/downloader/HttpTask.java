@@ -15,6 +15,8 @@ public abstract class HttpTask implements Runnable
 {
 	public static final String TAG = HttpTask.class.getSimpleName();
 
+	protected static final int CONNECT_TIME_OUT = 30 * 1000;
+
 	private static final int MAX_REQUEST_COUNT = 3;
 
 	private int mRequestCount = 0;

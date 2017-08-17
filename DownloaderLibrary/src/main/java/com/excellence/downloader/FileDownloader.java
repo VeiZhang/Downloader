@@ -6,7 +6,7 @@ import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_SUCCESS;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_WAITING;
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
-import static com.excellence.downloader.utils.CommonUtil.deleteFile;
+import static com.excellence.downloader.utils.CommonUtil.deleteTmpFile;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -278,8 +278,7 @@ public class FileDownloader
 			mTaskEntity.discard();
 			mRequest.cancel();
 			remove(this);
-			deleteFile(mTaskEntity.storeFile);
-			deleteFile(mTaskEntity.tempFile);
+			deleteTmpFile(mTaskEntity.storeFile);
 		}
 
 		/**

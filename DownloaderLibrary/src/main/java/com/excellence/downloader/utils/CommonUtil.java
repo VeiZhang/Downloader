@@ -1,5 +1,7 @@
 package com.excellence.downloader.utils;
 
+import static com.excellence.downloader.HttpDownloadTask.SUFFIX_TMP;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -171,7 +173,47 @@ public class CommonUtil
 	 */
 	public static boolean deleteFile(File file)
 	{
-		return file != null && file.exists() && file.delete();
+		return isFileExist(file) && file.delete();
+	}
+
+	public static boolean deleteFile(String filePath)
+	{
+		return isFileExist(filePath) && deleteFile(new File(filePath));
+	}
+
+	/**
+	 * 删除临时下载文件
+	 *
+	 * @param file
+	 * @return
+	 */
+	public static void deleteTmpFile(File file)
+	{
+		deleteFile(file);
+		deleteFile(new File(file + SUFFIX_TMP));
+	}
+
+	public static void deleteTmpFile(String filePath)
+	{
+		deleteTmpFile(new File(filePath));
+	}
+
+	/**
+	 * 判断文件是否存在
+	 *
+	 * @param file
+	 * @return
+	 */
+	public static boolean isFileExist(File file)
+	{
+		if (file != null && file.exists() && file.isFile())
+			return true;
+		return false;
+	}
+
+	public static boolean isFileExist(String filePath)
+	{
+		return !TextUtils.isEmpty(filePath) && isFileExist(new File(filePath));
 	}
 
 	/**

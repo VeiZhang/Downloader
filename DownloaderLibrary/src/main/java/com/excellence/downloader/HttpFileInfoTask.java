@@ -33,8 +33,6 @@ public class HttpFileInfoTask extends HttpTask
 {
 	public static final String TAG = HttpFileInfoTask.class.getSimpleName();
 
-	private static final int CONNECT_TIME_OUT = 30 * 1000;
-
 	private TaskEntity mTaskEntity = null;
 	private OnFileInfoCallback mOnFileInfoCallback = null;
 

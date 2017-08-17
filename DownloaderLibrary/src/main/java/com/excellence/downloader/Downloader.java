@@ -93,7 +93,12 @@ public class Downloader
 			String[] PERMISSIONS_STORAGE = { READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE };
 			int permission = ActivityCompat.checkSelfPermission(context, WRITE_EXTERNAL_STORAGE);
 			if (permission != PERMISSION_GRANTED)
-				ActivityCompat.requestPermissions((Activity) context, PERMISSIONS_STORAGE, 1);
+			{
+				if (context instanceof Activity)
+					ActivityCompat.requestPermissions((Activity) context, PERMISSIONS_STORAGE, 1);
+				else
+					throw new RuntimeException("Context should be activity for Android 6.0 or later to request permission!!!");
+			}
 		}
 	}
 

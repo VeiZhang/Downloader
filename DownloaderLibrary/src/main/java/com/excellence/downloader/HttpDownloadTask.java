@@ -37,13 +37,12 @@ import android.util.Log;
  * </pre>
  */
 
-public class HttpDownloadTask extends HttpTask implements Runnable, IListener
+public class HttpDownloadTask extends HttpTask implements IListener
 {
 	public static final String TAG = HttpDownloadTask.class.getSimpleName();
 
 	public static final String SUFFIX_TMP = ".tmp";
 
-	private static final int CONNECT_TIME_OUT = 30 * 1000;
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;
 	private static final int TIMER_SEC = 1000;
