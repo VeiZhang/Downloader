@@ -296,7 +296,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			@Override
 			public void run()
 			{
-				if (mListener != null)
+				if (mListener != null && !mTaskEntity.isCancel)
 					mListener.onSuccess();
 			}
 		});
