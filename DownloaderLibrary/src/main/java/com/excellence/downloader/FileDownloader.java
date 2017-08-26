@@ -1,5 +1,17 @@
 package com.excellence.downloader;
 
+import android.os.Handler;
+import android.os.Looper;
+import android.support.annotation.NonNull;
+
+import com.excellence.downloader.entity.TaskEntity;
+import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.utils.IListener;
+
+import java.io.File;
+import java.util.LinkedList;
+import java.util.concurrent.Executor;
+
 import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
@@ -7,18 +19,6 @@ import static com.excellence.downloader.entity.TaskEntity.STATUS_SUCCESS;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_WAITING;
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.CommonUtil.deleteTmpFile;
-
-import java.io.File;
-import java.util.LinkedList;
-import java.util.concurrent.Executor;
-
-import com.excellence.downloader.entity.TaskEntity;
-import com.excellence.downloader.exception.DownloadError;
-import com.excellence.downloader.utils.IListener;
-
-import android.os.Handler;
-import android.os.Looper;
-import android.support.annotation.NonNull;
 
 /**
  * <pre>
@@ -186,6 +186,7 @@ public class FileDownloader
 			TaskEntity taskEntity = new TaskEntity();
 			taskEntity.storeFile = storeFile;
 			taskEntity.url = url;
+			taskEntity.key = url + "_" + storeFile.getPath();
 			taskEntity.threadCount = mThreadCount;
 			mTaskEntity = taskEntity;
 			mRequest = new DownloadRequest(taskEntity, mResponsePoster, new IListener()
@@ -337,6 +338,46 @@ public class FileDownloader
 		public boolean check(File storeFile, String url)
 		{
 			return mTaskEntity.storeFile.equals(storeFile) && mTaskEntity.url.equals(url);
+		}
+
+		/**
+		 * 获取下载长度
+		 *
+		 * @return
+		 */
+		public long getDownloadLength()
+		{
+			return mTaskEntity.downloadLen;
+		}
+
+		/**
+		 * 获取文件长度
+		 *
+		 * @return
+		 */
+		public long getFileSize()
+		{
+			return mTaskEntity.fileSize;
+		}
+
+		/**
+		 * 获取下载链接
+		 *
+		 * @return
+		 */
+		public String getUrl()
+		{
+			return mTaskEntity.url;
+		}
+
+		/**
+		 * 获取下载标识
+		 * 
+		 * @return
+		 */
+		public String getKey()
+		{
+			return mTaskEntity.key;
 		}
 	}
 }

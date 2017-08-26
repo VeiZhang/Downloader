@@ -1,8 +1,8 @@
 package com.excellence.downloader.entity;
 
-import java.io.File;
-
 import android.support.annotation.IntRange;
+
+import java.io.File;
 
 /**
  * <pre>
@@ -36,6 +36,11 @@ public class TaskEntity
 	 * 下载链接
 	 */
 	public String url = null;
+
+	/**
+	 * 下载唯一标识：url + "_" + storeFile.getPath()
+	 */
+	public String key = null;
 
 	/**
 	 * 是否支持断点

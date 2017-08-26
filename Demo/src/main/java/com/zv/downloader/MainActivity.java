@@ -1,20 +1,22 @@
 package com.zv.downloader;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
-import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
-import com.excellence.basetoolslibrary.utils.ActivityUtils;
-import com.zv.downloader.bean.ActivityInfo;
-import com.zv.downloader.downloader.SingleThreadActivity;
-
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+
+import com.excellence.annotations.Download;
+import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
+import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
+import com.excellence.basetoolslibrary.utils.ActivityUtils;
+import com.excellence.downloader.FileDownloader;
+import com.zv.downloader.bean.ActivityInfo;
+import com.zv.downloader.downloader.SingleThreadActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemClickListener
 {
@@ -56,5 +58,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 		{
 			viewHolder.setText(android.R.id.text1, item.getActivityName());
 		}
+	}
+
+	@Download.onPre
+	public void onPre(FileDownloader.DownloadTask task)
+	{
+
 	}
 }

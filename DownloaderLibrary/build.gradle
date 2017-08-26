@@ -13,18 +13,12 @@ buildscript {
     }
 }
 
-allprojects {
-    repositories {
-        jcenter()
-    }
-
-    /**避免中文注释:编码GBK的不可映射字符**/
-    tasks.withType(Javadoc) {
-        options {
-            encoding "UTF-8"
-            charSet 'UTF-8'
-            links "http://docs.oracle.com/javase/7/docs/api"
-        }
+/**避免中文注释:编码GBK的不可映射字符**/
+tasks.withType(Javadoc) {
+    options {
+        encoding "UTF-8"
+        charSet 'UTF-8'
+        links "http://docs.oracle.com/javase/7/docs/api"
     }
 }
 
@@ -57,6 +51,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:23.2.1'
     testCompile 'junit:junit:4.12'
+    compile project(':DownloadCompiler')
 }
 
 /**避免Javadocs错误:找不到引用**/
