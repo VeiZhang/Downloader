@@ -186,4 +186,9 @@ public class Downloader
 	{
 		DownloadScheduler.getInstance().register(obj);
 	}
+
+	public static void unregister(Object obj)
+	{
+		DownloadScheduler.getInstance().unregister(obj);
+	}
 }

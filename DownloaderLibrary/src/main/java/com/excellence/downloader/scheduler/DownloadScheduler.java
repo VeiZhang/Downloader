@@ -4,7 +4,9 @@ import android.util.Log;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -121,8 +123,19 @@ public class DownloadScheduler<TASK>
 		return listener;
 	}
 
+	public void unregister(Object obj)
+	{
+		for (Iterator<Entry<String, SchedulerListener<TASK>>> iterator = mObservers.entrySet().iterator(); iterator.hasNext();)
+		{
+			Entry<String, SchedulerListener<TASK>> entry = iterator.next();
+			if (entry.getKey().equals(obj.getClass().getName()))
+				iterator.remove();
+		}
+	}
+
 	private String getProxySuffix()
 	{
 		return PROXY_SUFFIX_DOWNLOADE;
 	}
+
 }
