@@ -1,5 +1,17 @@
 package com.excellence.compiler;
 
+import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULER_LISTENER;
+import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstance.LISTENER_KEY_MAP;
+import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
+import static com.excellence.compiler.ProxyConstance.PRE;
+import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_MAP;
+import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_NAME;
+import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_PACKAGE;
+import static com.excellence.compiler.ProxyConstance.SET_LISTENER;
+import static com.excellence.compiler.TaskEnum.DOWNLOAD;
+
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
@@ -26,17 +38,6 @@ import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
-
-import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULER_LISTENER;
-import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
-import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
-import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
-import static com.excellence.compiler.ProxyConstance.PRE;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_MAP;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_NAME;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_PACKAGE;
-import static com.excellence.compiler.ProxyConstance.SET_LISTENER;
-import static com.excellence.compiler.TaskEnum.DOWNLOAD;
 
 /**
  * <pre>
@@ -79,6 +80,7 @@ public class ElementHandler
 
 	/**
 	 * 查找并且保存扫描到的方法
+	 * 如果有相同的注解方法，方法名不一样，后面的方法会覆盖前面，保存的方法是根据扫描到的方法自动创建：方法名、参数
 	 *
 	 * @param taskEnum
 	 * @param roundEnv
@@ -186,15 +188,13 @@ public class ElementHandler
 		Set<Modifier> modifiers = method.getModifiers();
 		if (modifiers.contains(Modifier.PRIVATE))
 			throw new IllegalAccessError(className + "." + methodName + "不能为private方法");
-		/*
-		 * List<VariableElement> params = (List<VariableElement>)
-		 * method.getParameters(); if (params.size() > 1) throw new
-		 * IllegalArgumentException(className + "." + methodName +
-		 * "参数错误，参数只有一个，且参数必须是" + getChekcParams(taskEnum)); if
-		 * (!params.get(0).asType().toString().equals(getChekcParams(taskEnum)))
-		 * throw new IllegalArgumentException(className + "." + methodName +
-		 * "参数[" + params.get(0).getSimpleName() + "]类型错误，参数必须是" +
-		 * getChekcParams(taskEnum));
+
+		/**
+		List<VariableElement> params = (List<VariableElement>) method.getParameters();
+		if (params.size() > 1)
+			throw new IllegalArgumentException(className + "." + methodName + "参数错误，参数只有一个，且参数必须是" + getChekcParams(taskEnum));
+		if (!params.get(0).asType().toString().equals(getChekcParams(taskEnum)))
+			throw new IllegalArgumentException(className + "." + methodName + "参数[" + params.get(0).getSimpleName() + "]类型错误，参数必须是" + getChekcParams(taskEnum));
 		 */
 	}
 
@@ -313,7 +313,7 @@ public class ElementHandler
 		// 添加url映射表
 		FieldSpec mappingField = FieldSpec
 				.builder(ParameterizedTypeName.get(ClassName.get(Map.class), ClassName.get(String.class), ParameterizedTypeName.get(ClassName.get(Set.class), ClassName.get(String.class))),
-						"keyMapping")
+						LISTENER_KEY_MAP)
 				.addModifiers(Modifier.PRIVATE).initializer("new $T()", HashMap.class).build();
 		builder.addField(mappingField);
 

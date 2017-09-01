@@ -11,7 +11,6 @@ import com.excellence.annotations.Download;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.downloader.Downloader;
-import com.excellence.downloader.FileDownloader;
 import com.excellence.downloader.FileDownloader.DownloadTask;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.utils.IListener;
@@ -65,7 +64,7 @@ public class SingleThreadActivity extends DownloadActivity
 	}
 
 	@Download.onPre
-	public void onPre(FileDownloader.DownloadTask task)
+	public void onPre(DownloadTask task)
 	{
 
 	}
