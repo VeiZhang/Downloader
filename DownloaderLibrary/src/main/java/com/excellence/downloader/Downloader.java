@@ -1,15 +1,5 @@
 package com.excellence.downloader;
 
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-
-import java.io.File;
-import java.util.LinkedList;
-
-import com.excellence.downloader.FileDownloader.DownloadTask;
-import com.excellence.downloader.utils.IListener;
-
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
@@ -17,6 +7,17 @@ import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.util.Log;
+
+import com.excellence.downloader.FileDownloader.DownloadTask;
+import com.excellence.downloader.scheduler.DownloadScheduler;
+import com.excellence.downloader.utils.IListener;
+
+import java.io.File;
+import java.util.LinkedList;
+
+import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * <pre>
@@ -179,5 +180,10 @@ public class Downloader
 	{
 		if (mInstace.mFileDownloader != null)
 			mInstace.mFileDownloader.clearAll();
+	}
+
+	public static void register(Object obj)
+	{
+		DownloadScheduler.getInstance().register(obj);
 	}
 }

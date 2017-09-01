@@ -19,6 +19,7 @@ import javax.lang.model.element.TypeElement;
  *     blog   : http://tiimor.cn
  *     time   : 2017/8/25
  *     desc   : 事件注解扫描器
+ *     			{@link com.google.auto.service.AutoService}:编译时，Java程序自动执行，创建类文件等
  * </pre>
  */
 

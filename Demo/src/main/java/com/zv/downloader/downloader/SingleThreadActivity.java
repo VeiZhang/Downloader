@@ -1,16 +1,17 @@
 package com.zv.downloader.downloader;
 
-import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
-import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
-import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
+import android.content.Context;
+import android.os.Bundle;
+import android.support.annotation.LayoutRes;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ProgressBar;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
+import com.excellence.annotations.Download;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.downloader.Downloader;
+import com.excellence.downloader.FileDownloader;
 import com.excellence.downloader.FileDownloader.DownloadTask;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.utils.IListener;
@@ -18,12 +19,13 @@ import com.zv.downloader.DownloadActivity;
 import com.zv.downloader.R;
 import com.zv.downloader.bean.Task;
 
-import android.content.Context;
-import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
+import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
 
 public class SingleThreadActivity extends DownloadActivity
 {
@@ -43,6 +45,7 @@ public class SingleThreadActivity extends DownloadActivity
 	protected void initDownloader()
 	{
 		Downloader.init(this);
+		Downloader.register(this);
 	}
 
 	@Override
@@ -59,6 +62,12 @@ public class SingleThreadActivity extends DownloadActivity
 		mTasks.add(new Task("RomUpdate.bin", ROMUPDATE_URL));
 		mTasks.add(new Task("Filmon.apk", FILMON_URL));
 		mDownloadListView.setAdapter(new DownloaderAdapter(this, mTasks, R.layout.download_item));
+	}
+
+	@Download.onPre
+	public void onPre(FileDownloader.DownloadTask task)
+	{
+
 	}
 
 	private class DownloaderAdapter extends CommonAdapter<Task>

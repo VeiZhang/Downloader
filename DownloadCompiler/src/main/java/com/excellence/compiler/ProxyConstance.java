@@ -9,7 +9,7 @@ package com.excellence.compiler;
  * </pre>
  */
 
-interface ProxyConstance
+public interface ProxyConstance
 {
 	/**
 	 * 设置观察者的方法
@@ -36,13 +36,14 @@ interface ProxyConstance
 	String COUNT_METHOD_DOWNLOAD = "getDownloadCounter";
 
 	/**
-	 * Downloader类名、包名、方法名
+	 * Downloader类名、包名、方法名、代理后缀名
 	 */
 	String PKG_FILEDOWNLOADER = "com.excellence.downloader.FileDownloader";
 	String CLS_DOWNLOADER_TASK = "DownloadTask";
+	String PROXY_SUFFIX_DOWNLOADE = "$$DownloadListenerProxy";
 
 	String PKG_SCHEDULER = "com.excellence.downloader.scheduler";
-	String CLS_SCHEDULERLISTENER = "SchedulerListener";
+	String CLS_SCHEDULER_LISTENER = "SchedulerListener";
 
 	int PRE = 0x11;
 }

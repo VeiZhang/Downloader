@@ -7,11 +7,9 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.excellence.annotations.Download;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
 import com.excellence.basetoolslibrary.utils.ActivityUtils;
-import com.excellence.downloader.FileDownloader;
 import com.zv.downloader.bean.ActivityInfo;
 import com.zv.downloader.downloader.SingleThreadActivity;
 
@@ -60,9 +58,4 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 		}
 	}
 
-	@Download.onPre
-	public void onPre(FileDownloader.DownloadTask task)
-	{
-
-	}
 }

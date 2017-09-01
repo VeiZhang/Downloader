@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -16,7 +15,6 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
-import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 
 import com.excellence.annotations.Download;
@@ -29,7 +27,7 @@ import com.squareup.javapoet.ParameterSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeSpec;
 
-import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULERLISTENER;
+import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULER_LISTENER;
 import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
@@ -359,7 +357,7 @@ public class ElementHandler
 		builder.addJavadoc("该文件为自动生成的代理文件，请不要修改该文件的任何代码！\n");
 
 		// 创建父类参数
-		ClassName superClass = ClassName.get(PKG_SCHEDULER, CLS_SCHEDULERLISTENER);
+		ClassName superClass = ClassName.get(PKG_SCHEDULER, CLS_SCHEDULER_LISTENER);
 		// 创建泛型
 		ClassName typeVariableName = ClassName.get(taskEnum.getPkg(), taskEnum.getClassName());
 		builder.superclass(ParameterizedTypeName.get(superClass, typeVariableName));
