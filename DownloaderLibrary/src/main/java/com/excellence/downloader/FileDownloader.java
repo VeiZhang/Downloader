@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.scheduler.DownloadScheduler;
 import com.excellence.downloader.utils.IListener;
 
 import java.io.File;
@@ -35,11 +36,13 @@ public class FileDownloader
 
 	private Executor mResponsePoster = null;
 	private final LinkedList<DownloadTask> mTaskQueue;
+	private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
 	private int mParallelTaskCount;
 	private int mThreadCount;
 
-	public FileDownloader(int parallelTaskCount, int threadCount)
+	public FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, int parallelTaskCount, int threadCount)
 	{
+		mDownloadScheduler = downloadScheduler;
 		final Handler handler = new Handler(Looper.getMainLooper());
 		mResponsePoster = new Executor()
 		{
@@ -194,6 +197,7 @@ public class FileDownloader
 				@Override
 				public void onPreExecute(long fileSize)
 				{
+					mDownloadScheduler.onPre(DownloadTask.this);
 					if (listener != null)
 						listener.onPreExecute(fileSize);
 				}

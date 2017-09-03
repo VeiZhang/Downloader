@@ -41,6 +41,7 @@ public class Downloader
 
 	private static Downloader mInstace = null;
 	private FileDownloader mFileDownloader = null;
+	private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
 
 	private Downloader()
 	{
@@ -78,7 +79,8 @@ public class Downloader
 			parallelTaskCount = Runtime.getRuntime().availableProcessors() == 1 ? 1 : Runtime.getRuntime().availableProcessors() - 1;
 		}
 		mInstace = new Downloader();
-		mInstace.mFileDownloader = new FileDownloader(parallelTaskCount, threadCount);
+		mInstace.mDownloadScheduler = new DownloadScheduler<>();
+		mInstace.mFileDownloader = new FileDownloader(mInstace.mDownloadScheduler, parallelTaskCount, threadCount);
 		checkPermission(context);
 	}
 
@@ -184,11 +186,13 @@ public class Downloader
 
 	public static void register(Object obj)
 	{
-		DownloadScheduler.getInstance().register(obj);
+		checkDownloader();
+		mInstace.mDownloadScheduler.register(obj);
 	}
 
 	public static void unregister(Object obj)
 	{
-		DownloadScheduler.getInstance().unregister(obj);
+		checkDownloader();
+		mInstace.mDownloadScheduler.unregister(obj);
 	}
 }

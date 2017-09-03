@@ -22,24 +22,15 @@ import static java.util.Collections.unmodifiableSet;
  * </pre>
  */
 
-public class DownloadScheduler<TASK>
+public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 {
 	public static final String TAG = DownloadScheduler.class.getSimpleName();
-
-	private static DownloadScheduler mInstance = null;
 
 	private Set<String> mDownloadCounter = null;
 	private Map<String, ISchedulerListener<TASK>> mSchedulerListeners = new ConcurrentHashMap<>();
 	private Map<String, SchedulerListener<TASK>> mObservers = new ConcurrentHashMap<>();
 
-	public static DownloadScheduler getInstance()
-	{
-		if (mInstance == null)
-			mInstance = new DownloadScheduler();
-		return mInstance;
-	}
-
-	private DownloadScheduler()
+	public DownloadScheduler()
 	{
 		initDownloadCounter();
 	}
@@ -82,20 +73,20 @@ public class DownloadScheduler<TASK>
 
 	public void register(Object obj)
 	{
-		String className = obj.getClass().getName();
-		if (mDownloadCounter != null && mDownloadCounter.contains(className))
+		String targetName = obj.getClass().getName();
+		if (mDownloadCounter != null && mDownloadCounter.contains(targetName))
 		{
-			SchedulerListener<TASK> listener = mObservers.get(className);
+			SchedulerListener<TASK> listener = mObservers.get(targetName);
 			if (listener == null)
 			{
-				listener = createListener(className);
+				listener = createListener(targetName);
 				if (listener != null)
 				{
 					listener.setListener(obj);
-					mObservers.put(className, listener);
+					mObservers.put(targetName, listener);
 				}
 				else
-					Log.e(TAG, "注册失败，没有【" + className + "】观察者");
+					Log.e(TAG, "注册失败，没有【" + targetName + "】观察者");
 			}
 		}
 	}
@@ -138,4 +129,17 @@ public class DownloadScheduler<TASK>
 		return PROXY_SUFFIX_DOWNLOADE;
 	}
 
+	@Override
+	public void onPre(TASK task)
+	{
+		if (mObservers.size() > 0)
+		{
+			Set<String> keys = mObservers.keySet();
+			for (String key : keys)
+			{
+				ISchedulerListener<TASK> listener = mObservers.get(key);
+				listener.onPre(task);
+			}
+		}
+	}
 }
