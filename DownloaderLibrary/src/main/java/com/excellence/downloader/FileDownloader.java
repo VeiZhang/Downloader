@@ -213,6 +213,7 @@ public class FileDownloader
 				@Override
 				public void onProgressChange(long fileSize, long downloadedSize, long speed)
 				{
+					mDownloadScheduler.onProgressSpeedChange(DownloadTask.this);
 					if (listener != null)
 						listener.onProgressChange(fileSize, downloadedSize, speed);
 				}
@@ -220,6 +221,7 @@ public class FileDownloader
 				@Override
 				public void onCancel()
 				{
+					mDownloadScheduler.onCancel(DownloadTask.this);
 					if (listener != null)
 						listener.onCancel();
 				}
@@ -228,6 +230,7 @@ public class FileDownloader
 				public void onError(DownloadError error)
 				{
 					mTaskEntity.setStatus(STATUS_ERROR);
+					mDownloadScheduler.onCancel(DownloadTask.this);
 					schedule();
 					if (listener != null)
 						listener.onError(error);
@@ -237,6 +240,7 @@ public class FileDownloader
 				public void onSuccess()
 				{
 					mTaskEntity.setStatus(STATUS_SUCCESS);
+					mDownloadScheduler.onSuccess(DownloadTask.this);
 					remove(DownloadTask.this);
 					if (listener != null)
 						listener.onSuccess();
