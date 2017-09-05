@@ -69,6 +69,12 @@ public class SingleThreadActivity extends DownloadActivity
 		System.out.println("----" + task.getDownloadLength());
 	}
 
+	@Download.onProgressChange
+	public void onProgressChange(DownloadTask task)
+	{
+		System.out.println("****" + task.getDownloadLength());
+	}
+
 	private class DownloaderAdapter extends CommonAdapter<Task>
 	{
 		public DownloaderAdapter(Context context, List<Task> datas, @LayoutRes int layoutId)

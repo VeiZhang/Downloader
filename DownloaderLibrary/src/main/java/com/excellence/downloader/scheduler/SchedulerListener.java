@@ -17,6 +17,12 @@ public class SchedulerListener<TASK> implements ISchedulerListener<TASK>
 
 	}
 
+	@Override
+	public void onProgressChange(TASK task)
+	{
+
+	}
+
 	public void setListener(Object obj)
 	{
 

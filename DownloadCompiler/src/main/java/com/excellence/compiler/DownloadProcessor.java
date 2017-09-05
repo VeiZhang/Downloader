@@ -40,6 +40,7 @@ public class DownloadProcessor extends AbstractProcessor
 	{
 		Set<String> annotations = new LinkedHashSet<>();
 		annotations.add(Download.onPreExecute.class.getCanonicalName());
+		annotations.add(Download.onProgressChange.class.getCanonicalName());
 		return annotations;
 	}
 

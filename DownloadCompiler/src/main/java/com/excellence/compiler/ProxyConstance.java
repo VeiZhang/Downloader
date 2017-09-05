@@ -46,5 +46,7 @@ public interface ProxyConstance
 	String PKG_SCHEDULER = "com.excellence.downloader.scheduler";
 	String CLS_SCHEDULER_LISTENER = "SchedulerListener";
 
-	int PRE = 0x11;
+	int PRE_EXECUTE = 0x11;
+	int PROGRESS_CHANGE = 0x12;
+
 }

@@ -205,6 +205,7 @@ public class FileDownloader
 				@Override
 				public void onProgressChange(long fileSize, long downloadedSize)
 				{
+					mDownloadScheduler.onProgressChange(DownloadTask.this);
 					if (listener != null)
 						listener.onProgressChange(fileSize, downloadedSize);
 				}

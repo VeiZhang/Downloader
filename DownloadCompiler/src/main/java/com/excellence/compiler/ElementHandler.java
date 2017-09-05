@@ -5,7 +5,8 @@ import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.LISTENER_KEY_MAP;
 import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
-import static com.excellence.compiler.ProxyConstance.PRE;
+import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
+import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_MAP;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_NAME;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_PACKAGE;
@@ -75,7 +76,8 @@ public class ElementHandler
 	 */
 	public void handleDownload(RoundEnvironment roundEnv)
 	{
-		saveMethod(DOWNLOAD, roundEnv, Download.onPreExecute.class, PRE);
+		saveMethod(DOWNLOAD, roundEnv, Download.onPreExecute.class, PRE_EXECUTE);
+		saveMethod(DOWNLOAD, roundEnv, Download.onProgressChange.class, PROGRESS_CHANGE);
 	}
 
 	/**
@@ -168,8 +170,12 @@ public class ElementHandler
 		String[] values = null;
 		switch (annotationType)
 		{
-		case PRE:
+		case PRE_EXECUTE:
 			values = method.getAnnotation(Download.onPreExecute.class).value();
+			break;
+
+		case PROGRESS_CHANGE:
+			values = method.getAnnotation(Download.onProgressChange.class).value();
 			break;
 		}
 		return values;

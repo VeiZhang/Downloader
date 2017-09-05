@@ -12,4 +12,6 @@ package com.excellence.downloader.scheduler;
 public interface ISchedulerListener<TASK>
 {
 	void onPreExecute(TASK task);
+
+	void onProgressChange(TASK task);
 }

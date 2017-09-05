@@ -10,6 +10,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
+import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
 import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOADE;
 import static java.util.Collections.unmodifiableSet;
 
@@ -129,8 +131,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 		return PROXY_SUFFIX_DOWNLOADE;
 	}
 
-	@Override
-	public void onPreExecute(TASK task)
+	private void handleTask(int status, TASK task)
 	{
 		if (mObservers.size() > 0)
 		{
@@ -138,8 +139,34 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 			for (String key : keys)
 			{
 				ISchedulerListener<TASK> listener = mObservers.get(key);
-				listener.onPreExecute(task);
+				handleTask(status, listener, task);
 			}
 		}
+	}
+
+	private void handleTask(int status, ISchedulerListener<TASK> listener, TASK task)
+	{
+		switch (status)
+		{
+		case PRE_EXECUTE:
+			listener.onPreExecute(task);
+			break;
+
+		case PROGRESS_CHANGE:
+			listener.onProgressChange(task);
+			break;
+		}
+	}
+
+	@Override
+	public void onPreExecute(TASK task)
+	{
+		handleTask(PRE_EXECUTE, task);
+	}
+
+	@Override
+	public void onProgressChange(TASK task)
+	{
+		handleTask(PROGRESS_CHANGE, task);
 	}
 }
