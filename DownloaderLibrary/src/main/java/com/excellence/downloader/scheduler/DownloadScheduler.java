@@ -130,7 +130,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 	}
 
 	@Override
-	public void onPre(TASK task)
+	public void onPreExecute(TASK task)
 	{
 		if (mObservers.size() > 0)
 		{
@@ -138,7 +138,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 			for (String key : keys)
 			{
 				ISchedulerListener<TASK> listener = mObservers.get(key);
-				listener.onPre(task);
+				listener.onPreExecute(task);
 			}
 		}
 	}

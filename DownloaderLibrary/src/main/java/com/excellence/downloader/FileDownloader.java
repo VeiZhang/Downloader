@@ -197,7 +197,7 @@ public class FileDownloader
 				@Override
 				public void onPreExecute(long fileSize)
 				{
-					mDownloadScheduler.onPre(DownloadTask.this);
+					mDownloadScheduler.onPreExecute(DownloadTask.this);
 					if (listener != null)
 						listener.onPreExecute(fileSize);
 				}

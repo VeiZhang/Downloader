@@ -12,7 +12,7 @@ package com.excellence.downloader.scheduler;
 public class SchedulerListener<TASK> implements ISchedulerListener<TASK>
 {
 	@Override
-	public void onPre(TASK task)
+	public void onPreExecute(TASK task)
 	{
 
 	}

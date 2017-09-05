@@ -75,7 +75,7 @@ public class ElementHandler
 	 */
 	public void handleDownload(RoundEnvironment roundEnv)
 	{
-		saveMethod(DOWNLOAD, roundEnv, Download.onPre.class, PRE);
+		saveMethod(DOWNLOAD, roundEnv, Download.onPreExecute.class, PRE);
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class ElementHandler
 		switch (annotationType)
 		{
 		case PRE:
-			values = method.getAnnotation(Download.onPre.class).value();
+			values = method.getAnnotation(Download.onPreExecute.class).value();
 			break;
 		}
 		return values;
@@ -219,6 +219,7 @@ public class ElementHandler
 
 	/**
 	 * 每一种注解对应的类集合
+	 * 生成路径 Demo/build/generated/source/apt/debug/com/excellence/downloaderProxyClassCounter
 	 */
 	private void createProxyClassFile() throws Exception
 	{
@@ -244,7 +245,7 @@ public class ElementHandler
 	}
 
 	/**
-	 * 创建不同人物类型的代理类集合
+	 * 创建不同任务类型的代理类集合
 	 *
 	 * @param methodName
 	 * @param key
@@ -279,6 +280,7 @@ public class ElementHandler
 
 	/**
 	 * 创建事件代理文件
+	 * 生成路径 Demo/build/generated/source/apt/debug/com/zv/downloader/downloader/SingleThreadActivity$$DownloadListenerProxy
 	 */
 	private void createProxyListenerFile() throws Exception
 	{
@@ -295,7 +297,7 @@ public class ElementHandler
 	}
 
 	/**
-	 * 创建代理类
+	 * 创建代理类，代理类中每个注解都是一个方法（实现的接口方法）
 	 *
 	 * @param entity
 	 * @param taskEnum

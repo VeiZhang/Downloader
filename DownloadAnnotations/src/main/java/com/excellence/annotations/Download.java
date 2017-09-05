@@ -20,7 +20,7 @@ public @interface Download
 {
 	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
-	@interface onPre
+	@interface onPreExecute
 	{
 		String[] value() default { Constant.NO_URL };
 	}

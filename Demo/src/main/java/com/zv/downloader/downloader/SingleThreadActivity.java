@@ -63,10 +63,10 @@ public class SingleThreadActivity extends DownloadActivity
 		mDownloadListView.setAdapter(new DownloaderAdapter(this, mTasks, R.layout.download_item));
 	}
 
-	@Download.onPre
+	@Download.onPreExecute
 	public void onPre(DownloadTask task)
 	{
-
+		System.out.println("----" + task.getDownloadLength());
 	}
 
 	private class DownloaderAdapter extends CommonAdapter<Task>
