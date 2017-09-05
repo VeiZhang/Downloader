@@ -48,5 +48,9 @@ public interface ProxyConstance
 
 	int PRE_EXECUTE = 0x11;
 	int PROGRESS_CHANGE = 0x12;
+	int PROGRESS_SPEED_CHANGE = 0x13;
+	int CANCEL = 0x14;
+	int ERROR = 0x15;
+	int SUCCESS = 0x16;
 
 }

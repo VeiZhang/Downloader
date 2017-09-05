@@ -64,6 +64,11 @@ public class TaskEntity
 	public long downloadLen;
 
 	/**
+	 * 下载速度:byte/s
+	 */
+	public long downloadSpeed;
+
+	/**
 	 * 状态码
 	 */
 	public int code;

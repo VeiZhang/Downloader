@@ -22,6 +22,8 @@ public @interface Download
 {
 	/**
 	 * 下载开始，获取文件大小
+	 * @see com.excellence.downloader.FileDownloader.DownloadTask#getFileSize()
+	 *
 	 */
 	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
@@ -32,10 +34,53 @@ public @interface Download
 
 	/**
 	 * 下载进行中
+	 * @see com.excellence.downloader.FileDownloader.DownloadTask#getDownloadLength()
 	 */
 	@Retention(RetentionPolicy.CLASS)
 	@Target(ElementType.METHOD)
 	@interface onProgressChange
+	{
+		String[] value() default { NO_URL };
+	}
+
+	/**
+	 * 下载进行中，下载速度byte/s
+	 * @see com.excellence.downloader.FileDownloader.DownloadTask#getDownloadLength()
+	 *
+	 */
+	@Retention(RetentionPolicy.CLASS)
+	@Target(ElementType.METHOD)
+	@interface onProgressSpeedChange
+	{
+		String[] value() default { NO_URL };
+	}
+
+	/**
+	 * 暂停下载
+	 */
+	@Retention(RetentionPolicy.CLASS)
+	@Target(ElementType.METHOD)
+	@interface onCancel
+	{
+		String[] value() default { NO_URL };
+	}
+
+	/**
+	 * 下载错误
+	 */
+	@Retention(RetentionPolicy.CLASS)
+	@Target(ElementType.METHOD)
+	@interface onError
+	{
+		String[] value() default { NO_URL };
+	}
+
+	/**
+	 * 下载成功
+	 */
+	@Retention(RetentionPolicy.CLASS)
+	@Target(ElementType.METHOD)
+	@interface onSuccess
 	{
 		String[] value() default { NO_URL };
 	}

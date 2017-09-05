@@ -1,8 +1,10 @@
 package com.excellence.compiler;
 
+import static com.excellence.compiler.ProxyConstance.CANCEL;
 import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULER_LISTENER;
 import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstance.ERROR;
 import static com.excellence.compiler.ProxyConstance.LISTENER_KEY_MAP;
 import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
 import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
@@ -10,7 +12,9 @@ import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_MAP;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_NAME;
 import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_PACKAGE;
+import static com.excellence.compiler.ProxyConstance.PROGRESS_SPEED_CHANGE;
 import static com.excellence.compiler.ProxyConstance.SET_LISTENER;
+import static com.excellence.compiler.ProxyConstance.SUCCESS;
 import static com.excellence.compiler.TaskEnum.DOWNLOAD;
 
 import java.lang.annotation.Annotation;
@@ -78,6 +82,10 @@ public class ElementHandler
 	{
 		saveMethod(DOWNLOAD, roundEnv, Download.onPreExecute.class, PRE_EXECUTE);
 		saveMethod(DOWNLOAD, roundEnv, Download.onProgressChange.class, PROGRESS_CHANGE);
+		saveMethod(DOWNLOAD, roundEnv, Download.onProgressSpeedChange.class, PROGRESS_SPEED_CHANGE);
+		saveMethod(DOWNLOAD, roundEnv, Download.onCancel.class, CANCEL);
+		saveMethod(DOWNLOAD, roundEnv, Download.onError.class, ERROR);
+		saveMethod(DOWNLOAD, roundEnv, Download.onSuccess.class, SUCCESS);
 	}
 
 	/**
@@ -176,6 +184,22 @@ public class ElementHandler
 
 		case PROGRESS_CHANGE:
 			values = method.getAnnotation(Download.onProgressChange.class).value();
+			break;
+
+		case PROGRESS_SPEED_CHANGE:
+			values = method.getAnnotation(Download.onProgressSpeedChange.class).value();
+			break;
+
+		case CANCEL:
+			values = method.getAnnotation(Download.onCancel.class).value();
+			break;
+
+		case ERROR:
+			values = method.getAnnotation(Download.onError.class).value();
+			break;
+
+		case SUCCESS:
+			values = method.getAnnotation(Download.onSuccess.class).value();
 			break;
 		}
 		return values;

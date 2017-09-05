@@ -1,10 +1,12 @@
 package com.excellence.downloader;
 
-import static com.excellence.downloader.utils.CommonUtil.checkNULL;
-import static com.excellence.downloader.utils.HttpUtil.convertUrl;
-import static com.excellence.downloader.utils.HttpUtil.isGzipContent;
-import static com.excellence.downloader.utils.HttpUtil.printHeader;
-import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
+import android.util.Log;
+
+import com.excellence.downloader.entity.TaskEntity;
+import com.excellence.downloader.exception.DownloadError;
+import com.excellence.downloader.exception.FileError;
+import com.excellence.downloader.exception.URLInvalidError;
+import com.excellence.downloader.utils.IListener;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -20,13 +22,11 @@ import java.util.TimerTask;
 import java.util.concurrent.Executor;
 import java.util.zip.GZIPInputStream;
 
-import com.excellence.downloader.entity.TaskEntity;
-import com.excellence.downloader.exception.DownloadError;
-import com.excellence.downloader.exception.FileError;
-import com.excellence.downloader.exception.URLInvalidError;
-import com.excellence.downloader.utils.IListener;
-
-import android.util.Log;
+import static com.excellence.downloader.utils.CommonUtil.checkNULL;
+import static com.excellence.downloader.utils.HttpUtil.convertUrl;
+import static com.excellence.downloader.utils.HttpUtil.isGzipContent;
+import static com.excellence.downloader.utils.HttpUtil.printHeader;
+import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
 
 /**
  * <pre>
@@ -159,7 +159,8 @@ public class HttpDownloadTask extends HttpTask implements IListener
 				}
 				else
 				{
-					onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen, mTaskEntity.downloadLen - mStartLen);
+					mTaskEntity.downloadSpeed = mTaskEntity.downloadLen - mStartLen;
+					onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen, mTaskEntity.downloadSpeed);
 					mStartLen = mTaskEntity.downloadLen;
 				}
 			}

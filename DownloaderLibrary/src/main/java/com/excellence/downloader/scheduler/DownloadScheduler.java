@@ -10,9 +10,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static com.excellence.compiler.ProxyConstance.CANCEL;
+import static com.excellence.compiler.ProxyConstance.ERROR;
 import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
 import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
+import static com.excellence.compiler.ProxyConstance.PROGRESS_SPEED_CHANGE;
 import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOADE;
+import static com.excellence.compiler.ProxyConstance.SUCCESS;
 import static java.util.Collections.unmodifiableSet;
 
 /**
@@ -155,6 +159,22 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 		case PROGRESS_CHANGE:
 			listener.onProgressChange(task);
 			break;
+
+		case PROGRESS_SPEED_CHANGE:
+			listener.onProgressSpeedChange(task);
+			break;
+
+		case CANCEL:
+			listener.onCancel(task);
+			break;
+
+		case ERROR:
+			listener.onError(task);
+			break;
+
+		case SUCCESS:
+			listener.onSuccess(task);
+			break;
 		}
 	}
 
@@ -169,4 +189,29 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 	{
 		handleTask(PROGRESS_CHANGE, task);
 	}
+
+	@Override
+	public void onProgressSpeedChange(TASK task)
+	{
+		handleTask(PROGRESS_SPEED_CHANGE, task);
+	}
+
+	@Override
+	public void onCancel(TASK task)
+	{
+		handleTask(CANCEL, task);
+	}
+
+	@Override
+	public void onError(TASK task)
+	{
+		handleTask(CANCEL, task);
+	}
+
+	@Override
+	public void onSuccess(TASK task)
+	{
+		handleTask(SUCCESS, task);
+	}
+
 }

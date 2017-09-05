@@ -75,6 +75,30 @@ public class SingleThreadActivity extends DownloadActivity
 		System.out.println("****" + task.getDownloadLength());
 	}
 
+	@Download.onProgressSpeedChange
+	public void onProgressSpeedChange(DownloadTask task)
+	{
+		System.out.println("--speed--");
+	}
+
+	@Download.onCancel
+	public void onCancel(DownloadTask task)
+	{
+		System.out.println("---cancel");
+	}
+
+	@Download.onError
+	public void onError(DownloadTask task)
+	{
+		System.out.println("=====error");
+	}
+
+	@Download.onSuccess
+	public void onSuccess(DownloadTask task)
+	{
+		System.out.println("---success--");
+	}
+
 	private class DownloaderAdapter extends CommonAdapter<Task>
 	{
 		public DownloaderAdapter(Context context, List<Task> datas, @LayoutRes int layoutId)

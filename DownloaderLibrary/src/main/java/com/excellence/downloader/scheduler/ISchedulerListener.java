@@ -14,4 +14,12 @@ public interface ISchedulerListener<TASK>
 	void onPreExecute(TASK task);
 
 	void onProgressChange(TASK task);
+
+	void onProgressSpeedChange(TASK task);
+
+	void onCancel(TASK task);
+
+	void onError(TASK task);
+
+	void onSuccess(TASK task);
 }

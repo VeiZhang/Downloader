@@ -23,6 +23,30 @@ public class SchedulerListener<TASK> implements ISchedulerListener<TASK>
 
 	}
 
+	@Override
+	public void onProgressSpeedChange(TASK task)
+	{
+
+	}
+
+	@Override
+	public void onCancel(TASK task)
+	{
+
+	}
+
+	@Override
+	public void onError(TASK task)
+	{
+
+	}
+
+	@Override
+	public void onSuccess(TASK task)
+	{
+
+	}
+
 	public void setListener(Object obj)
 	{
 

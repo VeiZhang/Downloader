@@ -366,6 +366,16 @@ public class FileDownloader
 		}
 
 		/**
+		 * 获取下载速度:byte/s
+		 * 
+		 * @return
+		 */
+		public long getDownloadSpeed()
+		{
+			return mTaskEntity.downloadSpeed;
+		}
+
+		/**
 		 * 获取下载链接
 		 *
 		 * @return
