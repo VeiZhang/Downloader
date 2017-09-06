@@ -230,7 +230,7 @@ public class FileDownloader
 				public void onError(DownloadError error)
 				{
 					mTaskEntity.setStatus(STATUS_ERROR);
-					mDownloadScheduler.onCancel(DownloadTask.this);
+					mDownloadScheduler.onError(DownloadTask.this);
 					schedule();
 					if (listener != null)
 						listener.onError(error);

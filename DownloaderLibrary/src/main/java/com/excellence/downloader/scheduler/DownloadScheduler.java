@@ -205,7 +205,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 	@Override
 	public void onError(TASK task)
 	{
-		handleTask(CANCEL, task);
+		handleTask(ERROR, task);
 	}
 
 	@Override
