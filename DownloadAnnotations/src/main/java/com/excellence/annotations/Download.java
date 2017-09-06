@@ -45,7 +45,7 @@ public @interface Download
 
 	/**
 	 * 下载进行中，下载速度byte/s
-	 * @see com.excellence.downloader.FileDownloader.DownloadTask#getDownloadLength()
+	 * @see com.excellence.downloader.FileDownloader.DownloadTask#getDownloadSpeed()
 	 *
 	 */
 	@Retention(RetentionPolicy.CLASS)
