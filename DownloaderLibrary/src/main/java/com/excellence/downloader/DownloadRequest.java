@@ -1,16 +1,16 @@
 package com.excellence.downloader;
 
-import java.io.File;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import android.support.annotation.NonNull;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.utils.IListener;
 import com.excellence.downloader.utils.OnFileInfoCallback;
 
-import android.support.annotation.NonNull;
+import java.io.File;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * <pre>
@@ -51,7 +51,8 @@ public class DownloadRequest
 				File storeFile = mTaskEntity.storeFile;
 				if (storeFile.exists() && storeFile.length() == mTaskEntity.fileSize)
 				{
-					mHttpDownloadTask.onProgressChange(mTaskEntity.fileSize, mTaskEntity.fileSize);
+					mTaskEntity.downloadLen = mTaskEntity.fileSize;
+					mHttpDownloadTask.onProgressChange(mTaskEntity.downloadLen, mTaskEntity.fileSize);
 					mHttpDownloadTask.onSuccess();
 					return;
 				}
