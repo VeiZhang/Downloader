@@ -15,7 +15,7 @@ import static com.excellence.compiler.ProxyConstance.ERROR;
 import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
 import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
 import static com.excellence.compiler.ProxyConstance.PROGRESS_SPEED_CHANGE;
-import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOADE;
+import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOAD;
 import static com.excellence.compiler.ProxyConstance.SUCCESS;
 import static java.util.Collections.unmodifiableSet;
 
@@ -142,7 +142,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 
 	private String getProxySuffix()
 	{
-		return PROXY_SUFFIX_DOWNLOADE;
+		return PROXY_SUFFIX_DOWNLOAD;
 	}
 
 	private void handleTask(int status, TASK task)

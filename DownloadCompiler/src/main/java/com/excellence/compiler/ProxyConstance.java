@@ -40,7 +40,7 @@ public interface ProxyConstance
 	 */
 	String PKG_FILEDOWNLOADER = "com.excellence.downloader.FileDownloader";
 	String CLS_DOWNLOADER_TASK = "DownloadTask";
-	String PROXY_SUFFIX_DOWNLOADE = "$$DownloadListenerProxy";
+	String PROXY_SUFFIX_DOWNLOAD = "$$DownloadListenerProxy";
 	String LISTENER_KEY_MAP = "keyMapping";
 
 	String PKG_SCHEDULER = "com.excellence.downloader.scheduler";
