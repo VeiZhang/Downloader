@@ -1,11 +1,11 @@
 package com.zv.downloader;
 
-import java.io.File;
-
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.widget.ListView;
+
+import java.io.File;
 
 /**
  * <pre>
@@ -21,7 +21,7 @@ public abstract class DownloadActivity extends AppCompatActivity
 	/**
 	 * LOCAL_IP是基于本地服务器测试的链接，如果本地服务器关闭，则下载失败
 	 */
-	private static final String LOCAL_IP =  "http://192.168.33.17/";
+	private static final String LOCAL_IP = "http://192.168.33.17/";
 	protected static final String FILMON_URL = LOCAL_IP + "Filmon.apk";
 	protected static final String ROMUPDATE_URL = LOCAL_IP + "RomUpdate_V101_FW101_01_00_20170214.bin";
 	protected static final String QQ_URL = "http://gdown.baidu.com/data/wisegame/dc429998555b7d4d/QQ_398.apk";

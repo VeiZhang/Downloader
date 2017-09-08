@@ -189,7 +189,6 @@ public class FileDownloader
 			TaskEntity taskEntity = new TaskEntity();
 			taskEntity.storeFile = storeFile;
 			taskEntity.url = url;
-			taskEntity.key = url + "_" + storeFile.getPath();
 			taskEntity.threadCount = mThreadCount;
 			mTaskEntity = taskEntity;
 			mRequest = new DownloadRequest(taskEntity, mResponsePoster, new IListener()
@@ -396,7 +395,7 @@ public class FileDownloader
 		 */
 		public String getKey()
 		{
-			return mTaskEntity.key;
+			return mTaskEntity.url;
 		}
 	}
 }

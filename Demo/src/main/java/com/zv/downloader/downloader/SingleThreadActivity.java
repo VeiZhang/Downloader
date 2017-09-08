@@ -66,37 +66,51 @@ public class SingleThreadActivity extends DownloadActivity
 	@Download.onPreExecute
 	public void onPre(DownloadTask task)
 	{
-		System.out.println("----" + task.getDownloadLength());
+		/**
+		 * 注解不添加URL，则获取全部任务的下载监听；
+		 * 加了URL，则过滤出对应的任务的下载监听
+		 * 如：@Download.onPreExecute({QQ_URL, ANGRYBIRDS_URL})
+		 */
 	}
 
 	@Download.onProgressChange
 	public void onProgressChange(DownloadTask task)
 	{
-		System.out.println("****" + task.getDownloadLength());
+		/**
+		 * @see #onPre(DownloadTask) 
+		 */
 	}
 
 	@Download.onProgressSpeedChange
 	public void onProgressSpeedChange(DownloadTask task)
 	{
-		System.out.println("--speed--");
+		/**
+		 * @see #onPre(DownloadTask)
+		 */
 	}
 
 	@Download.onCancel
 	public void onCancel(DownloadTask task)
 	{
-		System.out.println("---cancel");
+		/**
+		 * @see #onPre(DownloadTask)
+		 */
 	}
 
 	@Download.onError
 	public void onError(DownloadTask task)
 	{
-		System.out.println("=====error");
+		/**
+		 * @see #onPre(DownloadTask)
+		 */
 	}
 
 	@Download.onSuccess
 	public void onSuccess(DownloadTask task)
 	{
-		System.out.println("---success--");
+		/**
+		 * @see #onPre(DownloadTask)
+		 */
 	}
 
 	private class DownloaderAdapter extends CommonAdapter<Task>

@@ -33,14 +33,9 @@ public class TaskEntity
 	public File tempFile = null;
 
 	/**
-	 * 下载链接
+	 * 下载链接，同时也是下载标识
 	 */
 	public String url = null;
-
-	/**
-	 * 下载唯一标识：url + "_" + storeFile.getPath()
-	 */
-	public String key = null;
 
 	/**
 	 * 是否支持断点
