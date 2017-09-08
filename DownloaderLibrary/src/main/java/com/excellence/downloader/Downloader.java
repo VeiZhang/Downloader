@@ -113,6 +113,7 @@ public class Downloader
 	 * @param listener
 	 * @return 下载任务
 	 */
+	@Deprecated
 	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, IListener listener)
 	{
 		checkDownloader();
@@ -127,6 +128,7 @@ public class Downloader
 	 * @param listener
 	 * @return 下载任务
 	 */
+	@Deprecated
 	public static DownloadTask addTask(@NonNull String filePath, @NonNull String url, IListener listener)
 	{
 		return addTask(new File(filePath), url, listener);
@@ -184,12 +186,22 @@ public class Downloader
 			mInstace.mFileDownloader.clearAll();
 	}
 
+	/**
+	 * 注册，创建监听
+	 *
+	 * @param obj
+	 */
 	public static void register(Object obj)
 	{
 		checkDownloader();
 		mInstace.mDownloadScheduler.register(obj);
 	}
 
+	/**
+	 * 解绑
+	 *
+	 * @param obj
+	 */
 	public static void unregister(Object obj)
 	{
 		checkDownloader();

@@ -42,7 +42,7 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 	}
 
 	/**
-	 * 代理参数获取
+	 * 初始化代理参数，获取注解类集合
 	 */
 	private void initDownloadCounter()
 	{
@@ -77,6 +77,11 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 		}
 	}
 
+	/**
+	 * 注册，创建监听类
+	 *
+	 * @param obj
+	 */
 	public void register(Object obj)
 	{
 		String targetName = obj.getClass().getName();
@@ -120,6 +125,11 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 		return listener;
 	}
 
+	/**
+	 * 解绑
+	 *
+	 * @param obj
+	 */
 	public void unregister(Object obj)
 	{
 		for (Iterator<Entry<String, SchedulerListener<TASK>>> iterator = mObservers.entrySet().iterator(); iterator.hasNext();)

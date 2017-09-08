@@ -230,9 +230,9 @@ public class FileDownloader
 				{
 					mTaskEntity.setStatus(STATUS_ERROR);
 					mDownloadScheduler.onError(DownloadTask.this);
-					schedule();
 					if (listener != null)
 						listener.onError(error);
+					schedule();
 				}
 
 				@Override
@@ -240,9 +240,9 @@ public class FileDownloader
 				{
 					mTaskEntity.setStatus(STATUS_SUCCESS);
 					mDownloadScheduler.onSuccess(DownloadTask.this);
-					remove(DownloadTask.this);
 					if (listener != null)
 						listener.onSuccess();
+					remove(DownloadTask.this);
 				}
 			});
 		}
