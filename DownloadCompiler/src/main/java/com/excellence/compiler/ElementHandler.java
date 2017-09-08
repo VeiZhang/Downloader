@@ -145,6 +145,7 @@ public class ElementHandler
 		case DOWNLOAD:
 			keys = getDownloadValues(method, annotationType);
 			addListenerMapping(clsName, COUNT_DOWNLOAD);
+			break;
 		}
 		return keys == null ? null : convertSet(keys);
 	}
