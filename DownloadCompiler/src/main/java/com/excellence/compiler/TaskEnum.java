@@ -1,7 +1,7 @@
 package com.excellence.compiler;
 
 import static com.excellence.compiler.ProxyConstance.CLS_DOWNLOADER_TASK;
-import static com.excellence.compiler.ProxyConstance.PKG_FILEDOWNLOADER;
+import static com.excellence.compiler.ProxyConstance.PKG_FILE_DOWNLOADER;
 import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOAD;
 
 /**
@@ -15,7 +15,7 @@ import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOAD;
 
 public enum TaskEnum
 {
-	DOWNLOAD(PKG_FILEDOWNLOADER, CLS_DOWNLOADER_TASK, PROXY_SUFFIX_DOWNLOAD);
+	DOWNLOAD(PKG_FILE_DOWNLOADER, CLS_DOWNLOADER_TASK, PROXY_SUFFIX_DOWNLOAD);
 
 	private String pkg;
 	private String className;

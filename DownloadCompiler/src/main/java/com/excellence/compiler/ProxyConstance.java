@@ -38,7 +38,7 @@ public interface ProxyConstance
 	/**
 	 * Downloader类名、包名、方法名、代理后缀名
 	 */
-	String PKG_FILEDOWNLOADER = "com.excellence.downloader.FileDownloader";
+	String PKG_FILE_DOWNLOADER = "com.excellence.downloader.FileDownloader";
 	String CLS_DOWNLOADER_TASK = "DownloadTask";
 	String PROXY_SUFFIX_DOWNLOAD = "$$DownloadListenerProxy";
 	String LISTENER_KEY_MAP = "keyMapping";
