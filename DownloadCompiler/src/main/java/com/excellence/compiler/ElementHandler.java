@@ -250,7 +250,7 @@ public class ElementHandler
 
 	/**
 	 * 每一种注解对应的类集合
-	 * 生成路径 Demo/build/generated/source/apt/debug/com/excellence/downloaderProxyClassCounter
+	 * 生成路径 Demo/build/generated/source/apt/debug/com/excellence/downloader/ProxyClassCounter
 	 */
 	private void createProxyClassFile() throws Exception
 	{
