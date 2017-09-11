@@ -6,7 +6,8 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.3'
-
+        // 添加，上传依赖库时添加
+        classpath 'com.novoda:bintray-release:0.3.4'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -20,4 +21,16 @@ allprojects {
 
 task clean(type: Delete) {
     delete rootProject.buildDir
+}
+
+// 添加
+// 为了上传多个module统一管理
+ext {
+    userOrg = 'veizhang'
+    groupId = 'com.excellence'
+    uploadName = 'downloader'
+    publishVersion = '1.1.0'
+    desc = 'Android下载器'
+    website = 'https://github.com/VeiZhang/Downloader'
+    licences = ['Apache-2.0']
 }
