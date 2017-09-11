@@ -53,7 +53,7 @@ compile project(':DownloaderLibrary')
 
     推荐使用**注解方式**监听
     * **注解监听**
-        ```
+        ```java
         // 注册
         Downloader.register(this);
 
