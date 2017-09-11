@@ -271,6 +271,7 @@ public class ElementHandler
 		MethodSpec structure = MethodSpec.constructorBuilder().addModifiers(Modifier.PUBLIC).addCode(cb.build()).build();
 		builder.addMethod(structure);
 		builder.addMethod(createMethod(COUNT_METHOD_DOWNLOAD, COUNT_DOWNLOAD));
+		builder.addJavadoc("该文件为自动生成的代理文件，请不要修改该文件的任何代码！\n");
 		JavaFile javaFile = JavaFile.builder(PROXY_COUNTER_PACKAGE, builder.build()).build();
 		createFile(javaFile);
 	}
