@@ -50,7 +50,9 @@ compile project(':DownloaderLibrary')
     ```
 
 * 监听两种方式
-    * 注解监听
+
+    推荐使用**注解方式**监听
+    * **注解监听**
         ```
         // 注册
         Downloader.register(this);

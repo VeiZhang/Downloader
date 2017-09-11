@@ -106,7 +106,7 @@ public class Downloader
 	}
 
 	/**
-	 * 新建下载任务
+	 * 新建下载任务，推荐注解方式{@link #register(Object)}
 	 *
 	 * @param storeFile 文件
 	 * @param url 下载链接
@@ -121,7 +121,7 @@ public class Downloader
 	}
 
 	/**
-	 * 新建下载任务
+	 * 新建下载任务，推荐注解方式{@link #register(Object)}
 	 *
 	 * @param filePath 文件路径
 	 * @param url 下载链接
