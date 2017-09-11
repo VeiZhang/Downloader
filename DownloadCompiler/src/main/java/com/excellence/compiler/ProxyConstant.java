@@ -9,7 +9,7 @@ package com.excellence.compiler;
  * </pre>
  */
 
-public interface ProxyConstance
+public interface ProxyConstant
 {
 	/**
 	 * 设置观察者的方法

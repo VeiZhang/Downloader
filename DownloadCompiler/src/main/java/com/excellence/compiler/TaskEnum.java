@@ -1,8 +1,8 @@
 package com.excellence.compiler;
 
-import static com.excellence.compiler.ProxyConstance.CLS_DOWNLOADER_TASK;
-import static com.excellence.compiler.ProxyConstance.PKG_FILE_DOWNLOADER;
-import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstant.CLS_DOWNLOADER_TASK;
+import static com.excellence.compiler.ProxyConstant.PKG_FILE_DOWNLOADER;
+import static com.excellence.compiler.ProxyConstant.PROXY_SUFFIX_DOWNLOAD;
 
 /**
  * <pre>

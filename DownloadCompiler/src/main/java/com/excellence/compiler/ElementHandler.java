@@ -1,20 +1,20 @@
 package com.excellence.compiler;
 
-import static com.excellence.compiler.ProxyConstance.CANCEL;
-import static com.excellence.compiler.ProxyConstance.CLS_SCHEDULER_LISTENER;
-import static com.excellence.compiler.ProxyConstance.COUNT_DOWNLOAD;
-import static com.excellence.compiler.ProxyConstance.COUNT_METHOD_DOWNLOAD;
-import static com.excellence.compiler.ProxyConstance.ERROR;
-import static com.excellence.compiler.ProxyConstance.LISTENER_KEY_MAP;
-import static com.excellence.compiler.ProxyConstance.PKG_SCHEDULER;
-import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
-import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_MAP;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_NAME;
-import static com.excellence.compiler.ProxyConstance.PROXY_COUNTER_PACKAGE;
-import static com.excellence.compiler.ProxyConstance.PROGRESS_SPEED_CHANGE;
-import static com.excellence.compiler.ProxyConstance.SET_LISTENER;
-import static com.excellence.compiler.ProxyConstance.SUCCESS;
+import static com.excellence.compiler.ProxyConstant.CANCEL;
+import static com.excellence.compiler.ProxyConstant.CLS_SCHEDULER_LISTENER;
+import static com.excellence.compiler.ProxyConstant.COUNT_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstant.COUNT_METHOD_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstant.ERROR;
+import static com.excellence.compiler.ProxyConstant.LISTENER_KEY_MAP;
+import static com.excellence.compiler.ProxyConstant.PKG_SCHEDULER;
+import static com.excellence.compiler.ProxyConstant.PRE_EXECUTE;
+import static com.excellence.compiler.ProxyConstant.PROGRESS_CHANGE;
+import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_MAP;
+import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_NAME;
+import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_PACKAGE;
+import static com.excellence.compiler.ProxyConstant.PROGRESS_SPEED_CHANGE;
+import static com.excellence.compiler.ProxyConstant.SET_LISTENER;
+import static com.excellence.compiler.ProxyConstant.SUCCESS;
 import static com.excellence.compiler.TaskEnum.DOWNLOAD;
 
 import java.lang.annotation.Annotation;
@@ -154,7 +154,7 @@ public class ElementHandler
 	 * 添加方法映射
 	 *
 	 * @param clsName 注解事件的类
-	 * @param key {@link ProxyConstance#COUNT_DOWNLOAD}
+	 * @param key {@link ProxyConstant#COUNT_DOWNLOAD}
 	 */
 	private void addListenerMapping(String clsName, String key)
 	{

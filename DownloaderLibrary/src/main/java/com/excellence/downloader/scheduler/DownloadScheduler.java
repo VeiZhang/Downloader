@@ -10,13 +10,13 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static com.excellence.compiler.ProxyConstance.CANCEL;
-import static com.excellence.compiler.ProxyConstance.ERROR;
-import static com.excellence.compiler.ProxyConstance.PRE_EXECUTE;
-import static com.excellence.compiler.ProxyConstance.PROGRESS_CHANGE;
-import static com.excellence.compiler.ProxyConstance.PROGRESS_SPEED_CHANGE;
-import static com.excellence.compiler.ProxyConstance.PROXY_SUFFIX_DOWNLOAD;
-import static com.excellence.compiler.ProxyConstance.SUCCESS;
+import static com.excellence.compiler.ProxyConstant.CANCEL;
+import static com.excellence.compiler.ProxyConstant.ERROR;
+import static com.excellence.compiler.ProxyConstant.PRE_EXECUTE;
+import static com.excellence.compiler.ProxyConstant.PROGRESS_CHANGE;
+import static com.excellence.compiler.ProxyConstant.PROGRESS_SPEED_CHANGE;
+import static com.excellence.compiler.ProxyConstant.PROXY_SUFFIX_DOWNLOAD;
+import static com.excellence.compiler.ProxyConstant.SUCCESS;
 import static java.util.Collections.unmodifiableSet;
 
 /**
