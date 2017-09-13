@@ -20,9 +20,8 @@ publish {
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     artifactId = 'downloader-compiler'
-    uploadName = rootProject.uploadName
     publishVersion = rootProject.publishVersion
-    desc = rootProject.description
+    desc = 'Android下载编译器'
     website = rootProject.website
     licences = rootProject.licences
 }

@@ -28,9 +28,7 @@ task clean(type: Delete) {
 ext {
     userOrg = 'veizhang'
     groupId = 'com.excellence'
-    uploadName = 'downloader'
     publishVersion = '1.1.0'
-    desc = 'Android下载器'
     website = 'https://github.com/VeiZhang/Downloader'
     licences = ['Apache-2.0']
 }

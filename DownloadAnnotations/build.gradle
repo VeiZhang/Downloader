@@ -17,9 +17,8 @@ publish {
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     artifactId = 'downloader-annotations'
-    uploadName = rootProject.uploadName
     publishVersion = rootProject.publishVersion
-    desc = rootProject.description
+    desc = 'Android下载注解'
     website = rootProject.website
     licences = rootProject.licences
 }
