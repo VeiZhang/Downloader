@@ -4,7 +4,7 @@
 
 DownloaderLibrary<a name="DownloaderLibrary">
 ----------------------------
-[![Bintray][icon_Bintray]][Bintray]
+[![Download][icon_download]][download]
 [![GitHub forks][icon_forks]][forks]
 [![GitHub stars][icon_stars]][stars]
 
@@ -181,12 +181,12 @@ compile project(':DownloaderLibrary')
 
 
 <!-- 网站链接 -->
-[Bintray]:https://bintray.com/veizhang/maven/downloader "Bintray"
+[download]:https://bintray.com/veizhang/maven/downloader/_latestVersion "Latest version"
 [forks]:https://github.com/VeiZhang/Downloader/network/members
 [stars]:https://github.com/VeiZhang/Downloader/stargazers
 
 <!-- 图片链接 -->
-[icon_Bintray]:https://img.shields.io/badge/Bintray-v1.0.0-brightgreen.svg
+[icon_download]:https://img.shields.io/badge/Download-1.1.0-blue.svg
 [icon_forks]:https://img.shields.io/github/forks/VeiZhang/Downloader.svg?style=social
 [icon_stars]:https://img.shields.io/github/stars/VeiZhang/Downloader.svg?style=social
 
