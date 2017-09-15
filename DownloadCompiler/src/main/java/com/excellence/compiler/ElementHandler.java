@@ -9,10 +9,10 @@ import static com.excellence.compiler.ProxyConstant.LISTENER_KEY_MAP;
 import static com.excellence.compiler.ProxyConstant.PKG_SCHEDULER;
 import static com.excellence.compiler.ProxyConstant.PRE_EXECUTE;
 import static com.excellence.compiler.ProxyConstant.PROGRESS_CHANGE;
+import static com.excellence.compiler.ProxyConstant.PROGRESS_SPEED_CHANGE;
 import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_MAP;
 import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_NAME;
 import static com.excellence.compiler.ProxyConstant.PROXY_COUNTER_PACKAGE;
-import static com.excellence.compiler.ProxyConstant.PROGRESS_SPEED_CHANGE;
 import static com.excellence.compiler.ProxyConstant.SET_LISTENER;
 import static com.excellence.compiler.ProxyConstant.SUCCESS;
 import static com.excellence.compiler.TaskEnum.DOWNLOAD;
@@ -21,6 +21,7 @@ import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,6 +33,7 @@ import javax.lang.model.element.ExecutableElement;
 import javax.lang.model.element.Modifier;
 import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.VariableElement;
 import javax.lang.model.util.Elements;
 
 import com.excellence.annotations.Download;
@@ -207,7 +209,7 @@ public class ElementHandler
 	}
 
 	/**
-	 * 检查和下载相关的方法，如果被注解的方法为private或参数不合法，则抛出异常
+	 * 检查和下载相关的方法，如果被注解的方法为private或参数不合法：唯一参数类型{@link com.excellence.downloader.FileDownloader.DownloadTask}，否则抛出异常
 	 *
 	 * @param taskEnum
 	 * @param method
@@ -220,18 +222,12 @@ public class ElementHandler
 		if (modifiers.contains(Modifier.PRIVATE))
 			throw new IllegalAccessError(className + "." + methodName + "不能为private方法");
 
-		/**
 		List<VariableElement> params = (List<VariableElement>) method.getParameters();
-		if (params.size() > 1)
-			throw new IllegalArgumentException(className + "." + methodName + "参数错误，参数只有一个，且参数必须是" + getChekcParams(taskEnum));
-		if (!params.get(0).asType().toString().equals(getChekcParams(taskEnum)))
-			throw new IllegalArgumentException(className + "." + methodName + "参数[" + params.get(0).getSimpleName() + "]类型错误，参数必须是" + getChekcParams(taskEnum));
-		 */
-	}
-
-	private String getChekcParams(TaskEnum taskEnum)
-	{
-		return taskEnum.getPkg() + "." + taskEnum.getClassName();
+		String paramCls = taskEnum.getPkg() + "." + taskEnum.getClassName();
+		if (params == null || params.size() != 1)
+			throw new IllegalArgumentException(className + "." + methodName + "参数错误，参数只有一个，且参数必须是" + paramCls);
+		if (!params.get(0).asType().toString().equals(paramCls))
+			throw new IllegalArgumentException(className + "." + methodName + "参数[" + params.get(0).getSimpleName() + "]类型错误，参数必须是" + paramCls);
 	}
 
 	public void createProxyFile()
