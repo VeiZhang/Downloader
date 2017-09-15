@@ -23,7 +23,7 @@ DownloaderLibrary<a name="DownloaderLibrary">
 添加jCenter远程依赖到module里的build.gradle：
 ```
 dependencies {
-    compile 'com.excellence:downloader:1.0.0'
+    compile 'com.excellence:downloader:1.1.0'
     // 或者直接使用最新版本
     // compile 'com.excellence:downloader:+'
   }
@@ -175,6 +175,7 @@ compile project(':DownloaderLibrary')
 ### 修改日志
 |         版本         |         描述         |
 | ------------------- | ------------------- |
+| [1.1.0][DownloadLibrary1.1.0] | 注解监听任务 **2017-9-13** |
 | [1.0.0][DownloadLibrary1.0.0] | 多任务单线程下载，临时下载文件长度保存断点记录  **2017-8-11** |
 
 
@@ -191,4 +192,5 @@ compile project(':DownloaderLibrary')
 [icon_stars]:https://img.shields.io/github/stars/VeiZhang/Downloader.svg?style=social
 
 <!-- 版本 -->
+[DownloadLibrary1.1.0]:https://bintray.com/veizhang/maven/downloader/1.1.0
 [DownloadLibrary1.0.0]:https://bintray.com/veizhang/maven/downloader/1.0.0
