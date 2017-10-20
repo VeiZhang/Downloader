@@ -3,6 +3,7 @@ package com.excellence.downloader;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Build;
+import android.os.Looper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -141,6 +142,7 @@ public class Downloader
 	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, IListener listener)
 	{
 		checkDownloader();
+		checkMainThread();
 		return mInstace.mFileDownloader.addTask(storeFile, url, listener);
 	}
 
@@ -202,6 +204,15 @@ public class Downloader
 	}
 
 	/**
+	 * 检测是否在主线程中
+	 */
+	private static void checkMainThread()
+	{
+		if (Looper.myLooper() != Looper.getMainLooper())
+			throw new RuntimeException("Downloader should be main thread!!!");
+	}
+
+	/**
 	 * 关闭下载器
 	 */
 	public static void destroy()
@@ -218,6 +229,7 @@ public class Downloader
 	public static void register(Object obj)
 	{
 		checkDownloader();
+		checkMainThread();
 		mInstace.mDownloadScheduler.register(obj);
 	}
 
