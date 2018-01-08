@@ -40,7 +40,7 @@ public class Downloader
 	public static final int DEFAULT_TASK_COUNT = 2;
 	public static final int DEFAULT_THREAD_COUNT = 1;
 
-	private static Downloader mInstace = null;
+	private static Downloader mInstance = null;
 	private FileDownloader mFileDownloader = null;
 	private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
 
@@ -68,7 +68,7 @@ public class Downloader
 	 */
 	public static void init(@NonNull Context context, @IntRange(from = 1) int parallelTaskCount, @IntRange(from = 1) int threadCount)
 	{
-		if (mInstace != null)
+		if (mInstance != null)
 		{
 			Log.w(TAG, "Downloader initialized!!!");
 			return;
@@ -79,15 +79,15 @@ public class Downloader
 			Log.w(TAG, "ParallelTaskCount is beyond!!!");
 			parallelTaskCount = Runtime.getRuntime().availableProcessors() == 1 ? 1 : Runtime.getRuntime().availableProcessors() - 1;
 		}
-		mInstace = new Downloader();
-		mInstace.mDownloadScheduler = new DownloadScheduler<>();
-		mInstace.mFileDownloader = new FileDownloader(mInstace.mDownloadScheduler, parallelTaskCount, threadCount);
+		mInstance = new Downloader();
+		mInstance.mDownloadScheduler = new DownloadScheduler<>();
+		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler, parallelTaskCount, threadCount);
 		checkPermission(context);
 	}
 
 	/**
 	 * Android6.0以后动态申请文件读写权限
-	 * 
+	 *
 	 * @param context
 	 */
 	private static void checkPermission(Context context)
@@ -138,12 +138,11 @@ public class Downloader
 	 * @param listener
 	 * @return 下载任务
 	 */
-	@Deprecated
 	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, IListener listener)
 	{
 		checkDownloader();
 		checkMainThread();
-		return mInstace.mFileDownloader.addTask(storeFile, url, listener);
+		return mInstance.mFileDownloader.addTask(storeFile, url, listener);
 	}
 
 	/**
@@ -154,7 +153,6 @@ public class Downloader
 	 * @param listener
 	 * @return 下载任务
 	 */
-	@Deprecated
 	public static DownloadTask addTask(@NonNull String filePath, @NonNull String url, IListener listener)
 	{
 		return addTask(new File(filePath), url, listener);
@@ -170,7 +168,7 @@ public class Downloader
 	public static DownloadTask get(File storeFile, String url)
 	{
 		checkDownloader();
-		return mInstace.mFileDownloader.get(storeFile, url);
+		return mInstance.mFileDownloader.get(storeFile, url);
 	}
 
 	/**
@@ -183,7 +181,7 @@ public class Downloader
 	public static DownloadTask get(String filePath, String url)
 	{
 		checkDownloader();
-		return mInstace.mFileDownloader.get(filePath, url);
+		return mInstance.mFileDownloader.get(filePath, url);
 	}
 
 	/**
@@ -194,12 +192,12 @@ public class Downloader
 	public static LinkedList<DownloadTask> getTaskQueue()
 	{
 		checkDownloader();
-		return mInstace.mFileDownloader.getTaskQueue();
+		return mInstance.mFileDownloader.getTaskQueue();
 	}
 
 	private static void checkDownloader()
 	{
-		if (mInstace == null)
+		if (mInstance == null)
 			throw new RuntimeException("Downloader not initialized!!!");
 	}
 
@@ -217,8 +215,8 @@ public class Downloader
 	 */
 	public static void destroy()
 	{
-		if (mInstace.mFileDownloader != null)
-			mInstace.mFileDownloader.clearAll();
+		if (mInstance.mFileDownloader != null)
+			mInstance.mFileDownloader.clearAll();
 	}
 
 	/**
@@ -230,7 +228,7 @@ public class Downloader
 	{
 		checkDownloader();
 		checkMainThread();
-		mInstace.mDownloadScheduler.register(obj);
+		mInstance.mDownloadScheduler.register(obj);
 	}
 
 	/**
@@ -241,6 +239,6 @@ public class Downloader
 	public static void unregister(Object obj)
 	{
 		checkDownloader();
-		mInstace.mDownloadScheduler.unregister(obj);
+		mInstance.mDownloadScheduler.unregister(obj);
 	}
 }
