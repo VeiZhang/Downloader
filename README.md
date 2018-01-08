@@ -13,6 +13,7 @@ DownloaderLibrary<a name="DownloaderLibrary">
 > - 临时文件的下载长度作为断点标记
 
 ### 权限
+
 ```
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -20,6 +21,7 @@ DownloaderLibrary<a name="DownloaderLibrary">
 ```
 
 ### 导入Android Studio
+
 添加jCenter远程依赖到module里的build.gradle：
 ```
 dependencies {
@@ -35,6 +37,7 @@ compile project(':DownloaderLibrary')
 
 
 ### 使用示例
+
 * onCreate方法中初始化
     ```java
     // 默认任务数2，单任务单线程下载
@@ -173,24 +176,32 @@ compile project(':DownloaderLibrary')
     ```
 
 ### 修改日志
+
 |         版本         |         描述         |
 | ------------------- | ------------------- |
 | [1.1.0][DownloadLibrary1.1.0] | 注解监听任务 **2017-9-13** |
 | [1.0.0][DownloadLibrary1.0.0] | 多任务单线程下载，临时下载文件长度保存断点记录  **2017-8-11** |
 
+### 注意事项
 
+* 1.1.0以前的版本，**添加了限制：必须在Activity中初始化**，原因是Android6.0+需要动态申请权限
+* 1.1.0以前的版本，没有适配**畸形国产机的权限（使用原生方法不能申请权限成功）**，需自己实现
+* 1.1.0以后的版本，**去掉在Activity初始化的限制**，但是**畸形国产机权限（使用原生方法不能申请权限成功）**和Android6.0+需要自己实现动态申请文件读写权限，否则会导致下载失败
 
 
 <!-- 网站链接 -->
+
 [download]:https://bintray.com/veizhang/maven/downloader/_latestVersion "Latest version"
 [forks]:https://github.com/VeiZhang/Downloader/network/members
 [stars]:https://github.com/VeiZhang/Downloader/stargazers
 
 <!-- 图片链接 -->
+
 [icon_download]:https://img.shields.io/badge/Download-1.1.0-blue.svg
 [icon_forks]:https://img.shields.io/github/forks/VeiZhang/Downloader.svg?style=social
 [icon_stars]:https://img.shields.io/github/stars/VeiZhang/Downloader.svg?style=social
 
 <!-- 版本 -->
+
 [DownloadLibrary1.1.0]:https://bintray.com/veizhang/maven/downloader/1.1.0
 [DownloadLibrary1.0.0]:https://bintray.com/veizhang/maven/downloader/1.0.0

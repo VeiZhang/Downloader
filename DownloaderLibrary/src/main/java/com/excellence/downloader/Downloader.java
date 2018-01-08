@@ -1,12 +1,9 @@
 package com.excellence.downloader;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Build;
 import android.os.Looper;
 import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.excellence.downloader.FileDownloader.DownloadTask;
@@ -15,10 +12,6 @@ import com.excellence.downloader.utils.IListener;
 
 import java.io.File;
 import java.util.LinkedList;
-
-import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
-import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
-import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 
 /**
  * <pre>
@@ -82,28 +75,6 @@ public class Downloader
 		mInstance = new Downloader();
 		mInstance.mDownloadScheduler = new DownloadScheduler<>();
 		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler, parallelTaskCount, threadCount);
-		checkPermission(context);
-	}
-
-	/**
-	 * Android6.0以后动态申请文件读写权限
-	 *
-	 * @param context
-	 */
-	private static void checkPermission(Context context)
-	{
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-		{
-			String[] PERMISSIONS_STORAGE = { READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE };
-			int permission = ActivityCompat.checkSelfPermission(context, WRITE_EXTERNAL_STORAGE);
-			if (permission != PERMISSION_GRANTED)
-			{
-				if (context instanceof Activity)
-					ActivityCompat.requestPermissions((Activity) context, PERMISSIONS_STORAGE, 1);
-				else
-					throw new RuntimeException("Context should be activity for Android 6.0 or later to request permission!!!");
-			}
-		}
 	}
 
 	/**
