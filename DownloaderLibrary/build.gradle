@@ -1,5 +1,4 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 25
@@ -34,6 +33,9 @@ dependencies {
     compile project(':DownloadCompiler')
 }
 
+/*********************上传jCenter依赖*********************/
+apply plugin: 'com.novoda.bintray-release'
+
 /**避免中文注释:编码GBK的不可映射字符**/
 tasks.withType(Javadoc) {
     options {
@@ -51,6 +53,9 @@ tasks.withType(Javadoc) {
 
 /**发布到我的Bintray仓库**/
 publish {
+    bintrayUser = rootProject.bintrayUser
+    bintrayKey = rootProject.bintrayKey
+    dryRun = Boolean.parseBoolean(rootProject.dryRun)
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     artifactId = 'downloader'

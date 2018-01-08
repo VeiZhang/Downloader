@@ -1,5 +1,4 @@
 apply plugin: 'java'
-apply plugin: 'com.novoda.bintray-release'
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
@@ -12,8 +11,14 @@ tasks.withType(JavaCompile) {
 sourceCompatibility = JavaVersion.VERSION_1_7
 targetCompatibility = JavaVersion.VERSION_1_7
 
+/*********************上传jCenter依赖*********************/
+apply plugin: 'com.novoda.bintray-release'
+
 /**发布到我的Bintray仓库**/
 publish {
+    bintrayUser = rootProject.bintrayUser
+    bintrayKey = rootProject.bintrayKey
+    dryRun = Boolean.parseBoolean(rootProject.dryRun)
     userOrg = rootProject.userOrg
     groupId = rootProject.groupId
     artifactId = 'downloader-annotations'

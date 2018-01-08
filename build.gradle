@@ -7,7 +7,7 @@ buildscript {
     dependencies {
         classpath 'com.android.tools.build:gradle:2.3.0'
         // 添加，上传依赖库时添加
-        classpath 'com.novoda:bintray-release:0.3.4'
+        classpath 'com.novoda:bintray-release:0.8.0'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -23,12 +23,39 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
+/*********************上传jCenter依赖*********************/
+
+/**发布到我的Bintray仓库**/
+def user = getPropertyValue('bintrayUser')
+def key = getPropertyValue('bintrayKey')
+def org = getPropertyValue('userOrg')
+
 // 添加
 // 为了上传多个module统一管理
 ext {
-    userOrg = 'veizhang'
+    bintrayUser = user
+    bintrayKey = key
+    dryRun = 'false'
+    userOrg = org
     groupId = 'com.excellence'
     publishVersion = '1.1.0'
     website = 'https://github.com/VeiZhang/Downloader'
     licences = ['Apache-2.0']
+}
+
+/**读取bintray.key文件的key**/
+def getPropertyValue(String key) {
+    if (key == null || key.length() == 0)
+        return null
+
+    File file = project.rootProject.file('../../bintray.key')
+    if (!file.exists())
+        return null
+
+    InputStream inputStream = file.newDataInputStream()
+    Properties properties = new Properties()
+    properties.load(inputStream)
+
+    //读取Key
+    return properties.getProperty(key)
 }
