@@ -184,6 +184,8 @@ compile project(':DownloaderLibrary')
 
 ### 注意事项
 
+动态申请权限，可以参考[permission][permission]
+
 * 1.1.0以前的版本，**添加了限制：必须在Activity中初始化**，原因是Android6.0+需要动态申请权限
 * 1.1.0以前的版本，没有适配**畸形国产机的权限（使用原生方法不能申请权限成功）**，需自己实现
 * 1.1.0以后的版本，**去掉在Activity初始化的限制**，但是**畸形国产机权限（使用原生方法不能申请权限成功）** 和Android6.0+需要自己实现动态申请文件读写权限，否则会导致下载失败
@@ -194,6 +196,7 @@ compile project(':DownloaderLibrary')
 [download]:https://bintray.com/veizhang/maven/downloader/_latestVersion "Latest version"
 [forks]:https://github.com/VeiZhang/Downloader/network/members
 [stars]:https://github.com/VeiZhang/Downloader/stargazers
+[permission]:https://github.com/VeiZhang/Permission
 
 <!-- 图片链接 -->
 
