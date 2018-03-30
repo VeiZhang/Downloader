@@ -197,7 +197,7 @@ compile project(':DownloaderLibrary')
 
 <!-- 图片链接 -->
 
-[icon_download]:https://img.shields.io/badge/Download-1.1.0-blue.svg
+[icon_download]:https://api.bintray.com/packages/veizhang/maven/downloader/images/download.svg
 [icon_forks]:https://img.shields.io/github/forks/VeiZhang/Downloader.svg?style=social
 [icon_stars]:https://img.shields.io/github/stars/VeiZhang/Downloader.svg?style=social
 
