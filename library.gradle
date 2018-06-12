@@ -1,4 +1,4 @@
-apply from: "https://github.com/VeiZhang/build.gradle/blob/master/config.gradle?raw=true"
+apply from: '../config.gradle'
 /*********************library通用配置*********************/
 def plugins = rootProject.ext.plugins
 def cfg = rootProject.ext.android
