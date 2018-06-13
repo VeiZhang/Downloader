@@ -35,5 +35,5 @@ dependencies {
     // 本地依赖
     compile project(':DownloaderLibrary')
     // 远程依赖
-    // compile 'com.excellence:downloader:1.1.0'
+    // compile 'com.excellence:downloader:_latestVersion'
 }

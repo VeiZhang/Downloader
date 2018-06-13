@@ -3,10 +3,10 @@
 * [DownloaderLibrary](#DownloaderLibrary)
 
 DownloaderLibrary<a name="DownloaderLibrary">
-----------------------------
+---------------------------------------------
+
 [![Download][icon_download]][download]
-[![GitHub forks][icon_forks]][forks]
-[![GitHub stars][icon_stars]][stars]
+
 
 > - HttpURLConnection下载文件依赖库，实现多任务单线程断点下载
 
@@ -25,9 +25,7 @@ DownloaderLibrary<a name="DownloaderLibrary">
 添加jCenter远程依赖到module里的build.gradle：
 ```
 dependencies {
-    compile 'com.excellence:downloader:1.1.0'
-    // 或者直接使用最新版本
-    // compile 'com.excellence:downloader:+'
+    compile 'com.excellence:downloader:_latestVersion'
   }
 ```
 或者直接添加本地Library依赖
@@ -38,7 +36,7 @@ compile project(':DownloaderLibrary')
 
 ### 使用示例
 
-* onCreate方法中初始化
+* 初始化
     ```java
     // 默认任务数2，单任务单线程下载
     Downloader.init(Context context)
@@ -46,7 +44,7 @@ compile project(':DownloaderLibrary')
     Downloader.init(Context context, int parallelTaskCount, int threadCount)
     ```
 
-* finish结束所有任务
+* 结束任务
     ```java
     // 暂停所有下载任务，使用文件长度保存断点
     Downloader.destroy();
@@ -194,15 +192,11 @@ compile project(':DownloaderLibrary')
 <!-- 网站链接 -->
 
 [download]:https://bintray.com/veizhang/maven/downloader/_latestVersion "Latest version"
-[forks]:https://github.com/VeiZhang/Downloader/network/members
-[stars]:https://github.com/VeiZhang/Downloader/stargazers
 [permission]:https://github.com/VeiZhang/Permission
 
 <!-- 图片链接 -->
 
 [icon_download]:https://api.bintray.com/packages/veizhang/maven/downloader/images/download.svg
-[icon_forks]:https://img.shields.io/github/forks/VeiZhang/Downloader.svg?style=social
-[icon_stars]:https://img.shields.io/github/stars/VeiZhang/Downloader.svg?style=social
 
 <!-- 版本 -->
 
