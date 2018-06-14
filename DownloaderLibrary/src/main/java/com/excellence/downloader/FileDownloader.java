@@ -70,6 +70,10 @@ public class FileDownloader
 		DownloadTask task = get(storeFile, url);
 		if (task != null)
 		{
+			/**
+			 * 重新设置监听器
+			 */
+			task.setListener(listener);
 			task.resume();
 		}
 		else
@@ -183,46 +187,48 @@ public class FileDownloader
 	{
 		private TaskEntity mTaskEntity = null;
 		private DownloadRequest mRequest = null;
+		private IListener mIListener = null;
 
-		public DownloadTask(File storeFile, String url, final IListener listener)
+		public DownloadTask(File storeFile, String url, IListener listener)
 		{
 			TaskEntity taskEntity = new TaskEntity();
 			taskEntity.storeFile = storeFile;
 			taskEntity.url = url;
 			taskEntity.threadCount = mThreadCount;
 			mTaskEntity = taskEntity;
+			mIListener = listener;
 			mRequest = new DownloadRequest(taskEntity, mResponsePoster, new IListener()
 			{
 				@Override
 				public void onPreExecute(long fileSize)
 				{
 					mDownloadScheduler.onPreExecute(DownloadTask.this);
-					if (listener != null)
-						listener.onPreExecute(fileSize);
+					if (mIListener != null)
+						mIListener.onPreExecute(fileSize);
 				}
 
 				@Override
 				public void onProgressChange(long fileSize, long downloadedSize)
 				{
 					mDownloadScheduler.onProgressChange(DownloadTask.this);
-					if (listener != null)
-						listener.onProgressChange(fileSize, downloadedSize);
+					if (mIListener != null)
+						mIListener.onProgressChange(fileSize, downloadedSize);
 				}
 
 				@Override
 				public void onProgressChange(long fileSize, long downloadedSize, long speed)
 				{
 					mDownloadScheduler.onProgressSpeedChange(DownloadTask.this);
-					if (listener != null)
-						listener.onProgressChange(fileSize, downloadedSize, speed);
+					if (mIListener != null)
+						mIListener.onProgressChange(fileSize, downloadedSize, speed);
 				}
 
 				@Override
 				public void onCancel()
 				{
 					mDownloadScheduler.onCancel(DownloadTask.this);
-					if (listener != null)
-						listener.onCancel();
+					if (mIListener != null)
+						mIListener.onCancel();
 				}
 
 				@Override
@@ -230,8 +236,8 @@ public class FileDownloader
 				{
 					mTaskEntity.setStatus(STATUS_ERROR);
 					mDownloadScheduler.onError(DownloadTask.this);
-					if (listener != null)
-						listener.onError(error);
+					if (mIListener != null)
+						mIListener.onError(error);
 					schedule();
 				}
 
@@ -240,11 +246,21 @@ public class FileDownloader
 				{
 					mTaskEntity.setStatus(STATUS_SUCCESS);
 					mDownloadScheduler.onSuccess(DownloadTask.this);
-					if (listener != null)
-						listener.onSuccess();
+					if (mIListener != null)
+						mIListener.onSuccess();
 					remove(DownloadTask.this);
 				}
 			});
+		}
+
+		/**
+		 * 重新设置下载监听器，解决{@link #addTask(File, String, IListener)}里面，任务不为空时，刷新Listener
+		 *
+		 * @param listener
+		 */
+		private void setListener(IListener listener)
+		{
+			mIListener = listener;
 		}
 
 		/**
