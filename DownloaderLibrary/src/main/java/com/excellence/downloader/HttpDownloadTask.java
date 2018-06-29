@@ -12,11 +12,15 @@ import com.excellence.downloader.utils.IListener;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.ByteBuffer;
+import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
+import java.nio.channels.ReadableByteChannel;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
@@ -52,6 +56,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 	private File mTempFile = null;
 	private Timer mSpeedTimer = null;
 	private long mStartLen = 0;
+	private boolean isOpenDynamicFile = true;
 
 	public HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener)
 	{
@@ -78,6 +83,8 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			setConnectParam(conn, mTaskEntity.url);
 			conn.connect();
 
+			BufferedInputStream inputStream = new BufferedInputStream(convertInputStream(conn));
+
 			if (mTaskEntity.isCancel)
 			{
 				onCancel();
@@ -85,29 +92,18 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			}
 
 			printHeader(conn);
-
 			startTimer();
-			BufferedRandomAccessFile randomAccessFile = new BufferedRandomAccessFile(mTempFile, "rwd", STREAM_LEN);
-			randomAccessFile.seek(mTaskEntity.downloadLen);
 
-			BufferedInputStream buffStream = new BufferedInputStream(convertInputStream(conn));
-			byte[] buffer = new byte[STREAM_LEN];
-			int read;
-			while ((read = buffStream.read(buffer)) != -1)
+			if (isOpenDynamicFile)
 			{
-				randomAccessFile.write(buffer, 0, read);
-				mTaskEntity.downloadLen += read;
-				onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
-
-				if (mTaskEntity.isCancel)
-				{
-					onCancel();
-					break;
-				}
-
+				dynamicTransmission(inputStream);
 			}
-			buffStream.close();
-			randomAccessFile.close();
+			else
+			{
+				normalTransmission(inputStream);
+			}
+
+			inputStream.close();
 
 			if (mTaskEntity.isCancel)
 				return true;
@@ -137,6 +133,66 @@ public class HttpDownloadTask extends HttpTask implements IListener
 				conn.disconnect();
 		}
 		return true;
+	}
+
+	/**
+	 * 使用块传输，直接通过追加的形式，写入到文件里
+	 *
+	 * @param inputStream
+	 */
+	private void dynamicTransmission(InputStream inputStream) throws Exception
+	{
+		FileOutputStream outputStream = new FileOutputStream(mTempFile, true);
+		FileChannel channel = outputStream.getChannel();
+		ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
+		ByteBuffer buffer = ByteBuffer.allocate(STREAM_LEN);
+		int read;
+		while ((read = readableByteChannel.read(buffer)) != -1)
+		{
+			buffer.flip();
+			channel.write(buffer);
+			buffer.compact();
+
+			mTaskEntity.downloadLen += read;
+			onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
+
+			if (mTaskEntity.isCancel)
+			{
+				onCancel();
+				break;
+			}
+		}
+		outputStream.close();
+		channel.close();
+		readableByteChannel.close();
+	}
+
+	/**
+	 * 普通的文件传输，优化文件写入速度 {@link RandomAccessFile} -> {@link BufferedRandomAccessFile}
+	 *
+	 * @param inputStream
+	 * @throws Exception
+	 */
+	private void normalTransmission(InputStream inputStream) throws Exception
+	{
+		BufferedRandomAccessFile randomAccessFile = new BufferedRandomAccessFile(mTempFile, "rwd", STREAM_LEN);
+		randomAccessFile.seek(mTaskEntity.downloadLen);
+
+		byte[] buffer = new byte[STREAM_LEN];
+		int read;
+		while ((read = inputStream.read(buffer)) != -1)
+		{
+			randomAccessFile.write(buffer, 0, read);
+			mTaskEntity.downloadLen += read;
+			onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
+
+			if (mTaskEntity.isCancel)
+			{
+				onCancel();
+				break;
+			}
+		}
+		randomAccessFile.close();
 	}
 
 	private void startTimer()
