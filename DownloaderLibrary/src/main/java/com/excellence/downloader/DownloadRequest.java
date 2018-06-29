@@ -7,10 +7,12 @@ import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.utils.IListener;
 import com.excellence.downloader.utils.OnFileInfoCallback;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
 import java.io.File;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 /**
  * <pre>
@@ -30,7 +32,7 @@ public class DownloadRequest
 	public DownloadRequest(@NonNull TaskEntity taskEntity, Executor responsePoster, IListener listener)
 	{
 		mTaskEntity = taskEntity;
-		mExecutor = Executors.newSingleThreadExecutor();
+		mExecutor = new ScheduledThreadPoolExecutor(1, new BasicThreadFactory.Builder().namingPattern("listener-%d").daemon(true).build());
 		mHttpDownloadTask = new HttpDownloadTask(responsePoster, mTaskEntity, listener);
 	}
 
