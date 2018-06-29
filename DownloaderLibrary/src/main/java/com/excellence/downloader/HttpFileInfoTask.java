@@ -50,7 +50,9 @@ public class HttpFileInfoTask extends HttpTask
 		{
 			Log.e(TAG, "Request file info");
 			if (checkNULL(mTaskEntity.url))
+			{
 				throw new URLInvalidError("URL is invalid");
+			}
 
 			URL httpURL = new URL(convertUrl(mTaskEntity.url));
 			conn = (HttpURLConnection) httpURL.openConnection();
@@ -82,12 +84,16 @@ public class HttpFileInfoTask extends HttpTask
 				return true;
 			}
 			else
+			{
 				return false;
+			}
 		}
 		finally
 		{
 			if (conn != null)
+			{
 				conn.disconnect();
+			}
 		}
 		return true;
 	}

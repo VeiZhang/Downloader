@@ -28,7 +28,9 @@ public abstract class HttpTask implements Runnable
 		{
 			Log.e(TAG, "Retry request " + mRequestCount);
 			if (buildRequest())
+			{
 				break;
+			}
 		} while (mRequestCount < MAX_REQUEST_COUNT);
 		mRequestCount = 0;
 	}

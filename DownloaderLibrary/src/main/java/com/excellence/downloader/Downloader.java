@@ -167,7 +167,9 @@ public class Downloader
 	private static void checkDownloader()
 	{
 		if (mInstance == null)
+		{
 			throw new RuntimeException("Downloader not initialized!!!");
+		}
 	}
 
 	/**
@@ -176,7 +178,9 @@ public class Downloader
 	public static void destroy()
 	{
 		if (mInstance.mFileDownloader != null)
+		{
 			mInstance.mFileDownloader.clearAll();
+		}
 	}
 
 	/**

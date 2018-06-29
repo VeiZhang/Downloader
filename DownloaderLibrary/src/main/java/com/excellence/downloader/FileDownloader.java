@@ -111,17 +111,23 @@ public class FileDownloader
 		for (DownloadTask task : mTaskQueue)
 		{
 			if (task.isDownloading())
+			{
 				runTaskCount++;
+			}
 		}
 
 		if (runTaskCount >= mParallelTaskCount)
+		{
 			return;
+		}
 
 		// deploy task to fill parallel task count
 		for (DownloadTask task : mTaskQueue)
 		{
 			if (task.deploy() && ++runTaskCount == mParallelTaskCount)
+			{
 				return;
+			}
 		}
 	}
 
@@ -152,11 +158,15 @@ public class FileDownloader
 	public DownloadTask get(File storeFile, String url)
 	{
 		if (storeFile == null || checkNULL(url))
+		{
 			return null;
+		}
 		for (DownloadTask task : mTaskQueue)
 		{
 			if (task.check(storeFile, url))
+			{
 				return task;
+			}
 		}
 		return null;
 	}
@@ -204,7 +214,9 @@ public class FileDownloader
 				{
 					mDownloadScheduler.onPreExecute(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onPreExecute(fileSize);
+					}
 				}
 
 				@Override
@@ -212,7 +224,9 @@ public class FileDownloader
 				{
 					mDownloadScheduler.onProgressChange(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onProgressChange(fileSize, downloadedSize);
+					}
 				}
 
 				@Override
@@ -220,7 +234,9 @@ public class FileDownloader
 				{
 					mDownloadScheduler.onProgressSpeedChange(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onProgressChange(fileSize, downloadedSize, speed);
+					}
 				}
 
 				@Override
@@ -228,7 +244,9 @@ public class FileDownloader
 				{
 					mDownloadScheduler.onCancel(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onCancel();
+					}
 				}
 
 				@Override
@@ -237,7 +255,9 @@ public class FileDownloader
 					mTaskEntity.setStatus(STATUS_ERROR);
 					mDownloadScheduler.onError(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onError(error);
+					}
 					schedule();
 				}
 
@@ -247,7 +267,9 @@ public class FileDownloader
 					mTaskEntity.setStatus(STATUS_SUCCESS);
 					mDownloadScheduler.onSuccess(DownloadTask.this);
 					if (mIListener != null)
+					{
 						mIListener.onSuccess();
+					}
 					remove(DownloadTask.this);
 				}
 			});
@@ -272,7 +294,9 @@ public class FileDownloader
 		{
 			// only wait task can deploy
 			if (mTaskEntity.status != STATUS_WAITING)
+			{
 				return false;
+			}
 			mTaskEntity.deploy();
 			mRequest.execute();
 			return true;

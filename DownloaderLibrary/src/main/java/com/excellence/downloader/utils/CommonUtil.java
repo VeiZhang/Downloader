@@ -43,13 +43,17 @@ public class CommonUtil
 	public static boolean hasDoubleCharacter(String text)
 	{
 		if (TextUtils.isEmpty(text))
+		{
 			return false;
+		}
 
 		char[] charArray = text.toCharArray();
 		for (char ch : charArray)
 		{
 			if (ch >= 0x0391 && ch <= 0xFFE5)
+			{
 				return true;
+			}
 		}
 		return false;
 	}
@@ -64,10 +68,14 @@ public class CommonUtil
 	{
 		String md5 = "";
 		if (params == null || params.length == 0)
+		{
 			return md5;
+		}
 		StringBuilder stringBuilder = new StringBuilder();
 		for (String param : params)
+		{
 			stringBuilder.append(param);
+		}
 		try
 		{
 			MessageDigest md = MessageDigest.getInstance("MD5");
@@ -93,7 +101,9 @@ public class CommonUtil
 		try
 		{
 			if (is == null)
+			{
 				return md5;
+			}
 
 			MessageDigest digest = MessageDigest.getInstance("MD5");
 			byte[] buffer = new byte[8192];
@@ -152,7 +162,9 @@ public class CommonUtil
 	public static boolean checkMD5(String md5, File file)
 	{
 		if (TextUtils.isEmpty(md5) || file == null)
+		{
 			return false;
+		}
 		String fileMD5 = getMD5(file);
 		return fileMD5 != null && fileMD5.equalsIgnoreCase(md5);
 	}
@@ -160,7 +172,9 @@ public class CommonUtil
 	public static boolean checkMD5(String md5, InputStream is)
 	{
 		if (TextUtils.isEmpty(md5) || is == null)
+		{
 			return false;
+		}
 		String isMD5 = getMD5(is);
 		return isMD5 != null && isMD5.equalsIgnoreCase(md5);
 	}
@@ -207,7 +221,9 @@ public class CommonUtil
 	public static boolean isFileExist(File file)
 	{
 		if (file != null && file.exists() && file.isFile())
+		{
 			return true;
+		}
 		return false;
 	}
 
