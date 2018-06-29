@@ -6,6 +6,7 @@ import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
 import com.excellence.downloader.exception.FileError;
 import com.excellence.downloader.exception.URLInvalidError;
+import com.excellence.downloader.utils.BufferedRandomAccessFile;
 import com.excellence.downloader.utils.IListener;
 
 import java.io.BufferedInputStream;
@@ -86,16 +87,15 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			printHeader(conn);
 
 			startTimer();
-			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
+			BufferedRandomAccessFile randomAccessFile = new BufferedRandomAccessFile(mTempFile, "rwd", STREAM_LEN);
 			randomAccessFile.seek(mTaskEntity.downloadLen);
 
 			BufferedInputStream buffStream = new BufferedInputStream(convertInputStream(conn));
 			byte[] buffer = new byte[STREAM_LEN];
 			int read;
-			FileChannel outFileChannel = randomAccessFile.getChannel();
 			while ((read = buffStream.read(buffer)) != -1)
 			{
-				outFileChannel.write(ByteBuffer.wrap(buffer, 0, read));
+				randomAccessFile.write(buffer, 0, read);
 				mTaskEntity.downloadLen += read;
 				onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
 
@@ -107,7 +107,6 @@ public class HttpDownloadTask extends HttpTask implements IListener
 
 			}
 			buffStream.close();
-			outFileChannel.close();
 			randomAccessFile.close();
 
 			if (mTaskEntity.isCancel)
