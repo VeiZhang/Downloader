@@ -147,6 +147,7 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
     this.diskPos_ = 0L;
   }
 
+  @Override
   public void close() throws IOException {
     this.flush();
     this.closed_ = true;
@@ -203,6 +204,7 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
    * is at or past the end-of-file, which can only happen if the file was
    * opened in read-only mode.
    */
+  @Override
   public void seek(long pos) throws IOException {
     if (pos >= this.hi_ || pos < this.lo_) {
       // seeking outside of current buffer -- flush and read
@@ -225,14 +227,17 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
     this.curr_ = pos;
   }
 
+  @Override
   public long getFilePointer() {
     return this.curr_;
   }
 
+  @Override
   public long length() throws IOException {
     return Math.max(this.curr_, super.length());
   }
 
+  @Override
   public int read() throws IOException {
     if (this.curr_ >= this.hi_) {
       // test for EOF
@@ -248,10 +253,12 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
     return ((int) res) & 0xFF; // convert byte -> int
   }
 
+  @Override
   public int read(byte[] b) throws IOException {
     return this.read(b, 0, b.length);
   }
 
+  @Override
   public int read(byte[] b, int off, int len) throws IOException {
     if (this.curr_ >= this.hi_) {
       // test for EOF
@@ -269,6 +276,7 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
     return len;
   }
 
+  @Override
   public void write(int b) throws IOException {
     if (this.curr_ >= this.hi_) {
       if (this.hitEOF_ && this.hi_ < this.maxHi_) {
@@ -288,10 +296,12 @@ public final class BufferedRandomAccessFile extends RandomAccessFile {
     this.dirty_ = true;
   }
 
+  @Override
   public void write(byte[] b) throws IOException {
     this.write(b, 0, b.length);
   }
 
+  @Override
   public void write(byte[] b, int off, int len) throws IOException {
     while (len > 0) {
       int n = this.writeAtMost(b, off, len);

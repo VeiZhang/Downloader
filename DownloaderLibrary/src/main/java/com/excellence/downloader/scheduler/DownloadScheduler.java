@@ -53,7 +53,9 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 			Object object = clazz.newInstance();
 			Object downloadCounter = download.invoke(object);
 			if (downloadCounter != null)
+			{
 				mDownloadCounter = unmodifiableSet((Set<String>) downloadCounter);
+			}
 		}
 		catch (ClassNotFoundException e)
 		{
@@ -97,7 +99,9 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 					mObservers.put(targetName, listener);
 				}
 				else
+				{
 					Log.e(TAG, "注册失败，没有【" + targetName + "】观察者");
+				}
 			}
 		}
 	}
@@ -136,7 +140,9 @@ public class DownloadScheduler<TASK> implements ISchedulerListener<TASK>
 		{
 			Entry<String, SchedulerListener<TASK>> entry = iterator.next();
 			if (entry.getKey().equals(obj.getClass().getName()))
+			{
 				iterator.remove();
+			}
 		}
 	}
 
