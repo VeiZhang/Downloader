@@ -2,6 +2,8 @@ package com.excellence.downloader.utils;
 
 import static com.excellence.downloader.utils.CommonUtil.hasDoubleCharacter;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URLEncoder;
@@ -12,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.InflaterInputStream;
 
 import com.excellence.downloader.entity.TaskEntity;
 
@@ -40,7 +44,9 @@ public class HttpUtil
 	public static String convertUrl(String url)
 	{
 		if (TextUtils.isEmpty(url))
+		{
 			return url;
+		}
 
 		if (hasDoubleCharacter(url))
 		{
@@ -56,7 +62,9 @@ public class HttpUtil
 			try
 			{
 				for (String str : strs)
+				{
 					url = url.replaceAll(str, URLEncoder.encode(str, "UTF-8"));
+				}
 			}
 			catch (UnsupportedEncodingException e)
 			{
@@ -64,6 +72,29 @@ public class HttpUtil
 			}
 		}
 		return url;
+	}
+
+	public static InputStream convertInputStream(HttpURLConnection conn) throws IOException
+	{
+		InputStream is = conn.getInputStream();
+		String encoding = conn.getHeaderField("Content-Encoding");
+		Log.i(TAG, "convertInputStream: " + encoding);
+		if (TextUtils.isEmpty(encoding))
+		{
+			return is;
+		}
+
+		switch (encoding)
+		{
+		case "gzip":
+			return new GZIPInputStream(is);
+
+		case "deflate":
+			return new InflaterInputStream(is);
+
+		default:
+			return is;
+		}
 	}
 
 	public static void setConnectParam(HttpURLConnection conn, String url) throws Exception
@@ -111,12 +142,6 @@ public class HttpUtil
 	{
 		Map<String, List<String>> headerFields = conn.getHeaderFields();
 		return headerFields.get(key);
-	}
-
-	public static boolean isGzipContent(HttpURLConnection conn)
-	{
-		List<String> header = getHeader(conn, "Content-Encoding");
-		return header != null && header.contains("gzip");
 	}
 
 	public static String formatRequestMsg(TaskEntity taskEntity)

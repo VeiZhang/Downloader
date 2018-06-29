@@ -20,11 +20,10 @@ import java.nio.channels.FileChannel;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
-import java.util.zip.GZIPInputStream;
 
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
+import static com.excellence.downloader.utils.HttpUtil.convertInputStream;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
-import static com.excellence.downloader.utils.HttpUtil.isGzipContent;
 import static com.excellence.downloader.utils.HttpUtil.printHeader;
 import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
 
@@ -90,10 +89,8 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			startTimer();
 			RandomAccessFile randomAccessFile = new RandomAccessFile(mTempFile, "rwd");
 			randomAccessFile.seek(mTaskEntity.downloadLen);
-			InputStream is = conn.getInputStream();
-			if (isGzipContent(conn) && !(is instanceof GZIPInputStream))
-				is = new GZIPInputStream(is);
-			BufferedInputStream buffStream = new BufferedInputStream(is);
+
+			BufferedInputStream buffStream = new BufferedInputStream(convertInputStream(conn));
 			byte[] buffer = new byte[STREAM_LEN];
 			int read;
 			FileChannel outFileChannel = randomAccessFile.getChannel();
@@ -110,7 +107,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 				}
 
 			}
-			is.close();
+			buffStream.close();
 			outFileChannel.close();
 			randomAccessFile.close();
 
