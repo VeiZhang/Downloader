@@ -9,6 +9,8 @@ import com.excellence.downloader.exception.URLInvalidError;
 import com.excellence.downloader.utils.BufferedRandomAccessFile;
 import com.excellence.downloader.utils.IListener;
 
+import org.apache.commons.lang3.concurrent.BasicThreadFactory;
+
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -21,9 +23,10 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.ReadableByteChannel;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.HttpUtil.convertInputStream;
@@ -48,13 +51,12 @@ public class HttpDownloadTask extends HttpTask implements IListener
 
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;
-	private static final int TIMER_SEC = 1000;
 
 	private Executor mResponsePoster = null;
 	private TaskEntity mTaskEntity = null;
 	private IListener mListener = null;
 	private File mTempFile = null;
-	private Timer mSpeedTimer = null;
+	private ScheduledExecutorService mSpeedTimer = null;
 	private long mStartLen = 0;
 	private boolean isOpenDynamicFile = true;
 
@@ -106,14 +108,20 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			inputStream.close();
 
 			if (mTaskEntity.isCancel)
+			{
 				return true;
+			}
 
 			if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize)
 			{
 				if (!mTempFile.canRead())
+				{
 					throw new FileError("Download temp file is invalid");
+				}
 				if (!mTempFile.renameTo(mTaskEntity.storeFile))
+				{
 					throw new FileError("Can't rename download temp file");
+				}
 				onSuccess();
 			}
 		}
@@ -125,12 +133,16 @@ public class HttpDownloadTask extends HttpTask implements IListener
 				return true;
 			}
 			else
+			{
 				return false;
+			}
 		}
 		finally
 		{
 			if (conn != null)
+			{
 				conn.disconnect();
+			}
 		}
 		return true;
 	}
@@ -198,32 +210,33 @@ public class HttpDownloadTask extends HttpTask implements IListener
 	private void startTimer()
 	{
 		mStartLen = mTaskEntity.downloadLen;
-		mSpeedTimer = new Timer(true);
-		mSpeedTimer.schedule(new TimerTask()
-		{
-			@Override
-			public void run()
-			{
-				if (mTaskEntity.isCancel)
-				{
-					closeTimer();
-				}
-				else
-				{
-					mTaskEntity.downloadSpeed = mTaskEntity.downloadLen - mStartLen;
-					onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen, mTaskEntity.downloadSpeed);
-					mStartLen = mTaskEntity.downloadLen;
-				}
-			}
-		}, 0, TIMER_SEC);
+		mSpeedTimer = new ScheduledThreadPoolExecutor(1, new BasicThreadFactory.Builder().namingPattern("timer-%d").daemon(true).build());
+		mSpeedTimer.scheduleAtFixedRate(mTimerTask, 0, 1, TimeUnit.SECONDS);
 	}
+
+	private Runnable mTimerTask = new Runnable()
+	{
+		@Override
+		public void run()
+		{
+			if (mTaskEntity.isCancel)
+			{
+				closeTimer();
+			}
+			else
+			{
+				mTaskEntity.downloadSpeed = mTaskEntity.downloadLen - mStartLen;
+				onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen, mTaskEntity.downloadSpeed);
+				mStartLen = mTaskEntity.downloadLen;
+			}
+		}
+	};
 
 	private void closeTimer()
 	{
 		if (mSpeedTimer != null)
 		{
-			mSpeedTimer.purge();
-			mSpeedTimer.cancel();
+			mSpeedTimer.shutdownNow();
 		}
 	}
 
@@ -233,19 +246,27 @@ public class HttpDownloadTask extends HttpTask implements IListener
 	private void checkTask() throws Exception
 	{
 		if (checkNULL(mTaskEntity.url))
+		{
 			throw new URLInvalidError("URL is invalid");
+		}
 
 		if (!mTempFile.exists())
 		{
 			if (!mTempFile.getParentFile().exists() && !mTempFile.getParentFile().mkdirs())
+			{
 				throw new FileError("Failed to open downloader dir");
+			}
 
 			if (!mTempFile.createNewFile())
+			{
 				throw new FileError("Failed to create storage file");
+			}
 		}
 
 		if (mTempFile.isDirectory())
+		{
 			throw new FileError("Storage file is a directory");
+		}
 
 		if (mTaskEntity.isSupportBP)
 		{
@@ -263,7 +284,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 
 		File parentDir = mTempFile.getParentFile();
 		if (parentDir.getFreeSpace() <= mTaskEntity.fileSize - mTaskEntity.downloadLen)
+		{
 			throw new FileError("Space is not enough");
+		}
 
 	}
 
@@ -276,7 +299,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null)
+				{
 					mListener.onPreExecute(fileSize);
+				}
 			}
 		});
 	}
@@ -290,7 +315,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null && !mTaskEntity.isCancel)
+				{
 					mListener.onProgressChange(fileSize, downloadedSize);
+				}
 			}
 		});
 	}
@@ -304,7 +331,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null && !mTaskEntity.isCancel)
+				{
 					mListener.onProgressChange(fileSize, downloadedSize, speed);
+				}
 			}
 		});
 	}
@@ -319,7 +348,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null)
+				{
 					mListener.onCancel();
+				}
 			}
 		});
 	}
@@ -334,7 +365,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null && !mTaskEntity.isCancel)
+				{
 					mListener.onError(error);
+				}
 			}
 		});
 	}
@@ -349,7 +382,9 @@ public class HttpDownloadTask extends HttpTask implements IListener
 			public void run()
 			{
 				if (mListener != null && !mTaskEntity.isCancel)
+				{
 					mListener.onSuccess();
+				}
 			}
 		});
 	}

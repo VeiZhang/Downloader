@@ -29,6 +29,7 @@ dependencies {
     })
     compile 'com.android.support:appcompat-v7:25.0.0'
     testCompile 'junit:junit:4.12'
+    compile 'org.apache.commons:commons-lang3:3.3.2'
     annotationProcessor project(':DownloadCompiler')
     compile project(':DownloadCompiler')
 }
