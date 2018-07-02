@@ -149,6 +149,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 
 	/**
 	 * 使用块传输，直接通过追加的形式，写入到文件里
+	 * 单线程文件追加，效果等同 {@link FileChannel#position(long)}
 	 *
 	 * @param inputStream
 	 */
@@ -156,6 +157,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 	{
 		FileOutputStream outputStream = new FileOutputStream(mTempFile, true);
 		FileChannel channel = outputStream.getChannel();
+		channel.position(mTaskEntity.downloadLen);
 		ReadableByteChannel readableByteChannel = Channels.newChannel(inputStream);
 		ByteBuffer buffer = ByteBuffer.allocate(STREAM_LEN);
 		int read;
