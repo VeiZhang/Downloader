@@ -36,7 +36,7 @@ public class HttpFileInfoTask extends HttpTask
 	private TaskEntity mTaskEntity = null;
 	private OnFileInfoCallback mOnFileInfoCallback = null;
 
-	public HttpFileInfoTask(TaskEntity taskEntity, OnFileInfoCallback callback)
+	protected HttpFileInfoTask(TaskEntity taskEntity, OnFileInfoCallback callback)
 	{
 		mTaskEntity = taskEntity;
 		mOnFileInfoCallback = callback;

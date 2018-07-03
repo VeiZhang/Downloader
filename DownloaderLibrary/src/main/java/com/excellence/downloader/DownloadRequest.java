@@ -29,7 +29,7 @@ public class DownloadRequest
 	private ExecutorService mExecutor = null;
 	private HttpDownloadTask mHttpDownloadTask = null;
 
-	public DownloadRequest(@NonNull TaskEntity taskEntity, Executor responsePoster, IListener listener)
+	protected DownloadRequest(@NonNull TaskEntity taskEntity, Executor responsePoster, IListener listener)
 	{
 		mTaskEntity = taskEntity;
 		mExecutor = new ScheduledThreadPoolExecutor(1, new BasicThreadFactory.Builder().namingPattern("listener-%d").daemon(true).build());

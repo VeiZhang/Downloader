@@ -11,7 +11,7 @@ import android.util.Log;
  * </pre>
  */
 
-public abstract class HttpTask implements Runnable
+abstract class HttpTask implements Runnable
 {
 	public static final String TAG = HttpTask.class.getSimpleName();
 

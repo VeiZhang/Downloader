@@ -40,7 +40,7 @@ public class FileDownloader
 	private int mParallelTaskCount;
 	private int mThreadCount;
 
-	public FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, int parallelTaskCount, int threadCount)
+	protected FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, int parallelTaskCount, int threadCount)
 	{
 		mDownloadScheduler = downloadScheduler;
 		final Handler handler = new Handler(Looper.getMainLooper());
@@ -199,7 +199,7 @@ public class FileDownloader
 		private DownloadRequest mRequest = null;
 		private IListener mIListener = null;
 
-		public DownloadTask(File storeFile, String url, IListener listener)
+		protected DownloadTask(File storeFile, String url, IListener listener)
 		{
 			TaskEntity taskEntity = new TaskEntity();
 			taskEntity.storeFile = storeFile;

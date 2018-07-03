@@ -60,7 +60,7 @@ public class HttpDownloadTask extends HttpTask implements IListener
 	private long mStartLen = 0;
 	private boolean isOpenDynamicFile = true;
 
-	public HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener)
+	protected HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener)
 	{
 		mResponsePoster = responsePoster;
 		mTaskEntity = taskEntity;
