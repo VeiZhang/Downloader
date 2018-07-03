@@ -124,6 +124,10 @@ public class HttpDownloadTask extends HttpTask implements IListener
 				}
 				onSuccess();
 			}
+			else
+			{
+				throw new FileError("Download file size is error");
+			}
 		}
 		catch (Exception e)
 		{
