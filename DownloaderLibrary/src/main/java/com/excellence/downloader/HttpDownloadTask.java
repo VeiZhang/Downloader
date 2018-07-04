@@ -28,6 +28,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
+import static com.excellence.downloader.utils.CommonUtil.SUFFIX_TMP;
 import static com.excellence.downloader.utils.CommonUtil.checkNULL;
 import static com.excellence.downloader.utils.HttpUtil.convertInputStream;
 import static com.excellence.downloader.utils.HttpUtil.convertUrl;
@@ -43,11 +44,9 @@ import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
  * </pre>
  */
 
-public class HttpDownloadTask extends HttpTask implements IListener
+class HttpDownloadTask extends HttpTask implements IListener
 {
 	public static final String TAG = HttpDownloadTask.class.getSimpleName();
-
-	public static final String SUFFIX_TMP = ".tmp";
 
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;

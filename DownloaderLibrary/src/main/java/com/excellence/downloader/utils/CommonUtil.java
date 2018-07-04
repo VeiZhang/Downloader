@@ -1,7 +1,5 @@
 package com.excellence.downloader.utils;
 
-import static com.excellence.downloader.HttpDownloadTask.SUFFIX_TMP;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -23,6 +21,8 @@ import android.text.TextUtils;
 
 public class CommonUtil
 {
+	public static final String SUFFIX_TMP = ".tmp";
+
 	/**
 	 * 检测链接是否空
 	 *

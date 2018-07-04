@@ -29,7 +29,7 @@ import android.util.Log;
  * </pre>
  */
 
-public class HttpFileInfoTask extends HttpTask
+class HttpFileInfoTask extends HttpTask
 {
 	public static final String TAG = HttpFileInfoTask.class.getSimpleName();
 

@@ -23,7 +23,7 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
  * </pre>
  */
 
-public class DownloadRequest
+class DownloadRequest
 {
 	private TaskEntity mTaskEntity = null;
 	private ExecutorService mExecutor = null;
