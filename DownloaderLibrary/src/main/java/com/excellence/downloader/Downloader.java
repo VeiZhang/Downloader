@@ -1,7 +1,6 @@
 package com.excellence.downloader;
 
 import android.content.Context;
-import android.support.annotation.IntRange;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -42,23 +41,22 @@ public class Downloader
 	}
 
 	/**
-	 * 初始化，默认任务数:2，单线程下载
+	 * 初始化，默认下载选项：任务数:2，单线程下载
 	 *
 	 * @param context
 	 */
 	public static void init(@NonNull Context context)
 	{
-		init(context, DEFAULT_TASK_COUNT, DEFAULT_THREAD_COUNT);
+		init(context, new DownloadOptions.Builder().parallelTaskCount(DEFAULT_TASK_COUNT).threadCount(DEFAULT_THREAD_COUNT).build());
 	}
 
 	/**
-	 * 初始化，设置任务数，单个任务下载线程数
+	 * 初始化，设置下载选项
 	 *
-	 * @param context     上下文
-	 * @param parallelTaskCount   任务数
-	 * @param threadCount 单个任务下载线程数
+	 * @param context 上下文
+	 * @param options 下载选项设置
 	 */
-	public static void init(@NonNull Context context, @IntRange(from = 1) int parallelTaskCount, @IntRange(from = 1) int threadCount)
+	public static void init(@NonNull Context context, @NonNull DownloadOptions options)
 	{
 		if (mInstance != null)
 		{
@@ -66,14 +64,9 @@ public class Downloader
 			return;
 		}
 
-		if (parallelTaskCount >= Runtime.getRuntime().availableProcessors())
-		{
-			Log.w(TAG, "ParallelTaskCount is beyond!!!");
-			parallelTaskCount = Runtime.getRuntime().availableProcessors() == 1 ? 1 : Runtime.getRuntime().availableProcessors() - 1;
-		}
 		mInstance = new Downloader();
 		mInstance.mDownloadScheduler = new DownloadScheduler<>();
-		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler, parallelTaskCount, threadCount);
+		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler, options);
 	}
 
 	/**

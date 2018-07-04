@@ -3,6 +3,7 @@ package com.excellence.downloader;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
@@ -40,8 +41,16 @@ public class FileDownloader
 	private int mParallelTaskCount;
 	private int mThreadCount;
 
-	protected FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, int parallelTaskCount, int threadCount)
+	public FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, DownloadOptions options)
 	{
+		mParallelTaskCount = options.mParallelTaskCount;
+		mThreadCount = options.mThreadCount;
+		if (mParallelTaskCount >= Runtime.getRuntime().availableProcessors())
+		{
+			Log.w(TAG, "ParallelTaskCount is beyond!!!");
+			mParallelTaskCount = Runtime.getRuntime().availableProcessors() == 1 ? 1 : Runtime.getRuntime().availableProcessors() - 1;
+		}
+
 		mDownloadScheduler = downloadScheduler;
 		final Handler handler = new Handler(Looper.getMainLooper());
 		mResponsePoster = new Executor()
@@ -53,8 +62,6 @@ public class FileDownloader
 			}
 		};
 		mTaskQueue = new LinkedList<>();
-		mParallelTaskCount = parallelTaskCount;
-		mThreadCount = threadCount;
 	}
 
 	/**
