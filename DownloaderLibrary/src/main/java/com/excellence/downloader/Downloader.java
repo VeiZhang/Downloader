@@ -34,6 +34,7 @@ public class Downloader
 	private static Downloader mInstance = null;
 	private FileDownloader mFileDownloader = null;
 	private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
+	private DownloadOptions mOptions = null;
 
 	private Downloader()
 	{
@@ -65,8 +66,14 @@ public class Downloader
 		}
 
 		mInstance = new Downloader();
+		mInstance.mOptions = options;
 		mInstance.mDownloadScheduler = new DownloadScheduler<>();
-		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler, options);
+		mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler);
+	}
+
+	protected static DownloadOptions getOptions()
+	{
+		return mInstance.mOptions;
 	}
 
 	/**

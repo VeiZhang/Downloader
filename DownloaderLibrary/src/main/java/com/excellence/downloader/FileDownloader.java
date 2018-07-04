@@ -41,8 +41,9 @@ public class FileDownloader
 	private int mParallelTaskCount;
 	private int mThreadCount;
 
-	public FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler, DownloadOptions options)
+	public FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler)
 	{
+		DownloadOptions options = Downloader.getOptions();
 		mParallelTaskCount = options.mParallelTaskCount;
 		mThreadCount = options.mThreadCount;
 		if (mParallelTaskCount >= Runtime.getRuntime().availableProcessors())
