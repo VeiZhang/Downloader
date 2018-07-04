@@ -66,6 +66,7 @@ class HttpDownloadTask extends HttpTask implements IListener
 		mListener = listener;
 		mTempFile = new File(mTaskEntity.storeFile + SUFFIX_TMP);
 		mTaskEntity.tempFile = mTempFile;
+		isOpenDynamicFile = Downloader.getOptions().isOpenDynamicFile;
 	}
 
 	@Override
