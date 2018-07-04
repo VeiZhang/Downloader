@@ -211,7 +211,16 @@ public class SingleThreadActivity extends DownloadActivity
 					@Override
 					public void onProgressChange(long fileSize, long downloadedSize, long speed)
 					{
-
+						String speedStr = speed + "B/s";
+						if (speed > 1024 * 1024)
+						{
+							speedStr = speed / 1024 / 1024 + "MB/s";
+						}
+						else if (speed > 1024)
+						{
+							speedStr = speed / 1024 + "KB/s";
+						}
+						mTask.setSpeed(speedStr);
 					}
 
 					@Override

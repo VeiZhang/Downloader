@@ -128,7 +128,7 @@ public class Task
 			case STATUS_DOWNLOADING:
 				mProgressBar.setProgress((int) mDownloadLength);
 				mProgressBar.setMax((int) mFileSize);
-				mStartBtn.setText(R.string.state_pause);
+				// mStartBtn.setText(R.string.state_pause);
 				break;
 
 			case STATUS_ERROR:
@@ -157,5 +157,10 @@ public class Task
 			mProgressBar.setProgress(0);
 			mStartBtn.setText(R.string.state_start);
 		}
+	}
+
+	public void setSpeed(String speed)
+	{
+		mStartBtn.setText(speed);
 	}
 }
