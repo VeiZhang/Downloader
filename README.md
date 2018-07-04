@@ -38,10 +38,10 @@ compile project(':DownloaderLibrary')
 
 * 初始化
     ```java
-    // 默认任务数2，单任务单线程下载
+    // 默认下载选项：任务数2，单任务单线程下载
     Downloader.init(Context context)
-    // 设置最大下载的任务数，单任务下载的线程数
-    Downloader.init(Context context, int parallelTaskCount, int threadCount)
+    // 设置下载选项
+    Downloader.init(Context context, DownloadOptions options)
     ```
 
 * 结束任务
@@ -177,6 +177,7 @@ compile project(':DownloaderLibrary')
 
 |         版本         |         描述         |
 | ------------------- | ------------------- |
+| [1.2.0][DownloadLibrary1.2.0] | 提升下载速度，增加设置项 **2018-7-4** |
 | [1.1.0][DownloadLibrary1.1.0] | 注解监听任务 **2017-9-13** |
 | [1.0.0][DownloadLibrary1.0.0] | 多任务单线程下载，临时下载文件长度保存断点记录  **2017-8-11** |
 
@@ -200,5 +201,6 @@ compile project(':DownloaderLibrary')
 
 <!-- 版本 -->
 
+[DownloadLibrary1.2.0]:https://bintray.com/veizhang/maven/downloader/1.2.0
 [DownloadLibrary1.1.0]:https://bintray.com/veizhang/maven/downloader/1.1.0
 [DownloadLibrary1.0.0]:https://bintray.com/veizhang/maven/downloader/1.0.0

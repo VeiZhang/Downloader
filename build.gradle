@@ -38,7 +38,7 @@ ext {
     dryRun = 'false'
     userOrg = org
     groupId = 'com.excellence'
-    publishVersion = '1.1.0'
+    publishVersion = '1.2.0'
     website = 'https://github.com/VeiZhang/Downloader'
     licences = ['Apache-2.0']
 }
