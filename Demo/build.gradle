@@ -1,39 +1,44 @@
-apply plugin: 'com.android.application'
+apply from: 'https://gist.githubusercontent.com/VeiZhang/01779005843bc5b70b11551ca13c2ced/raw/application.gradle'
+
+def libs = rootProject.ext.dependencies
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
     defaultConfig {
-        applicationId "com.zv.downloader"
-        minSdkVersion 15
-        targetSdkVersion 19
-        versionCode 1
-        versionName "1.0"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        applicationId "com.excellence.downloader.sample"
     }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-    lintOptions {
-        abortOnError false
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 
     useLibrary 'org.apache.http.legacy'
 }
 
+configurations.all {
+    // 不使用缓存，使用仓库中最新的包
+    resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+}
+
 dependencies {
-    compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    testCompile 'junit:junit:4.12'
-    compile 'com.excellence:basetools:1.2.5'
-    // 本地依赖
-    compile project(':DownloaderLibrary')
-    // 远程依赖
-    // compile 'com.excellence:downloader:_latestVersion'
+    testImplementation 'junit:junit:4.12'
+    implementation libs["appcompat-v7"]
+
+    implementation 'com.excellence:basetools:1.2.5'
+
+    /**可以使用远程库或者使用本地Module Library*/
+    /**远程库**/
+    // implementation 'com.excellence:downloader:_latestVersion'
+    /**或者使用+，自动使用最新依赖包**/
+    // implementation 'com.excellence:downloader:+'
+    /**本地Library**/
+    implementation project(':DownloaderLibrary')
+
+    /** Github packages **/
+//    implementation('com.excellence:downloader:1.2.0') {
+//        changing = true
+//    }
 }

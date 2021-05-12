@@ -1,0 +1,6 @@
+ext {
+    groupId = 'com.excellence'
+    publishVersion = '1.2.0'
+    desc = 'Android下载器'
+    website = 'https://github.com/VeiZhang/Downloader'
+}

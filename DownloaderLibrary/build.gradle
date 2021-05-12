@@ -1,67 +1,18 @@
-apply plugin: 'com.android.library'
+apply from: 'https://gist.githubusercontent.com/VeiZhang/f703697d56fe717c3433f4218f296b36/raw/library.gradle'
 
-android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.0"
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 25
-        versionCode 1
-        versionName "1.0"
-
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-        }
-    }
-
-}
+def libs = rootProject.ext.dependencies
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
-    compile 'com.android.support:appcompat-v7:25.0.0'
-    testCompile 'junit:junit:4.12'
-    compile 'org.apache.commons:commons-lang3:3.3.2'
+    testImplementation 'junit:junit:4.12'
+
+    implementation libs["appcompat-v7"]
+    implementation libs["commons-lang3"]
     annotationProcessor project(':DownloadCompiler')
-    compile project(':DownloadCompiler')
+    api project(':DownloadCompiler')
 }
 
-/*********************上传jCenter依赖*********************/
-apply plugin: 'com.novoda.bintray-release'
-
-/**避免中文注释:编码GBK的不可映射字符**/
-tasks.withType(Javadoc) {
-    options {
-        encoding "UTF-8"
-        charSet 'UTF-8'
-        links "http://docs.oracle.com/javase/7/docs/api"
-    }
-}
-
-/**避免Javadocs错误:找不到引用**/
-tasks.withType(Javadoc) {
-    options.addStringOption('Xdoclint:none', '-quiet')
-    options.addStringOption('encoding', 'UTF-8')
-}
-
-/**发布到我的Bintray仓库**/
-publish {
-    bintrayUser = rootProject.bintrayUser
-    bintrayKey = rootProject.bintrayKey
-    dryRun = Boolean.parseBoolean(rootProject.dryRun)
-    userOrg = rootProject.userOrg
-    groupId = rootProject.groupId
-    artifactId = 'downloader'
-    publishVersion = rootProject.publishVersion
-    desc = 'Android下载器'
-    website = rootProject.website
-    licences = rootProject.licences
-}
+apply from: 'github_package_publish_usage.gradle'

@@ -1,13 +1,16 @@
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
+apply from: 'https://gist.githubusercontent.com/VeiZhang/0af7b332e757362784467648fed7d7ef/raw/config.gradle'
+apply from: 'ext_bintray.gradle'
 
 buildscript {
     repositories {
+        google()
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:2.3.0'
-        // 添加，上传依赖库时添加
-        classpath 'com.novoda:bintray-release:0.8.0'
+        classpath 'com.android.tools.build:gradle:4.0.2'
+        classpath 'com.novoda:bintray-release:0.9.2'
+
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
@@ -15,6 +18,17 @@ buildscript {
 
 allprojects {
     repositories {
+        /** Github packages **/
+        maven {
+            url = "https://maven.pkg.github.com/VeiZhang/GitHubPackages-Android"
+            credentials {
+                // 输入自己的账号和个人令牌（需要 read packages权限）
+                // 可放项目根目录的gradle.properties 或者 local.properties中
+                username = getPropertyValue("GITHUB_USER") ?: project.properties['GITHUB_USER']
+                password = getPropertyValue("GITHUB_READ_TOKEN") ?: project.properties['GITHUB_READ_TOKEN']
+            }
+        }
+        google()
         jcenter()
     }
 }
@@ -23,32 +37,11 @@ task clean(type: Delete) {
     delete rootProject.buildDir
 }
 
-/*********************上传jCenter依赖*********************/
-
-/**发布到我的Bintray仓库**/
-def user = getPropertyValue('bintrayUser')
-def key = getPropertyValue('bintrayKey')
-def org = getPropertyValue('userOrg')
-
-// 添加
-// 为了上传多个module统一管理
-ext {
-    bintrayUser = user
-    bintrayKey = key
-    dryRun = 'false'
-    userOrg = org
-    groupId = 'com.excellence'
-    publishVersion = '1.2.0'
-    website = 'https://github.com/VeiZhang/Downloader'
-    licences = ['Apache-2.0']
-}
-
-/**读取bintray.key文件的key**/
 def getPropertyValue(String key) {
     if (key == null || key.length() == 0)
         return null
 
-    File file = project.rootProject.file('../../bintray.key')
+    File file = project.rootProject.file('local.properties')
     if (!file.exists())
         return null
 

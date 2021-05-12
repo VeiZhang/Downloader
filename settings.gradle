@@ -1,2 +1,2 @@
-include ':Demo'
+//include ':Demo'
 include ':DownloaderLibrary', ':DownloadAnnotations', ':DownloadCompiler'
