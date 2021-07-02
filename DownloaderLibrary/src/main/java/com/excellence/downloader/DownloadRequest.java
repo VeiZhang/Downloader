@@ -36,9 +36,12 @@ class DownloadRequest
 		mHttpDownloadTask = new HttpDownloadTask(responsePoster, mTaskEntity, listener);
 	}
 
-	public void execute()
-	{
-		mExecutor.execute(createFileInfoTask());
+	public void execute() {
+		if (mTaskEntity.checkHeaderInfo) {
+			mExecutor.execute(createFileInfoTask());
+		} else {
+			mExecutor.execute(mHttpDownloadTask);
+		}
 	}
 
 	public HttpFileInfoTask createFileInfoTask()

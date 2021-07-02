@@ -73,22 +73,18 @@ public class FileDownloader
 	 * @param listener
 	 * @return
 	 */
-	public DownloadTask addTask(File storeFile, String url, IListener listener)
-	{
+	public DownloadTask addTask(File storeFile, String url, boolean checkHeaderInfo,
+								IListener listener) {
 		DownloadTask task = get(storeFile, url);
-		if (task != null)
-		{
+		if (task != null) {
 			/**
 			 * 重新设置监听器
 			 */
 			task.setListener(listener);
 			task.resume();
-		}
-		else
-		{
-			task = new DownloadTask(storeFile, url, listener);
-			synchronized (mTaskQueue)
-			{
+		} else {
+			task = new DownloadTask(storeFile, url, checkHeaderInfo, listener);
+			synchronized (mTaskQueue) {
 				mTaskQueue.add(task);
 			}
 			schedule();
@@ -99,14 +95,25 @@ public class FileDownloader
 	/**
 	 * 新建下载任务
 	 *
+	 * @param storeFile 保存路径
+	 * @param url 下载链接
+	 * @param listener
+	 * @return
+	 */
+	public DownloadTask addTask(File storeFile, String url, IListener listener) {
+		return addTask(storeFile, url, false, listener);
+	}
+
+	/**
+	 * 新建下载任务
+	 *
 	 * @param filePath 保存路径
 	 * @param url 下载链接
 	 * @param listener
 	 * @return
 	 */
-	public DownloadTask addTask(String filePath, String url, IListener listener)
-	{
-		return addTask(new File(filePath), url, listener);
+	public DownloadTask addTask(String filePath, String url, IListener listener) {
+		return addTask(new File(filePath), url, false, listener);
 	}
 
 	/**
@@ -207,12 +214,14 @@ public class FileDownloader
 		private DownloadRequest mRequest = null;
 		private IListener mIListener = null;
 
-		protected DownloadTask(File storeFile, String url, IListener listener)
+		protected DownloadTask(File storeFile, String url, boolean checkHeaderInfo, IListener listener)
 		{
 			TaskEntity taskEntity = new TaskEntity();
 			taskEntity.storeFile = storeFile;
 			taskEntity.url = url;
 			taskEntity.threadCount = mThreadCount;
+			taskEntity.checkHeaderInfo = checkHeaderInfo;
+
 			mTaskEntity = taskEntity;
 			mIListener = listener;
 			mRequest = new DownloadRequest(taskEntity, mResponsePoster, new IListener()
@@ -284,7 +293,7 @@ public class FileDownloader
 		}
 
 		/**
-		 * 重新设置下载监听器，解决{@link #addTask(File, String, IListener)}里面，任务不为空时，刷新Listener
+		 * 重新设置下载监听器，解决{@link #addTask}里面，任务不为空时，刷新Listener
 		 *
 		 * @param listener
 		 */
@@ -418,7 +427,7 @@ public class FileDownloader
 
 		/**
 		 * 获取下载速度:byte/s
-		 * 
+		 *
 		 * @return
 		 */
 		public long getDownloadSpeed()
@@ -438,7 +447,7 @@ public class FileDownloader
 
 		/**
 		 * 获取下载标识
-		 * 
+		 *
 		 * @return
 		 */
 		public String getKey()

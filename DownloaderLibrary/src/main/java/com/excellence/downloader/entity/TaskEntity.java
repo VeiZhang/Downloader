@@ -79,6 +79,11 @@ public class TaskEntity
 	public boolean isCancel = false;
 
 	/**
+	 * 检查头信息，判断是否服务器是否支持断点；当false时，某些视频流下载，有效期限制，因此false时只请求一次
+	 */
+	public boolean checkHeaderInfo = true;
+
+	/**
 	 * 取消
 	 */
 	public void cancel()

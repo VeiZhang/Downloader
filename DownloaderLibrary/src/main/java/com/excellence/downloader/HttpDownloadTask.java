@@ -1,5 +1,6 @@
 package com.excellence.downloader;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.excellence.downloader.entity.TaskEntity;
@@ -81,7 +82,11 @@ class HttpDownloadTask extends HttpTask implements IListener
 			conn = (HttpURLConnection) httpURL.openConnection();
 			conn.setConnectTimeout(CONNECT_TIME_OUT);
 			conn.setReadTimeout(SO_TIME_OUT);
-			conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + (mTaskEntity.fileSize - 1));
+
+			if (mTaskEntity.fileSize > 0) {
+				conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + (mTaskEntity.fileSize - 1));
+			}
+
 			setConnectParam(conn, mTaskEntity.url);
 			conn.connect();
 
@@ -94,6 +99,7 @@ class HttpDownloadTask extends HttpTask implements IListener
 			}
 
 			printHeader(conn);
+			handleHeader(conn);
 			startTimer();
 
 			if (isOpenDynamicFile)
@@ -112,21 +118,20 @@ class HttpDownloadTask extends HttpTask implements IListener
 				return true;
 			}
 
-			if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize)
-			{
-				if (!mTempFile.canRead())
-				{
-					throw new FileError("Download temp file is invalid");
+			if (mTaskEntity.checkHeaderInfo) {
+				if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize) {
+					if (!mTempFile.canRead()) {
+						throw new FileError("Download temp file is invalid");
+					}
+					if (!mTempFile.renameTo(mTaskEntity.storeFile)) {
+						throw new FileError("Can't rename download temp file");
+					}
+					onSuccess();
+				} else {
+					throw new FileError("Download file size is error");
 				}
-				if (!mTempFile.renameTo(mTaskEntity.storeFile))
-				{
-					throw new FileError("Can't rename download temp file");
-				}
+			} else {
 				onSuccess();
-			}
-			else
-			{
-				throw new FileError("Download file size is error");
 			}
 		}
 		catch (Exception e)
@@ -149,6 +154,16 @@ class HttpDownloadTask extends HttpTask implements IListener
 			}
 		}
 		return true;
+	}
+
+	private void handleHeader(HttpURLConnection conn) {
+		long len = conn.getContentLength();
+		if (len < 0) {
+			String temp = conn.getHeaderField("Content-Length");
+			len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
+		}
+		mTaskEntity.fileSize = len;
+		onPreExecute(mTaskEntity.fileSize);
 	}
 
 	/**

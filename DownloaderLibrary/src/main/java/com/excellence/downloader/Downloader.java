@@ -101,20 +101,6 @@ public class Downloader
 	}
 
 	/**
-	 * 新建下载任务，推荐注解方式{@link #addTask(File, String)}、{@link #register(Object)}
-	 *
-	 * @param storeFile 文件
-	 * @param url 下载链接
-	 * @param listener
-	 * @return 下载任务
-	 */
-	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, IListener listener)
-	{
-		checkDownloader();
-		return mInstance.mFileDownloader.addTask(storeFile, url, listener);
-	}
-
-	/**
 	 * 新建下载任务，推荐注解方式{@link #addTask(String, String)}、{@link #register(Object)}
 	 *
 	 * @param filePath 文件路径
@@ -125,6 +111,33 @@ public class Downloader
 	public static DownloadTask addTask(@NonNull String filePath, @NonNull String url, IListener listener)
 	{
 		return addTask(new File(filePath), url, listener);
+	}
+
+	/**
+	 * 新建下载任务，推荐注解方式{@link #addTask(File, String)}、{@link #register(Object)}
+	 *
+	 * @param storeFile 文件
+	 * @param url 下载链接
+	 * @param listener
+	 * @return 下载任务
+	 */
+	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, IListener listener) {
+		return addTask(storeFile, url, true, listener);
+	}
+
+	/**
+	 * 是否检查头信息，可用于断点下载；不检查头信息，可用于下载媒体流
+	 *
+	 * @param storeFile
+	 * @param url
+	 * @param checkHeaderInfo
+	 * @param listener
+	 * @return
+	 */
+	public static DownloadTask addTask(@NonNull File storeFile, @NonNull String url, boolean checkHeaderInfo,
+									   IListener listener) {
+		checkDownloader();
+		return mInstance.mFileDownloader.addTask(storeFile, url, checkHeaderInfo, listener);
 	}
 
 	/**
