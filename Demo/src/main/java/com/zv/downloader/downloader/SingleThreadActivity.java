@@ -26,227 +26,196 @@ import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
 
-public class SingleThreadActivity extends DownloadActivity
-{
-	private static final String TAG = SingleThreadActivity.class.getSimpleName();
+public class SingleThreadActivity extends DownloadActivity {
+    private static final String TAG = SingleThreadActivity.class.getSimpleName();
 
-	private List<Task> mTasks = null;
+    private List<Task> mTasks = null;
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState)
-	{
-		super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-		init();
-	}
+        init();
+    }
 
-	@Override
-	protected void initDownloader()
-	{
-		Downloader.init(this);
-		Downloader.register(this);
-	}
+    @Override
+    protected void initDownloader() {
+        Downloader.init(this);
+        Downloader.register(this);
+    }
 
-	@Override
-	protected void destroyDownloader()
-	{
-		Downloader.destroy();
-	}
+    @Override
+    protected void destroyDownloader() {
+        Downloader.destroy();
+    }
 
-	private void init()
-	{
-		mTasks = new ArrayList<>();
-		mTasks.add(new Task("AngryBirds.apk", ANGRYBIRDS_URL));
-		mTasks.add(new Task("QQ.apk", QQ_URL));
-		mTasks.add(new Task("RomUpdate.bin", ROMUPDATE_URL));
-		mTasks.add(new Task("Filmon.apk", FILMON_URL));
-		mDownloadListView.setAdapter(new DownloaderAdapter(this, mTasks, R.layout.download_item));
-	}
+    private void init() {
+        mTasks = new ArrayList<>();
+        mTasks.add(new Task("AngryBirds.apk", ANGRYBIRDS_URL));
+        mTasks.add(new Task("QQ.apk", QQ_URL));
+        mTasks.add(new Task("RomUpdate.bin", ROMUPDATE_URL));
+        mTasks.add(new Task("Filmon.apk", FILMON_URL));
+        mDownloadListView.setAdapter(new DownloaderAdapter(this, mTasks, R.layout.download_item));
+    }
 
-	@Download.onPreExecute
-	public void onPre(DownloadTask task)
-	{
-		/**
-		 * 注解不添加URL，则获取全部任务的下载监听；
-		 * 加了URL，则过滤出对应的任务的下载监听
-		 * 如：@Download.onPreExecute({QQ_URL, ANGRYBIRDS_URL})
-		 */
-	}
+    @Download.onPreExecute
+    public void onPre(DownloadTask task) {
+        /**
+         * 注解不添加URL，则获取全部任务的下载监听；
+         * 加了URL，则过滤出对应的任务的下载监听
+         * 如：@Download.onPreExecute({QQ_URL, ANGRYBIRDS_URL})
+         */
+    }
 
-	@Download.onProgressChange
-	public void onProgressChange(DownloadTask task)
-	{
-		/**
-		 * @see #onPre(DownloadTask) 
-		 */
-	}
+    @Download.onProgressChange
+    public void onProgressChange(DownloadTask task) {
+        /**
+         * @see #onPre(DownloadTask)
+         */
+    }
 
-	@Download.onProgressSpeedChange
-	public void onProgressSpeedChange(DownloadTask task)
-	{
-		/**
-		 * @see #onPre(DownloadTask)
-		 */
-	}
+    @Download.onProgressSpeedChange
+    public void onProgressSpeedChange(DownloadTask task) {
+        /**
+         * @see #onPre(DownloadTask)
+         */
+    }
 
-	@Download.onCancel
-	public void onCancel(DownloadTask task)
-	{
-		/**
-		 * @see #onPre(DownloadTask)
-		 */
-	}
+    @Download.onCancel
+    public void onCancel(DownloadTask task) {
+        /**
+         * @see #onPre(DownloadTask)
+         */
+    }
 
-	@Download.onError
-	public void onError(DownloadTask task)
-	{
-		/**
-		 * @see #onPre(DownloadTask)
-		 */
-	}
+    @Download.onError
+    public void onError(DownloadTask task) {
+        /**
+         * @see #onPre(DownloadTask)
+         */
+    }
 
-	@Download.onSuccess
-	public void onSuccess(DownloadTask task)
-	{
-		/**
-		 * @see #onPre(DownloadTask)
-		 */
-	}
+    @Download.onSuccess
+    public void onSuccess(DownloadTask task) {
+        /**
+         * @see #onPre(DownloadTask)
+         */
+    }
 
-	private class DownloaderAdapter extends CommonAdapter<Task>
-	{
-		public DownloaderAdapter(Context context, List<Task> datas, @LayoutRes int layoutId)
-		{
-			super(context, datas, layoutId);
-		}
+    private class DownloaderAdapter extends CommonAdapter<Task> {
+        public DownloaderAdapter(Context context, List<Task> datas, @LayoutRes int layoutId) {
+            super(context, datas, layoutId);
+        }
 
-		@Override
-		public void convert(ViewHolder viewHolder, Task item, int position)
-		{
-			viewHolder.setText(R.id.task_textview, item.getFileName());
-			Button startBtn = viewHolder.getView(R.id.start_btn);
-			Button deleteBtn = viewHolder.getView(R.id.delete_btn);
-			ProgressBar progressBar = viewHolder.getView(R.id.task_progressbar);
-			startBtn.setOnClickListener(new TaskClick(item));
-			deleteBtn.setOnClickListener(new TaskClick(item));
-			item.setStartBtn(startBtn);
-			item.setDeleteBtn(deleteBtn);
-			item.setProgressBar(progressBar);
-			item.invalidateTask();
-		}
+        @Override
+        public void convert(ViewHolder viewHolder, Task item, int position) {
+            viewHolder.setText(R.id.task_textview, item.getFileName());
+            Button startBtn = viewHolder.getView(R.id.start_btn);
+            Button deleteBtn = viewHolder.getView(R.id.delete_btn);
+            ProgressBar progressBar = viewHolder.getView(R.id.task_progressbar);
+            startBtn.setOnClickListener(new TaskClick(item));
+            deleteBtn.setOnClickListener(new TaskClick(item));
+            item.setStartBtn(startBtn);
+            item.setDeleteBtn(deleteBtn);
+            item.setProgressBar(progressBar);
+            item.invalidateTask();
+        }
 
-		private class TaskClick implements View.OnClickListener
-		{
-			private Task mTask = null;
+        private class TaskClick implements View.OnClickListener {
+            private Task mTask = null;
 
-			public TaskClick(Task item)
-			{
-				mTask = item;
-			}
+            public TaskClick(Task item) {
+                mTask = item;
+            }
 
-			@Override
-			public void onClick(View v)
-			{
-				if (mTask == null)
-					return;
+            @Override
+            public void onClick(View v) {
+                if (mTask == null) {
+                    return;
+                }
 
-				DownloadTask downloadTask = mTask.getDownloadTask();
+                DownloadTask downloadTask = mTask.getDownloadTask();
 
-				switch (v.getId())
-				{
-				case R.id.start_btn:
-					if (downloadTask == null)
-					{
-						// 建立下载任务
-						buildTask();
-					}
-					else
-					{
-						switch (downloadTask.getStatus())
-						{
-						case STATUS_DOWNLOADING:
-							downloadTask.pause();
-							break;
+                switch (v.getId()) {
+                    case R.id.start_btn:
+                        if (downloadTask == null) {
+                            // 建立下载任务
+                            buildTask();
+                        } else {
+                            switch (downloadTask.getStatus()) {
+                                case STATUS_DOWNLOADING:
+                                    downloadTask.pause();
+                                    break;
 
-						case STATUS_PAUSE:
-						case STATUS_ERROR:
-							downloadTask.resume();
-							break;
-						}
-					}
-					break;
+                                case STATUS_PAUSE:
+                                case STATUS_ERROR:
+                                    downloadTask.resume();
+                                    break;
+                            }
+                        }
+                        break;
 
-				case R.id.delete_btn:
-					if (downloadTask != null)
-						downloadTask.discard();
+                    case R.id.delete_btn:
+                        if (downloadTask != null) {
+                            downloadTask.discard();
+                        }
 
-					mTask.setDownloadTask(null);
-					break;
-				}
-				mTask.invalidateTask();
-			}
+                        mTask.setDownloadTask(null);
+                        break;
+                }
+                mTask.invalidateTask();
+            }
 
-			private void buildTask()
-			{
-				File file = new File(DOWNLOAD_PATH, mTask.getFileName());
-				mTask.setDownloadTask(Downloader.addTask(file, mTask.getFileUrl(), new IListener()
-				{
+            private void buildTask() {
+                File file = new File(DOWNLOAD_PATH, mTask.getFileName());
+                mTask.setDownloadTask(Downloader.addTask(file, mTask.getFileUrl(), new IListener() {
 
-					@Override
-					public void onPreExecute(long fileSize)
-					{
-						mTask.setDownloadLength(0);
-						mTask.setFileSize(fileSize);
-						mTask.invalidateTask();
-						System.out.println("pre " + fileSize);
-					}
+                    @Override
+                    public void onPreExecute(long fileSize) {
+                        mTask.setDownloadLength(0);
+                        mTask.setFileSize(fileSize);
+                        mTask.invalidateTask();
+                        System.out.println("pre " + fileSize);
+                    }
 
-					@Override
-					public void onProgressChange(long fileSize, long downloadedSize)
-					{
-						mTask.setDownloadLength(downloadedSize);
-						mTask.invalidateTask();
-					}
+                    @Override
+                    public void onProgressChange(long fileSize, long downloadedSize) {
+                        mTask.setDownloadLength(downloadedSize);
+                        mTask.invalidateTask();
+                    }
 
-					@Override
-					public void onProgressChange(long fileSize, long downloadedSize, long speed)
-					{
-						String speedStr = speed + "B/s";
-						if (speed > 1024 * 1024)
-						{
-							speedStr = speed / 1024 / 1024 + "MB/s";
-						}
-						else if (speed > 1024)
-						{
-							speedStr = speed / 1024 + "KB/s";
-						}
-						mTask.setSpeed(speedStr);
-					}
+                    @Override
+                    public void onProgressChange(long fileSize, long downloadedSize, long speed) {
+                        String speedStr = speed + "B/s";
+                        if (speed > 1024 * 1024) {
+                            speedStr = speed / 1024 / 1024 + "MB/s";
+                        } else if (speed > 1024) {
+                            speedStr = speed / 1024 + "KB/s";
+                        }
+                        mTask.setSpeed(speedStr);
+                    }
 
-					@Override
-					public void onCancel()
-					{
-						System.out.println("cancel");
-					}
+                    @Override
+                    public void onCancel() {
+                        System.out.println("cancel");
+                    }
 
-					@Override
-					public void onError(DownloadError error)
-					{
-						error.printStackTrace();
-						mTask.invalidateTask();
-					}
+                    @Override
+                    public void onError(DownloadError error) {
+                        error.printStackTrace();
+                        mTask.invalidateTask();
+                    }
 
-					@Override
-					public void onSuccess()
-					{
-						mTask.invalidateTask();
-						System.out.println("success");
-					}
+                    @Override
+                    public void onSuccess() {
+                        mTask.invalidateTask();
+                        System.out.println("success");
+                    }
 
-				}));
+                }));
 
-			}
+            }
 
-		}
-	}
+        }
+    }
 }

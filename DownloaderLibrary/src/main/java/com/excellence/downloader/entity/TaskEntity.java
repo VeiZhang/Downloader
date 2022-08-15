@@ -13,123 +13,128 @@ import java.io.File;
  * </pre>
  */
 
-public class TaskEntity
-{
-	public static final int STATUS_WAITING = 0;
-	public static final int STATUS_DOWNLOADING = 1;
-	public static final int STATUS_PAUSE = 2;
-	public static final int STATUS_SUCCESS = 3;
-	public static final int STATUS_ERROR = 4;
-	public static final int STATUS_DISCARD = 5;
+public class TaskEntity {
 
-	/**
-	 * 下载目标文件
-	 */
-	public File storeFile = null;
+    public static final int STATUS_WAITING = 0;
+    public static final int STATUS_DOWNLOADING = 1;
+    public static final int STATUS_PAUSE = 2;
+    public static final int STATUS_SUCCESS = 3;
+    public static final int STATUS_ERROR = 4;
+    public static final int STATUS_DISCARD = 5;
 
-	/**
-	 * 临时文件
-	 */
-	public File tempFile = null;
+    /**
+     * 下载目标文件
+     */
+    public File storeFile = null;
 
-	/**
-	 * 下载链接，同时也是下载标识
-	 */
-	public String url = null;
+    /**
+     * 临时文件
+     */
+    public File tempFile = null;
 
-	/**
-	 * 是否支持断点
-	 * {@code true}:支持<br>{@code false}:不支持
-	 */
-	public boolean isSupportBP = true;
+    /**
+     * 下载标识：默认用url + filePath替代
+     *
+     * 可以同时下载多个相同的url
+     */
+    public final String key;
 
-	/**
-	 * 下载线程数
-	 */
-	public int threadCount;
+    /**
+     * 下载链接
+     */
+    public String url = null;
 
-	/**
-	 * 文件大小
-	 */
-	public long fileSize;
+    /**
+     * 是否支持断点
+     * {@code true}:支持<br>{@code false}:不支持
+     */
+    public boolean isSupportBP = true;
 
-	/**
-	 * 下载长度
-	 */
-	public long downloadLen;
+    /**
+     * 下载线程数
+     */
+    public int threadCount;
 
-	/**
-	 * 下载速度:byte/s
-	 */
-	public long downloadSpeed;
+    /**
+     * 文件大小
+     */
+    public long fileSize;
 
-	/**
-	 * 状态码
-	 */
-	public int code;
+    /**
+     * 下载长度
+     */
+    public long downloadLen;
 
-	/**
-	 * 下载状态
-	 */
-	public int status = STATUS_WAITING;
+    /**
+     * 下载速度:byte/s
+     */
+    public long downloadSpeed;
 
-	/**
-	 * 下载取消标记
-	 */
-	public boolean isCancel = false;
+    /**
+     * 状态码
+     */
+    public int code;
 
-	/**
-	 * 检查头信息，判断是否服务器是否支持断点；当false时，某些视频流下载，有效期限制，因此false时只请求一次
-	 */
-	public boolean checkHeaderInfo = true;
+    /**
+     * 下载状态
+     */
+    public int status = STATUS_WAITING;
 
-	/**
-	 * 取消
-	 */
-	public void cancel()
-	{
-		isCancel = true;
-		status = STATUS_PAUSE;
-	}
+    /**
+     * 下载取消标记
+     */
+    public boolean isCancel = false;
 
-	public void discard()
-	{
-		isCancel = true;
-		status = STATUS_DISCARD;
-	}
+    /**
+     * 检查头信息，判断是否服务器是否支持断点；当false时，某些视频流下载，有效期限制，因此false时只请求一次
+     */
+    public boolean checkHeaderInfo = true;
 
-	/**
-	 * 继续
-	 */
-	public void deploy()
-	{
-		isCancel = false;
-		status = STATUS_DOWNLOADING;
-	}
+    /**
+     * 取消
+     */
+    public void cancel() {
+        isCancel = true;
+        status = STATUS_PAUSE;
+    }
 
-	/**
-	 * 是否正在下载
-	 * 
-	 * @return
-	 */
-	public boolean isDownloading()
-	{
-		return status == STATUS_DOWNLOADING;
-	}
+    public void discard() {
+        isCancel = true;
+        status = STATUS_DISCARD;
+    }
 
-	/**
-	 * 设置下载状态
-	 *
-	 * @param status 下载状态
-	 *               @see #STATUS_WAITING
-	 *               @see #STATUS_DOWNLOADING
-	 *               @see #STATUS_PAUSE
-	 *               @see #STATUS_SUCCESS
-	 *               @see #STATUS_DISCARD
-	 */
-	public void setStatus(@IntRange(from = STATUS_WAITING, to = STATUS_DISCARD) int status)
-	{
-		this.status = status;
-	}
+    /**
+     * 继续
+     */
+    public void deploy() {
+        isCancel = false;
+        status = STATUS_DOWNLOADING;
+    }
 
+    /**
+     * 是否正在下载
+     *
+     * @return
+     */
+    public boolean isDownloading() {
+        return status == STATUS_DOWNLOADING;
+    }
+
+    /**
+     * 设置下载状态
+     *
+     * @param status 下载状态
+     *               @see #STATUS_WAITING
+     *               @see #STATUS_DOWNLOADING
+     *               @see #STATUS_PAUSE
+     *               @see #STATUS_SUCCESS
+     *               @see #STATUS_DISCARD
+     */
+    public void setStatus(@IntRange(from = STATUS_WAITING, to = STATUS_DISCARD) int status) {
+        this.status = status;
+    }
+
+    public TaskEntity(String key) {
+        this.key = key;
+    }
 }
