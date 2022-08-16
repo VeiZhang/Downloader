@@ -10,7 +10,7 @@ import android.support.annotation.IntRange;
  *     desc   : 下载选项
  * </pre> 
  */
-class DownloadOptions
+public class DownloadOptions
 {
 	protected int mParallelTaskCount;
 	protected int mThreadCount;
