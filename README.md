@@ -177,6 +177,7 @@ compile project(':DownloaderLibrary')
 
 |         版本         |         描述         |
 | ------------------- | ------------------- |
+| [1.2.1][DownloadLibrary1.2.1] | 优化下载流程 **2022-8-16** |
 | [1.2.0][DownloadLibrary1.2.0] | 提升下载速度，增加设置项 **2018-7-4** |
 | [1.1.0][DownloadLibrary1.1.0] | 注解监听任务 **2017-9-13** |
 | [1.0.0][DownloadLibrary1.0.0] | 多任务单线程下载，临时下载文件长度保存断点记录  **2017-8-11** |
@@ -201,6 +202,7 @@ compile project(':DownloaderLibrary')
 
 <!-- 版本 -->
 
+[DownloadLibrary1.2.1]:https://bintray.com/veizhang/maven/downloader/1.2.1
 [DownloadLibrary1.2.0]:https://bintray.com/veizhang/maven/downloader/1.2.0
 [DownloadLibrary1.1.0]:https://bintray.com/veizhang/maven/downloader/1.1.0
 [DownloadLibrary1.0.0]:https://bintray.com/veizhang/maven/downloader/1.0.0
