@@ -1,15 +1,7 @@
 package com.excellence.downloader;
 
-import static com.excellence.downloader.utils.CommonUtil.checkNULL;
-import static com.excellence.downloader.utils.HttpUtil.convertUrl;
-import static com.excellence.downloader.utils.HttpUtil.formatRequestMsg;
-import static com.excellence.downloader.utils.HttpUtil.printHeader;
-import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_PARTIAL;
-
-import java.net.HttpURLConnection;
-import java.net.URL;
+import android.text.TextUtils;
+import android.util.Log;
 
 import com.excellence.downloader.entity.TaskEntity;
 import com.excellence.downloader.exception.DownloadError;
@@ -17,8 +9,16 @@ import com.excellence.downloader.exception.FileError;
 import com.excellence.downloader.exception.URLInvalidError;
 import com.excellence.downloader.utils.OnFileInfoCallback;
 
-import android.text.TextUtils;
-import android.util.Log;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+import static com.excellence.downloader.utils.CommonUtil.checkNULL;
+import static com.excellence.downloader.utils.HttpUtil.convertUrl;
+import static com.excellence.downloader.utils.HttpUtil.formatRequestMsg;
+import static com.excellence.downloader.utils.HttpUtil.printHeader;
+import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_PARTIAL;
 
 /**
  * <pre>
@@ -31,7 +31,7 @@ import android.util.Log;
 
 class HttpFileInfoTask extends HttpTask
 {
-	public static final String TAG = HttpFileInfoTask.class.getSimpleName();
+	private static final String TAG = HttpFileInfoTask.class.getSimpleName();
 
 	private TaskEntity mTaskEntity = null;
 	private OnFileInfoCallback mOnFileInfoCallback = null;

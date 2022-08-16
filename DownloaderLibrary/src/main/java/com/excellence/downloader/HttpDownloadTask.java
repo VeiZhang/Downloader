@@ -47,7 +47,7 @@ import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
 
 class HttpDownloadTask extends HttpTask implements IListener
 {
-	public static final String TAG = HttpDownloadTask.class.getSimpleName();
+	private static final String TAG = HttpDownloadTask.class.getSimpleName();
 
 	private static final int SO_TIME_OUT = 10 * 1000;
 	private static final int STREAM_LEN = 8 * 1024;

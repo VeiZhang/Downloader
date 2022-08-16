@@ -1,7 +1,6 @@
 package com.excellence.downloader;
 
 import android.Manifest;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -28,14 +27,15 @@ import static com.excellence.downloader.FileDownloader.generateDownloadKey;
  */
 
 public class Downloader {
-    public static final String TAG = Downloader.class.getSimpleName();
 
-    public static final int DEFAULT_TASK_COUNT = 2;
-    public static final int DEFAULT_THREAD_COUNT = 1;
+    private static final String TAG = Downloader.class.getSimpleName();
+
+    private static final int DEFAULT_TASK_COUNT = 2;
+    private static final int DEFAULT_THREAD_COUNT = 1;
 
     private static Downloader mInstance = null;
     private FileDownloader mFileDownloader = null;
-    private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
+    private DownloadScheduler mDownloadScheduler = null;
     private DownloadOptions mOptions = null;
 
     private Downloader() {
@@ -45,19 +45,17 @@ public class Downloader {
     /**
      * 初始化，默认下载选项：任务数:2，单线程下载
      *
-     * @param context
      */
-    public static void init(@NonNull Context context) {
-        init(context, new DownloadOptions.Builder().parallelTaskCount(DEFAULT_TASK_COUNT).threadCount(DEFAULT_THREAD_COUNT).build());
+    public static void init() {
+        init(new DownloadOptions.Builder().parallelTaskCount(DEFAULT_TASK_COUNT).threadCount(DEFAULT_THREAD_COUNT).build());
     }
 
     /**
      * 初始化，设置下载选项
      *
-     * @param context 上下文
      * @param options 下载选项设置
      */
-    public static void init(@NonNull Context context, @NonNull DownloadOptions options) {
+    public static void init(@NonNull DownloadOptions options) {
         if (mInstance != null) {
             Log.w(TAG, "Downloader initialized!!!");
             return;
@@ -65,7 +63,7 @@ public class Downloader {
 
         mInstance = new Downloader();
         mInstance.mOptions = options;
-        mInstance.mDownloadScheduler = new DownloadScheduler<>();
+        mInstance.mDownloadScheduler = DownloadScheduler.getInstance();
         mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler);
     }
 

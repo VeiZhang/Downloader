@@ -13,7 +13,7 @@ import android.util.Log;
 
 abstract class HttpTask implements Runnable
 {
-	public static final String TAG = HttpTask.class.getSimpleName();
+	private static final String TAG = HttpTask.class.getSimpleName();
 
 	protected static final int CONNECT_TIME_OUT = 30 * 1000;
 

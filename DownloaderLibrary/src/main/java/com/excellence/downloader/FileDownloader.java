@@ -33,15 +33,15 @@ import static com.excellence.downloader.utils.CommonUtil.deleteTmpFile;
  */
 
 public class FileDownloader {
-    public static final String TAG = FileDownloader.class.getSimpleName();
+    private static final String TAG = FileDownloader.class.getSimpleName();
 
     private Executor mResponsePoster = null;
     private final LinkedList<DownloadTask> mTaskQueue;
-    private DownloadScheduler<DownloadTask> mDownloadScheduler = null;
+    private DownloadScheduler mDownloadScheduler = null;
     private int mParallelTaskCount;
     private int mThreadCount;
 
-    protected FileDownloader(DownloadScheduler<DownloadTask> downloadScheduler) {
+    protected FileDownloader(DownloadScheduler downloadScheduler) {
         DownloadOptions options = Downloader.getOptions();
         mParallelTaskCount = options.mParallelTaskCount;
         mThreadCount = options.mThreadCount;

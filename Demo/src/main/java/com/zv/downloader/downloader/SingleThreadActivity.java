@@ -40,7 +40,7 @@ public class SingleThreadActivity extends DownloadActivity {
 
     @Override
     protected void initDownloader() {
-        Downloader.init(this);
+        Downloader.init();
         Downloader.register(this);
     }
 

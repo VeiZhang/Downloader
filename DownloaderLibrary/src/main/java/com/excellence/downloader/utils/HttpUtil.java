@@ -1,6 +1,9 @@
 package com.excellence.downloader.utils;
 
-import static com.excellence.downloader.utils.CommonUtil.hasDoubleCharacter;
+import android.text.TextUtils;
+import android.util.Log;
+
+import com.excellence.downloader.entity.TaskEntity;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,10 +20,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.InflaterInputStream;
 
-import com.excellence.downloader.entity.TaskEntity;
-
-import android.text.TextUtils;
-import android.util.Log;
+import static com.excellence.downloader.utils.CommonUtil.hasDoubleCharacter;
 
 /**
  * <pre>
@@ -33,7 +33,7 @@ import android.util.Log;
 
 public class HttpUtil
 {
-	public static final String TAG = HttpUtil.class.getSimpleName();
+	private static final String TAG = HttpUtil.class.getSimpleName();
 
 	/**
 	 * 转换链接中中文字符
