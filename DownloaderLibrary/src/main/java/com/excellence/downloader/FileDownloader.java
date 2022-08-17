@@ -301,7 +301,7 @@ public class FileDownloader {
          *
          * @param listener
          */
-        private void setListener(IListener listener) {
+        public void setListener(IListener listener) {
             mIListener = listener;
         }
 
