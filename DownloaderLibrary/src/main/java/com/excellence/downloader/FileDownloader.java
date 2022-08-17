@@ -72,7 +72,11 @@ public class FileDownloader {
      */
     public DownloadTask addTask(@Nullable String key, File storeFile, String url, boolean checkHeaderInfo,
                                 IListener listener) {
-        DownloadTask task = get(storeFile, url);
+        if (key == null || key.length() == 0) {
+            key = generateDownloadKey(storeFile, url);
+        }
+
+        DownloadTask task = get(key);
         if (task != null) {
             /**
              * 重新设置监听器
@@ -169,6 +173,7 @@ public class FileDownloader {
      *
      * @return
      */
+    @Nullable
     public DownloadTask get(String key) {
         if (checkNULL(key)) {
             return null;
@@ -188,6 +193,7 @@ public class FileDownloader {
      * @param url 下载链接
      * @return
      */
+    @Nullable
     public DownloadTask get(String filePath, String url) {
         return get(generateDownloadKey(new File(filePath), url));
     }
@@ -199,6 +205,7 @@ public class FileDownloader {
      * @param url 下载链接
      * @return
      */
+    @Nullable
     public DownloadTask get(@NonNull File file, String url) {
         return get(generateDownloadKey(file, url));
     }

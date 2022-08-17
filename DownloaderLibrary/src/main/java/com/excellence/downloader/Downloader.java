@@ -2,6 +2,7 @@ package com.excellence.downloader;
 
 import android.Manifest;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.excellence.downloader.FileDownloader.DownloadTask;
@@ -176,6 +177,7 @@ public class Downloader {
      * @param url 下载链接
      * @return
      */
+    @Nullable
     public static DownloadTask get(File storeFile, String url) {
         checkDownloader();
         return mInstance.mFileDownloader.get(storeFile, url);
@@ -188,9 +190,22 @@ public class Downloader {
      * @param url 下载链接
      * @return
      */
+    @Nullable
     public static DownloadTask get(String filePath, String url) {
         checkDownloader();
         return mInstance.mFileDownloader.get(filePath, url);
+    }
+
+    /**
+     * 获取下载任务
+     *
+     * @param key 任务标识id
+     * @return
+     */
+    @Nullable
+    public static DownloadTask get(String key) {
+        checkDownloader();
+        return mInstance.mFileDownloader.get(key);
     }
 
     /**
