@@ -258,7 +258,7 @@ public class Downloader {
         private String key;
         private File storeFile;
         private String url;
-        private boolean checkHeaderInfo;
+        private boolean checkHeaderInfo = true;
         private IListener listener;
 
         private Task(Builder builder) {
@@ -274,24 +274,41 @@ public class Downloader {
             private String key;
             private File storeFile;
             private String url;
-            private boolean checkHeaderInfo;
+            private boolean checkHeaderInfo = true;
             private IListener listener;
 
+            /**
+             * @param storeFile 存入路径
+             * @param url 下载链接
+             */
             public Builder(File storeFile, String url) {
                 this.storeFile = storeFile;
                 this.url = url;
             }
 
+            /**
+             * @param key 任务ID
+             * @return
+             */
             public Builder key(String key) {
                 this.key = key;
                 return this;
             }
 
+            /**
+             * @param checkHeaderInfo 检查头信息，是否断点续传，默认true
+             *                        检查头信息，判断是否服务器是否支持断点；当false时，某些视频流下载，有效期限制，因此false时只请求一次
+             * @return
+             */
             public Builder checkHeaderInfo(boolean checkHeaderInfo) {
                 this.checkHeaderInfo = checkHeaderInfo;
                 return this;
             }
 
+            /**
+             * @param listener 下载监听
+             * @return
+             */
             public Builder listener(IListener listener) {
                 this.listener = listener;
                 return this;
