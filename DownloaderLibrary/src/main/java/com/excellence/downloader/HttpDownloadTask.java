@@ -44,6 +44,7 @@ import static com.excellence.downloader.utils.HttpUtil.setConnectParam;
  *     desc   : 下载开始
  * </pre>
  */
+
 class HttpDownloadTask extends HttpTask implements IListener {
 
     private static final String TAG = HttpDownloadTask.class.getSimpleName();
@@ -73,14 +74,15 @@ class HttpDownloadTask extends HttpTask implements IListener {
         HttpURLConnection conn = null;
         try {
             checkTask();
-            Log.e(TAG, "Start Download");
+            Log.i(TAG, "Start Download");
             URL httpURL = new URL(convertUrl(mTaskEntity.url));
             conn = (HttpURLConnection) httpURL.openConnection();
             conn.setConnectTimeout(CONNECT_TIME_OUT);
             conn.setReadTimeout(SO_TIME_OUT);
 
             if (mTaskEntity.fileSize > 0) {
-                conn.setRequestProperty("Range", "bytes=" + mTaskEntity.downloadLen + "-" + (mTaskEntity.fileSize - 1));
+                long range = mTaskEntity.downloadLen;
+                conn.setRequestProperty("Range", String.format("bytes=%s-%s", range, mTaskEntity.fileSize - 1));
             }
 
             setConnectParam(conn, mTaskEntity.url);
@@ -110,7 +112,9 @@ class HttpDownloadTask extends HttpTask implements IListener {
             }
 
             if (mTaskEntity.checkHeaderInfo) {
-                if (mTempFile.length() == mTaskEntity.fileSize || mTempFile.length() + 1 == mTaskEntity.fileSize) {
+                Log.d(TAG, "stream finish : " + mTempFile.length() + ", " + mTaskEntity.fileSize);
+                if (mTempFile.length() == mTaskEntity.fileSize
+                        || mTempFile.length() + 1 == mTaskEntity.fileSize) {
                     if (!mTempFile.canRead()) {
                         throw new FileError("Download temp file is invalid");
                     }
@@ -129,6 +133,7 @@ class HttpDownloadTask extends HttpTask implements IListener {
                 onError(new DownloadError(e));
                 return true;
             } else {
+                Log.w(TAG, "buildRequest error : ", e);
                 return false;
             }
         } finally {
@@ -140,12 +145,20 @@ class HttpDownloadTask extends HttpTask implements IListener {
     }
 
     private void handleHeader(HttpURLConnection conn) {
+        if (mTaskEntity.checkHeaderInfo) {
+            return;
+        }
+
         long len = conn.getContentLength();
         if (len < 0) {
             String temp = conn.getHeaderField("Content-Length");
             len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
         }
+
         mTaskEntity.fileSize = len;
+        /**
+         * 断点读取时，检查头的时候就读取了长度，断点下载时再次读取，有可能不能读取全部的长度
+         */
         onPreExecute(mTaskEntity.fileSize);
     }
 

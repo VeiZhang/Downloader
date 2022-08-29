@@ -45,7 +45,7 @@ class HttpFileInfoTask extends HttpTask {
     protected boolean buildRequest() {
         HttpURLConnection conn = null;
         try {
-            Log.e(TAG, "Request file info");
+            Log.i(TAG, "Request file info");
             if (checkNULL(mTaskEntity.url)) {
                 throw new URLInvalidError("URL is invalid");
             }
@@ -58,7 +58,7 @@ class HttpFileInfoTask extends HttpTask {
              * 判断服务器是否支持断点，{@code 206}:支持<br>{@code 200}:不支持
              * @see #handleHeader(HttpURLConnection)
              **/
-            conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+            conn.setRequestProperty("Range", String.format("bytes=%s-", 0));
             setConnectParam(conn, mTaskEntity.url);
             conn.connect();
 
@@ -99,7 +99,7 @@ class HttpFileInfoTask extends HttpTask {
         int code = conn.getResponseCode();
         mTaskEntity.fileSize = len;
         mTaskEntity.code = code;
-        Log.e(TAG, formatRequestMsg(mTaskEntity));
+        Log.i(TAG, formatRequestMsg(mTaskEntity));
         switch (code) {
             case HTTP_OK:
                 mTaskEntity.isSupportBP = false;
