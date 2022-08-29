@@ -29,106 +29,89 @@ import static java.net.HttpURLConnection.HTTP_PARTIAL;
  * </pre>
  */
 
-class HttpFileInfoTask extends HttpTask
-{
-	private static final String TAG = HttpFileInfoTask.class.getSimpleName();
+class HttpFileInfoTask extends HttpTask {
 
-	private TaskEntity mTaskEntity = null;
-	private OnFileInfoCallback mOnFileInfoCallback = null;
+    private static final String TAG = HttpFileInfoTask.class.getSimpleName();
 
-	protected HttpFileInfoTask(TaskEntity taskEntity, OnFileInfoCallback callback)
-	{
-		mTaskEntity = taskEntity;
-		mOnFileInfoCallback = callback;
-	}
+    private TaskEntity mTaskEntity = null;
+    private OnFileInfoCallback mOnFileInfoCallback = null;
 
-	@Override
-	protected boolean buildRequest()
-	{
-		HttpURLConnection conn = null;
-		try
-		{
-			Log.e(TAG, "Request file info");
-			if (checkNULL(mTaskEntity.url))
-			{
-				throw new URLInvalidError("URL is invalid");
-			}
+    protected HttpFileInfoTask(TaskEntity taskEntity, OnFileInfoCallback callback) {
+        mTaskEntity = taskEntity;
+        mOnFileInfoCallback = callback;
+    }
 
-			URL httpURL = new URL(convertUrl(mTaskEntity.url));
-			conn = (HttpURLConnection) httpURL.openConnection();
-			conn.setConnectTimeout(CONNECT_TIME_OUT);
+    @Override
+    protected boolean buildRequest() {
+        HttpURLConnection conn = null;
+        try {
+            Log.e(TAG, "Request file info");
+            if (checkNULL(mTaskEntity.url)) {
+                throw new URLInvalidError("URL is invalid");
+            }
 
-			/**
-			 * 判断服务器是否支持断点，{@code 206}:支持<br>{@code 200}:不支持
-			 * @see #handleHeader(HttpURLConnection)
-			 **/
-			conn.setRequestProperty("Range", "bytes=" + 0 + "-");
-			setConnectParam(conn, mTaskEntity.url);
-			conn.connect();
+            URL httpURL = new URL(convertUrl(mTaskEntity.url));
+            conn = (HttpURLConnection) httpURL.openConnection();
+            conn.setConnectTimeout(CONNECT_TIME_OUT);
 
-			if (mTaskEntity.isCancel)
-			{
-				mOnFileInfoCallback.onCancel();
-				return true;
-			}
+            /**
+             * 判断服务器是否支持断点，{@code 206}:支持<br>{@code 200}:不支持
+             * @see #handleHeader(HttpURLConnection)
+             **/
+            conn.setRequestProperty("Range", "bytes=" + 0 + "-");
+            setConnectParam(conn, mTaskEntity.url);
+            conn.connect();
 
-			printHeader(conn);
-			handleHeader(conn);
-			mOnFileInfoCallback.onComplete();
-		}
-		catch (Exception e)
-		{
-			if (retry())
-			{
-				mOnFileInfoCallback.onError(new DownloadError(e));
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-		finally
-		{
-			if (conn != null)
-			{
-				conn.disconnect();
-			}
-		}
-		return true;
-	}
+            if (mTaskEntity.isCancel) {
+                mOnFileInfoCallback.onCancel();
+                return true;
+            }
 
-	private void handleHeader(HttpURLConnection conn) throws Exception
-	{
-		long len = conn.getContentLength();
-		if (len < 0)
-		{
-			String temp = conn.getHeaderField("Content-Length");
-			len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
-		}
+            printHeader(conn);
+            handleHeader(conn);
+            mOnFileInfoCallback.onComplete();
+        } catch (Exception e) {
+            if (retry()) {
+                mOnFileInfoCallback.onError(new DownloadError(e));
+                return true;
+            } else {
+                return false;
+            }
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return true;
+    }
 
-		if (len < 0)
-		{
-			throw new FileError(formatRequestMsg(mTaskEntity, "File length is error"));
-		}
+    private void handleHeader(HttpURLConnection conn) throws Exception {
+        long len = conn.getContentLength();
+        if (len < 0) {
+            String temp = conn.getHeaderField("Content-Length");
+            len = TextUtils.isEmpty(temp) ? -1 : Long.parseLong(temp);
+        }
 
-		int code = conn.getResponseCode();
-		mTaskEntity.fileSize = len;
-		mTaskEntity.code = code;
-		Log.e(TAG, formatRequestMsg(mTaskEntity));
-		switch (code)
-		{
-		case HTTP_OK:
-			mTaskEntity.isSupportBP = false;
-			break;
+        if (len < 0) {
+            throw new FileError(formatRequestMsg(mTaskEntity, "File length is error"));
+        }
 
-		case HTTP_PARTIAL:
-			mTaskEntity.isSupportBP = true;
-			break;
+        int code = conn.getResponseCode();
+        mTaskEntity.fileSize = len;
+        mTaskEntity.code = code;
+        Log.e(TAG, formatRequestMsg(mTaskEntity));
+        switch (code) {
+            case HTTP_OK:
+                mTaskEntity.isSupportBP = false;
+                break;
 
-		default:
-			throw new FileError(formatRequestMsg(mTaskEntity));
-		}
-	}
+            case HTTP_PARTIAL:
+                mTaskEntity.isSupportBP = true;
+                break;
+
+            default:
+                throw new FileError(formatRequestMsg(mTaskEntity));
+        }
+    }
 
 }
