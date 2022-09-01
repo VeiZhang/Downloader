@@ -31,8 +31,8 @@ import static com.excellence.downloader.utils.CommonUtil.deleteTmpFile;
  *     desc   : 下载管理
  * </pre>
  */
-
 public class FileDownloader {
+
     private static final String TAG = FileDownloader.class.getSimpleName();
 
     private Executor mResponsePoster = null;
@@ -164,7 +164,7 @@ public class FileDownloader {
      */
     public synchronized void clearAll() {
         while (!mTaskQueue.isEmpty()) {
-            mTaskQueue.get(0).cancel();
+            mTaskQueue.get(0).deleteTask();
         }
     }
 
@@ -329,19 +329,29 @@ public class FileDownloader {
             return mTaskEntity.isDownloading();
         }
 
-        private void cancel() {
+        /**
+         * 内部接口取消任务
+         */
+        private void deleteTask() {
             mTaskEntity.discard();
             mRequest.cancel();
             mTaskQueue.remove(this);
         }
 
         /**
-         * 完全删除任务
+         * 外部接口取消任务，继续下一个任务
          */
-        public void discard() {
+        public void cancel() {
             mTaskEntity.discard();
             mRequest.cancel();
             remove(this);
+        }
+
+        /**
+         * 完全删除任务
+         */
+        public void discard() {
+            cancel();
             deleteTmpFile(mTaskEntity.storeFile);
         }
 
