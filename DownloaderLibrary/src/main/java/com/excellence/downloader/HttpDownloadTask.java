@@ -59,6 +59,7 @@ class HttpDownloadTask extends HttpTask implements IListener {
     private ScheduledExecutorService mSpeedTimer = null;
     private long mStartLen = 0;
     private boolean isOpenDynamicFile = true;
+    private long mLastSendProgressTime = 0;
 
     protected HttpDownloadTask(Executor responsePoster, TaskEntity taskEntity, IListener listener) {
         mResponsePoster = responsePoster;
@@ -181,7 +182,7 @@ class HttpDownloadTask extends HttpTask implements IListener {
             buffer.compact();
 
             mTaskEntity.downloadLen += read;
-            onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
+            onIntervalProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
 
             if (mTaskEntity.isCancel) {
                 onCancel();
@@ -208,7 +209,7 @@ class HttpDownloadTask extends HttpTask implements IListener {
         while ((read = inputStream.read(buffer)) != -1) {
             randomAccessFile.write(buffer, 0, read);
             mTaskEntity.downloadLen += read;
-            onProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
+            onIntervalProgressChange(mTaskEntity.fileSize, mTaskEntity.downloadLen);
 
             if (mTaskEntity.isCancel) {
                 onCancel();
@@ -293,6 +294,15 @@ class HttpDownloadTask extends HttpTask implements IListener {
                 }
             }
         });
+    }
+
+    private void onIntervalProgressChange(final long fileSize, final long downloadedSize) {
+        long updateInterval = Downloader.getOptions().mUpdateInterval;
+        if (updateInterval == 0
+                || System.currentTimeMillis() - mLastSendProgressTime >= updateInterval) {
+            mLastSendProgressTime = System.currentTimeMillis();
+            onProgressChange(fileSize, downloadedSize);
+        }
     }
 
     @Override

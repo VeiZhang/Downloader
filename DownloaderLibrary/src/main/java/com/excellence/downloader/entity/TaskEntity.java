@@ -51,11 +51,6 @@ public class TaskEntity {
     public boolean isSupportBP = true;
 
     /**
-     * 下载线程数
-     */
-    public int threadCount;
-
-    /**
      * 文件大小
      */
     public long fileSize;

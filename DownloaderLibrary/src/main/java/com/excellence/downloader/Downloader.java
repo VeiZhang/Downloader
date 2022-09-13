@@ -36,7 +36,6 @@ public class Downloader {
 
     private static Downloader mInstance = null;
     private FileDownloader mFileDownloader = null;
-    private DownloadScheduler mDownloadScheduler = null;
     private DownloadOptions mOptions = null;
 
     private Downloader() {
@@ -64,8 +63,7 @@ public class Downloader {
 
         mInstance = new Downloader();
         mInstance.mOptions = options;
-        mInstance.mDownloadScheduler = DownloadScheduler.getInstance();
-        mInstance.mFileDownloader = new FileDownloader(mInstance.mDownloadScheduler);
+        mInstance.mFileDownloader = new FileDownloader();
     }
 
     protected static DownloadOptions getOptions() {
@@ -240,7 +238,7 @@ public class Downloader {
      */
     public static void register(Object obj) {
         checkDownloader();
-        mInstance.mDownloadScheduler.register(obj);
+        DownloadScheduler.getInstance().register(obj);
     }
 
     /**
@@ -250,7 +248,7 @@ public class Downloader {
      */
     public static void unregister(Object obj) {
         checkDownloader();
-        mInstance.mDownloadScheduler.unregister(obj);
+        DownloadScheduler.getInstance().unregister(obj);
     }
 
     public static class Task {

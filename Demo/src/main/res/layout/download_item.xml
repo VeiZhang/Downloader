@@ -1,39 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/task_textview"
         android:layout_width="@dimen/text_width"
         android:layout_height="wrap_content"
-        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
-        android:gravity="center"/>
+        android:gravity="center" />
 
     <ProgressBar
         android:id="@+id/task_progressbar"
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toEndOf="@+id/task_textview"
-        android:layout_toStartOf="@+id/start_btn"/>
+        android:layout_toLeftOf="@+id/start_btn"
+        android:layout_toRightOf="@+id/task_textview" />
 
     <Button
         android:id="@+id/start_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:layout_toStartOf="@+id/delete_btn"
-        android:text="@string/state_start"/>
+        android:layout_toLeftOf="@+id/delete_btn"
+        android:text="@string/state_start" />
 
     <Button
         android:id="@+id/delete_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
-        android:text="@string/state_delete"/>
+        android:text="@string/state_delete" />
 
 </RelativeLayout>

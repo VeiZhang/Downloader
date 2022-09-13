@@ -39,18 +39,18 @@ public class FileDownloader {
     private final LinkedList<DownloadTask> mTaskQueue;
     private DownloadScheduler mDownloadScheduler = null;
     private int mParallelTaskCount;
-    private int mThreadCount;
 
-    protected FileDownloader(DownloadScheduler downloadScheduler) {
+    protected FileDownloader() {
+        mDownloadScheduler = DownloadScheduler.getInstance();
+
         DownloadOptions options = Downloader.getOptions();
         mParallelTaskCount = options.mParallelTaskCount;
-        mThreadCount = options.mThreadCount;
+
         if (mParallelTaskCount >= Runtime.getRuntime().availableProcessors()) {
             Log.w(TAG, "ParallelTaskCount is beyond!!!");
             mParallelTaskCount = Runtime.getRuntime().availableProcessors() == 1 ? 1 : Runtime.getRuntime().availableProcessors() - 1;
         }
 
-        mDownloadScheduler = downloadScheduler;
         final Handler handler = new Handler(Looper.getMainLooper());
         mResponsePoster = new Executor() {
             @Override
@@ -236,7 +236,6 @@ public class FileDownloader {
             TaskEntity taskEntity = new TaskEntity(key);
             taskEntity.storeFile = storeFile;
             taskEntity.url = url;
-            taskEntity.threadCount = mThreadCount;
             taskEntity.checkHeaderInfo = checkHeaderInfo;
 
             mTaskEntity = taskEntity;

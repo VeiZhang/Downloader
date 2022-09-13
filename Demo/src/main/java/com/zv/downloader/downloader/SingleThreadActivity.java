@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 import com.excellence.annotations.Download;
 import com.excellence.basetoolslibrary.baseadapter.CommonAdapter;
 import com.excellence.basetoolslibrary.baseadapter.ViewHolder;
+import com.excellence.downloader.DownloadOptions;
 import com.excellence.downloader.Downloader;
 import com.excellence.downloader.FileDownloader.DownloadTask;
 import com.excellence.downloader.exception.DownloadError;
@@ -40,7 +41,7 @@ public class SingleThreadActivity extends DownloadActivity {
 
     @Override
     protected void initDownloader() {
-        Downloader.init();
+        Downloader.init(new DownloadOptions.Builder().parallelTaskCount(1).updateInterval(0).build());
         Downloader.register(this);
     }
 
