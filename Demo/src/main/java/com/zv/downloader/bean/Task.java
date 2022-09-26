@@ -126,8 +126,7 @@ public class Task
 			switch (mDownloadTask.getStatus())
 			{
 			case STATUS_DOWNLOADING:
-				mProgressBar.setProgress((int) mDownloadLength);
-				mProgressBar.setMax((int) mFileSize);
+				setProgress(mProgressBar, mFileSize, mDownloadLength);
 				// mStartBtn.setText(R.string.state_pause);
 				break;
 
