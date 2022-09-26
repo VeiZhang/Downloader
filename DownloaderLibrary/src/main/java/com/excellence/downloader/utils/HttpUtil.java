@@ -35,6 +35,8 @@ public class HttpUtil
 {
 	private static final String TAG = HttpUtil.class.getSimpleName();
 
+	private static final int STREAM_LEN = 8 * 1024;
+
 	/**
 	 * 转换链接中中文字符
 	 *
@@ -132,6 +134,11 @@ public class HttpUtil
 		// 检查浏览页面的访问者在用什么操作系统（包括版本号）浏览器（包括版本号）和用户个人偏好
 		conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36");
 		conn.setRequestProperty("Connection", "Keep-Alive");
+
+		/**
+		 * 内部缓冲区，防止超大文件导致OOM
+		 */
+		conn.setChunkedStreamingMode(STREAM_LEN);
 	}
 
 	/**
