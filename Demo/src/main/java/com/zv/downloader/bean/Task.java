@@ -1,16 +1,16 @@
 package com.zv.downloader.bean;
 
+import android.widget.Button;
+import android.widget.ProgressBar;
+
+import com.excellence.downloader.FileDownloader.DownloadTask;
+import com.zv.downloader.R;
+
 import static com.excellence.downloader.entity.TaskEntity.STATUS_DISCARD;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_DOWNLOADING;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_ERROR;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_PAUSE;
 import static com.excellence.downloader.entity.TaskEntity.STATUS_SUCCESS;
-
-import com.excellence.downloader.FileDownloader.DownloadTask;
-import com.zv.downloader.R;
-
-import android.widget.Button;
-import android.widget.ProgressBar;
 
 /**
  * <pre>
@@ -157,6 +157,13 @@ public class Task
 			mProgressBar.setProgress(0);
 			mStartBtn.setText(R.string.state_start);
 		}
+	}
+
+	public static void setProgress(ProgressBar progressBar, long max, long progress) {
+		max = Math.max(max, 1);
+		progress = progress > max ? 0 : progress;
+//		progressBar.setMax(100);
+		progressBar.setProgress((int) Math.floor((float) progress / max * 100));
 	}
 
 	public void setSpeed(String speed)
