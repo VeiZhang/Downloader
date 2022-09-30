@@ -136,9 +136,10 @@ public class HttpUtil
 		conn.setRequestProperty("Connection", "Keep-Alive");
 
 		/**
-		 * 内部缓冲区，防止超大文件导致OOM
+		 * 大文件上传的时候使用：内部缓冲区，防止超大文件导致OOM
+		 * 如果下载大文件卡顿，需要查看是否其他问题：设备问题还是内存问题导致的
 		 */
-		conn.setChunkedStreamingMode(STREAM_LEN);
+//		conn.setChunkedStreamingMode(STREAM_LEN);
 	}
 
 	/**
